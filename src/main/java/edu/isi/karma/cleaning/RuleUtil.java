@@ -23,14 +23,11 @@ package edu.isi.karma.cleaning;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.Vector;
 
 import org.antlr.runtime.ANTLRStringStream;
@@ -361,7 +358,7 @@ public class RuleUtil {
     public static Vector<EditOper> preEditOpers = new Vector<EditOper>();
 
     public static Vector<String> genRule(Vector<String[]> examples) {
-	Vector<String> rules = new Vector<String>();
+	new Vector<String>();
 	try {
 	    Vector<Vector<TNode>> org = new Vector<Vector<TNode>>();
 	    Vector<Vector<TNode>> tar = new Vector<Vector<TNode>>();
@@ -444,10 +441,8 @@ public class RuleUtil {
 									    // sequence
 	    Vector<Vector<EditOper>> tx = new Vector<Vector<EditOper>>();
 	    for (int j = 0; j < ops.size(); j++) {
-		String sign = "";
 		Vector<TNode> cur = x;
 		for (EditOper xeo : ops.get(j)) {
-		    sign += xeo.oper;
 		    xeo.before = cur;
 		    Ruler r = new Ruler();
 		    r.setNewInput((Vector<TNode>) cur.clone());

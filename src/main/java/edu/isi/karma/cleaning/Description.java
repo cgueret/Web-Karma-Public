@@ -109,7 +109,6 @@ public class Description {
 
     public void writeJSONString() throws Exception {
 
-	String rep = "";
 	if (this.desc.size() != this.sequences.size()) {
 	    CleaningLogger.write("description toString error");
 	    return;

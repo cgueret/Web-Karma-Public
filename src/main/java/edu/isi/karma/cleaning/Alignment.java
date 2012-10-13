@@ -156,7 +156,7 @@ public class Alignment {
 	Vector<Vector<int[]>> mapping = map(a, b);
 	Vector<Vector<EditOper>> paths = new Vector<Vector<EditOper>>();
 	for (int i = 0; i < mapping.size(); i++) {
-	    Vector<EditOper> ev = new Vector<EditOper>();
+	    new Vector<EditOper>();
 	    Vector<int[]> tmapping = mapping.get(i);
 	    Vector<Integer> positions = new Vector<Integer>();
 	    // record the original order
@@ -167,8 +167,6 @@ public class Alignment {
 	    for (int n = 0; n < a.size(); n++) //
 	    {
 		positions.add(n);
-		// check if n is in the mapping array
-		boolean isfind = false;
 		for (int m = 0; m < tmapping.size(); m++) {
 		    if (tmapping.get(m)[0] == n) {
 			mks.set(tmapping.get(m)[1], n);
@@ -264,7 +262,6 @@ public class Alignment {
 	boolean localcontrary = false;
 	for (int i = 0; i < segments.size(); i++) {
 	    localcontrary = false;
-	    int minNum = Integer.MAX_VALUE;
 	    EditOper eox = new EditOper();
 	    Vector<Integer> positonx = new Vector<Integer>();
 	    // move to the back
@@ -526,7 +523,7 @@ public class Alignment {
 	}
 	// generate blank space mapping
 	for (int i = 0; i < a.size(); i++) {
-	    Vector<int[]> tmp = new Vector<int[]>();
+	    new Vector<int[]>();
 	    for (int j = 0; j < b.size(); j++) {
 		// check whether two whitespaces are counterpart
 		if (a.get(i).sameNode(b.get(j))
@@ -603,7 +600,7 @@ public class Alignment {
     // just give weak supervision, the later component would adjust it self to
     // learn the right rule
     public static Vector<EditOper> alignment1(Vector<TNode> a, Vector<TNode> b) {
-	HashMap<Integer, Integer> res = new HashMap<Integer, Integer>();
+	new HashMap<Integer, Integer>();
 	int matrix[][] = new int[a.size() + 1][b.size() + 1];// the first row
 							     // and column is
 							     // kept for empty

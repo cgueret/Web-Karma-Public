@@ -57,7 +57,6 @@ public class GrammarParseTree {
     private HashMap<String, ArrayList<ArrayList<String>>> nonterminals;
     public Alignment align;
     private String GrammarType = "";
-    private static int cnt1 = 0, cnt2 = 0, cnt3 = 0;
     private Vector<Tuple> ba = new Vector<Tuple>();
     private Vector<HashSet<String>> diagDesc = new Vector<HashSet<String>>();
 
@@ -241,8 +240,7 @@ public class GrammarParseTree {
 	    RuleInterpreterLexer lexer = new RuleInterpreterLexer(cs);
 	    CommonTokenStream tokens = new CommonTokenStream(lexer);
 	    RuleInterpreterParser parser = new RuleInterpreterParser(tokens);
-	    CommonTreeNodeStream nodes = new CommonTreeNodeStream(
-		    (CommonTree) parser.rule().getTree());
+	    new CommonTreeNodeStream((CommonTree) parser.rule().getTree());
 	} catch (Exception ex) {
 	    System.out.println("" + ex.toString());
 	}
@@ -281,11 +279,8 @@ public class GrammarParseTree {
 		    // xindex = r.nextInt(sleng);
 		    // System.out.print(xindex);
 		    if (xindex == 0) {
-			cnt1++;
 		    } else if (xindex == 1) {
-			cnt2++;
 		    } else {
-			cnt3++;
 		    }
 		    // System.out.println("count number>>>"+sleng+"="+cnt1+":"+cnt2+":"+cnt3);
 		    // System.out.println("<<>>"+subtemples.get(name)+"<<>>");
@@ -527,7 +522,7 @@ public class GrammarParseTree {
     }
 
     public static void main(String[] args) {
-	GrammarParseTree gptree = new GrammarParseTree(null);
+	new GrammarParseTree(null);
 	String fp = "/Users/bowu/Research/dataclean/data/RuleData/FullChange.csv";
 	try {
 	    CSVReader cr = new CSVReader(new FileReader(new File(fp)), '\t');
@@ -540,13 +535,7 @@ public class GrammarParseTree {
 		String s2 = x[1];
 		r2.setNewInput(s2);
 		System.out.println(s1 + " ===== " + s2);
-		// System.out.println(Alignment.alignment1(r1.vec,
-		// r2.vec).toString());
-		Vector<Vector<EditOper>> res = Alignment.genEditOperation(
-			r1.vec, r2.vec);
-		// prepare description for sub tree
-		Vector<TNode> p = r1.vec;
-		Vector<TNode> q = r2.vec;
+		Alignment.genEditOperation(r1.vec, r2.vec);
 	    }
 	} catch (Exception ex) {
 	    System.out.println("" + ex.toString());

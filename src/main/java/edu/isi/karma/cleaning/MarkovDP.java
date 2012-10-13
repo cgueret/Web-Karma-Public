@@ -40,7 +40,6 @@ public class MarkovDP {
     public Vector<GrammarParseTree> spaces = new Vector<GrammarParseTree>();
     public Vector<Vector<TNode>> sToks = new Vector<Vector<TNode>>();
     public Vector<Vector<TNode>> eToks = new Vector<Vector<TNode>>();
-    private static int rulecnt = 0;
     // private static HashSet<String> tmprules = new HashSet<String>();
     // state and its sequence of values.
     private HashMap<MDPState, MDPState> hisStates = new HashMap<MDPState, MDPState>();

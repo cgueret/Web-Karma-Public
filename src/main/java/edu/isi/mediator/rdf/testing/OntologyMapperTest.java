@@ -23,7 +23,6 @@ package edu.isi.mediator.rdf.testing;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.Connection;
@@ -96,18 +95,18 @@ public class OntologyMapperTest {
     }
 
     static private void processConfigFile() throws MediatorException {
-	// SETTINGS
-	BufferedReader buff = null;
-	File f = null;
-	try {
-	    f = new File("./rdfsettings.config");
-	    buff = new BufferedReader(new FileReader(f));
-	} catch (FileNotFoundException e) {
+	// Check for the settings file
+	File f = new File("./rdfsettings.config");
+	if (!f.isFile() || (f.isFile() && !f.canRead())) {
 	    logger.fatal("Settings file was not found: " + f.toString() + "!");
 	    return;
 	}
 
+	// SETTINGS
+	BufferedReader buff = null;
 	try {
+	    buff = new BufferedReader(new FileReader(f));
+
 	    String line = null;
 	    while ((line = buff.readLine()) != null) {
 		// System.out.println("line="+line);
@@ -136,6 +135,12 @@ public class OntologyMapperTest {
 	    }
 	} catch (IOException e2) {
 	    logger.fatal("Exception occured:" + e2);
+	} finally {
+	    try {
+		if (buff != null)
+		    buff.close();
+	    } catch (IOException e) {
+	    }
 	}
 
 	if (connectStr == null || dbDriver == null || modelName == null) {

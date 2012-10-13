@@ -92,7 +92,6 @@ public class Ruler {
     }
 
     public Vector<TNode> parsewhat(String input) {
-	String sep1 = "||";
 	String sep2 = " ";
 	StringTokenizer st1 = new StringTokenizer(input, sep2);
 	Vector<TNode> vecx = new Vector<TNode>();

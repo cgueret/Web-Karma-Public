@@ -107,8 +107,7 @@ public class GenerateCleaningRulesCommand extends WorksheetCommand {
     }
 
     private static Vector<String> getTopK(Set<String> res, int k) {
-	String trainPath = "./grammar/features.arff";
-	Vector<String> vs = new Vector<String>();
+	new Vector<String>();
 	//
 	String[] x = (String[]) res.toArray(new String[res.size()]);
 	/*
@@ -164,7 +163,6 @@ public class GenerateCleaningRulesCommand extends WorksheetCommand {
 	Iterator<String> iter = rtf.getTransformations().keySet().iterator();
 	Vector<ValueCollection> vvc = new Vector<ValueCollection>();
 	HashMap<String, Vector<String>> js2tps = new HashMap<String, Vector<String>>();
-	int index = 0;
 	while (iter.hasNext()) {
 	    String tpid = iter.next();
 	    ValueCollection rvco = rtf.getTransformedValues(tpid);
@@ -232,7 +230,6 @@ public class GenerateCleaningRulesCommand extends WorksheetCommand {
 		    Iterator<String> iter = rtf.getTransformations().keySet()
 			    .iterator();
 		    Vector<ValueCollection> vvc = new Vector<ValueCollection>();
-		    int index = 0;
 		    while (iter.hasNext()) {
 			String tpid = iter.next();
 			ValueCollection rvco = rtf.getTransformedValues(tpid);

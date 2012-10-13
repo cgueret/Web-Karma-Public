@@ -68,7 +68,7 @@ public class AddNewColumnCommand extends WorksheetCommand {
 
     @Override
     public UpdateContainer doIt(VWorkspace vWorkspace) throws CommandException {
-	Worksheet wk = vWorkspace.getRepFactory().getWorksheet(worksheetId);
+	vWorkspace.getRepFactory().getWorksheet(worksheetId);
 	UpdateContainer c = new UpdateContainer();
 	Worksheet worksheet = vWorkspace.getWorkspace().getWorksheet(
 		worksheetId);

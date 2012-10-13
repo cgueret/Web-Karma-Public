@@ -41,8 +41,6 @@ import edu.isi.karma.cleaning.changed_grammar.RuleInterpreterTree;
 // generator all possible rules from the grammar
 public class RuleGenerator {
 
-    private String origin;
-    private String target;
     public HashMap<String, ArrayList<ArrayList<String>>> nonterminals;
     public HashMap<String, String> consterminals;
     public HashMap<String, Integer> curRuleConfig; // integer is the index of
@@ -235,7 +233,7 @@ public class RuleGenerator {
 	    return y4;
 	}
 	for (int i = 0; i < array.size() - 1; i++) {
-	    HashSet<String> x = array.get(i);
+	    array.get(i);
 	    if (i % 2 == 0) {
 		y3 = y1;
 		y2 = new Vector<String>();

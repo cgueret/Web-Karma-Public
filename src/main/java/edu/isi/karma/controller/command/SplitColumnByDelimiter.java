@@ -116,6 +116,11 @@ public class SplitColumnByDelimiter {
 		    }
 		} catch (IOException e) {
 		    logger.error("Error reading Line: " + originalVal, e);
+		} finally {
+		    try {
+			reader.close();
+		    } catch (IOException e) {
+		    }
 		}
 		// Clear the old value
 		node.clearValue(NodeStatus.edited);

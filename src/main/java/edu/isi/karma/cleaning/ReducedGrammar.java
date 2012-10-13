@@ -35,11 +35,9 @@ import edu.isi.karma.cleaning.changed_grammar.RuleInterpreterLexer;
 public class ReducedGrammar {
     // use to store all variations of the parse tree
     public HashMap<String, ArrayList<ArrayList<String>>> nonterminals;
-    private String gtype = "";
 
     public ReducedGrammar(String type, String gfpath) {
 	nonterminals = new HashMap<String, ArrayList<ArrayList<String>>>();
-	gtype = type;
 	initTerminals(type);
 	init(gfpath);
     }
@@ -85,24 +83,19 @@ public class ReducedGrammar {
     public void handletokenspec(Vector<TNode> sequence, String nonterm) {
 	try {
 	    CharStream cs = new ANTLRStringStream(sequence.toString());
-	    Ruler r = new Ruler();
-	    ParseTreeBuilder builder = new ParseTreeBuilder("tokenspec");// only
-									 // need
-									 // to
-									 // obtain
-									 // the
-									 // parse
-									 // tree
-									 // for
-									 // tokenspec
-									 // non-terminal
+	    new Ruler();
+	    new ParseTreeBuilder("tokenspec");
+	    // need
+	    // to
+	    // obtain
+	    // the
+	    // parse
+	    // tree
+	    // for
+	    // tokenspec
+	    // non-terminal
 	    RuleInterpreterLexer lexer = new RuleInterpreterLexer(cs);
-	    CommonTokenStream tokens = new CommonTokenStream(lexer);
-	    // RuleInterpreterParser parser= new
-	    // RuleInterpreterParser(tokens,builder);
-	    // CommonTreeNodeStream nodes = new
-	    // CommonTreeNodeStream((CommonTree)parser.tokenspec().getTree());
-	    // RuleInterpreterTree evaluator = new RuleInterpreterTree(nodes);
+	    new CommonTokenStream(lexer);
 
 	} catch (Exception ex) {
 	    System.out.println("" + ex.toString());

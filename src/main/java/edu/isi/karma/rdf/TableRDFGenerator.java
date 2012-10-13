@@ -488,11 +488,12 @@ public class TableRDFGenerator {
      * 
      * @param term
      * @param preds
-     *            a list of unary and binary perdicates
+     *            a list of unary and binary predicates
      * @return the binary predicate that has the SECOND term equal to a given
      *         term.
      */
-    private Predicate findBinaryPredicate(Term term, ArrayList<Predicate> preds) {
+    protected Predicate findBinaryPredicate(Term term,
+	    ArrayList<Predicate> preds) {
 	for (Predicate p : preds) {
 	    if (p.getTerms().size() == 2) {
 		// get second term

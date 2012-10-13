@@ -34,7 +34,6 @@ public class RamblerTransformationInputs implements TransformationInputs {
 
     private Collection<TransformationExample> examples;
     private ValueCollection inputValues;
-    private Transformation preferedTransformation;
     private Vector<EditOper> preEditOpers;
 
     public RamblerTransformationInputs(
@@ -88,7 +87,5 @@ public class RamblerTransformationInputs implements TransformationInputs {
 
     @Override
     public void setPreferredRule(Transformation t) {
-	// TODO Auto-generated method stub
-	this.preferedTransformation = t;
     }
 }

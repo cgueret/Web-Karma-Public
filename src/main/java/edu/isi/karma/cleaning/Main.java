@@ -25,7 +25,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -57,16 +57,19 @@ public class Main {
 	String fpath0 = "/Users/bowu/Research/dataclean/data/30addresslist.txt";
 	String fpath1 = "/Users/bowu/Research/dataclean/data/eval.txt";
 
+	BufferedReader br = null;
+	BufferedReader xbr = null;
+	BufferedWriter bres = null;
 	try {
-	    BufferedWriter bres = new BufferedWriter(new FileWriter(fpath1));
-	    BufferedReader br = new BufferedReader(new FileReader(fpath));
+	    bres = new BufferedWriter(new FileWriter(fpath1));
+	    br = new BufferedReader(new FileReader(fpath));
 	    String line = "";
 	    while ((line = br.readLine()) != null) {
 		if (line.compareTo("") == 0)
 		    break;
 
 		Evaluator eva = new Evaluator();
-		BufferedReader xbr = new BufferedReader(new FileReader(fpath0));
+		xbr = new BufferedReader(new FileReader(fpath0));
 		while (true) {
 		    xline = xbr.readLine();
 		    if (xline == null) {
@@ -103,20 +106,26 @@ public class Main {
 		}
 		// output evaluation result
 
-		xbr.close();
-
 	    }
 	} catch (Exception ex) {
 	    System.out.println("" + ex.toString());
+	} finally {
+	    try {
+		if (br != null)
+		    br.close();
+		if (xbr != null)
+		    xbr.close();
+		if (bres != null)
+		    bres.close();
+	    } catch (IOException e) {
+	    }
 	}
     }
 
     public void autogeneratetestFeaturesFile() {
 	String fpath = "/Users/bowu/Research/dataclean/data/testrule.txt";
-	ResultViewer rv = new ResultViewer();
-	// ResultViewer rv1 = new ResultViewer();
-	Vector<CommonTree> ps = new Vector<CommonTree>();
-	String orgin = "";
+	new ResultViewer();
+	new Vector<CommonTree>();
 	try {
 	    BufferedReader br = new BufferedReader(new FileReader(fpath));
 	    String line = "";
@@ -134,8 +143,6 @@ public class Main {
 		CSVReader xbr = new CSVReader(new FileReader(fpath0), '\t');
 		xbr.readNext();
 		String s = "";
-		orgin = "";
-		boolean isrit = true;
 		while ((xline = xbr.readNext()) != null) {
 		    Ruler r = new Ruler();
 		    Vector<String> xrow = new Vector<String>();
@@ -152,21 +159,18 @@ public class Main {
 			    nodes);
 		    evaluator.setRuler(r);
 		    evaluator.rule();
-		    String rvalue = "";
 		    s += r.toString() + "\n";
-		    orgin += xline[0] + "\n";
 		    if (r.toString().compareTo(xline[1]) == 0) {
 			xrow.add(r.toString());
 		    } else {
 			xrow.add("<font color='#FF0000'>" + r.toString()
 				+ "</font>");
-			isrit = false;
 		    }
 		}
 		if (hm.containsKey(s)) {
 		    hm.get(s).add(line);
 		} else {
-		    List<String> examples = Arrays.asList(s.split("\n"));
+		    Arrays.asList(s.split("\n"));
 		    // RegularityClassifer.Add2FeatureFile(examples, "", isrit);
 		    Vector<String> vr = new Vector<String>();
 		    vr.add(line);
@@ -179,16 +183,23 @@ public class Main {
 	}
     }
 
-    // fpath rule file loaction
-    // fpath0 ground through file loaction
-    // ofpath outout location
+    /**
+     * @param fpath
+     *            rule file location
+     * @param fpath0
+     *            ground through file location
+     * @param ofpath
+     *            output location
+     * @return
+     */
     public static String[] exper1_cluster(String fpath, String fpath0,
 	    String ofpath) {
-	// ResultViewer rv = new ResultViewer();
-	Vector<CommonTree> ps = new Vector<CommonTree>();
+	new Vector<CommonTree>();
 	String orgin = "";
+	BufferedReader br = null;
+	CSVReader xbr = null;
 	try {
-	    BufferedReader br = new BufferedReader(new FileReader(fpath));
+	    br = new BufferedReader(new FileReader(fpath));
 	    String line = "";
 	    Vector<String> row = new Vector<String>();
 	    row.add("rows");
@@ -200,7 +211,7 @@ public class Main {
 
 		// CommonTree t = (CommonTree) parser.rule().getTree();
 		String[] xline;
-		CSVReader xbr = new CSVReader(new FileReader(fpath0), '\t');
+		xbr = new CSVReader(new FileReader(fpath0), '\t');
 		// xbr.readNext();
 		String s = "";// the string contain all the data
 		orgin = ""; // the string contain all the original data
@@ -220,7 +231,6 @@ public class Main {
 			    nodes);
 		    evaluator.setRuler(r);
 		    evaluator.rule();
-		    String rvalue = "";
 		    s += r.toString() + "\n";
 		    orgin += xline[0] + "\n";
 		    if (r.toString().compareTo(xline[1]) == 0) {
@@ -239,9 +249,6 @@ public class Main {
 		    hm.put(s, vr);
 		}
 	    }
-	    // output the hash table
-	    // output all the data sets
-	    String[] a = new String[hm.keySet().size()];
 	    int cnt = 0;
 	    // ResultViewer rx = new ResultViewer();
 	    boolean isfirstRun = true;
@@ -252,7 +259,7 @@ public class Main {
 	    double lowest = 10000;
 	    String result = "";
 	    for (String xs : hm.keySet()) {
-		Vector<String> vs1 = hm.get(xs);
+		hm.get(xs);
 		RegularityFeatureSet rf = new RegularityFeatureSet();
 		Vector<String> addr = new Vector<String>();
 		for (String is : xs.split("\n")) {
@@ -293,6 +300,14 @@ public class Main {
 	} catch (Exception ex) {
 	    System.out.println("" + ex.toString());
 	    return null;
+	} finally {
+	    try {
+		if (br != null)
+		    br.close();
+		if (xbr != null)
+		    xbr.close();
+	    } catch (IOException e) {
+	    }
 	}
     }
 
@@ -311,12 +326,13 @@ public class Main {
 
     public void applyRule(String rule, String fpath) {
 	ResultViewer rv = new ResultViewer();
+	BufferedReader xbr = null;
 	try {
 
 	    Ruler r = new Ruler();
 	    String xline = "";
 	    File f = new File(fpath);
-	    BufferedReader xbr = new BufferedReader(new FileReader(f));
+	    xbr = new BufferedReader(new FileReader(f));
 	    while ((xline = xbr.readLine()) != null) {
 		Vector<String> xrow = new Vector<String>();
 		if (xline.compareTo("") == 0)
@@ -341,6 +357,12 @@ public class Main {
 	    rv.print(f.getAbsolutePath() + "_res.csv");
 	} catch (Exception ex) {
 	    System.out.println("" + ex.toString());
+	} finally {
+	    try {
+		if (xbr != null)
+		    xbr.close();
+	    } catch (IOException e) {
+	    }
 	}
     }
 
@@ -375,8 +397,10 @@ public class Main {
     public static String[] output(String fpath, String fpath0) {
 	// ResultViewer rv = new ResultViewer();
 	Vector<CommonTree> ps = new Vector<CommonTree>();
+	CSVReader xbr = null;
+	BufferedReader br = null;
 	try {
-	    BufferedReader br = new BufferedReader(new FileReader(fpath));
+	    br = new BufferedReader(new FileReader(fpath));
 	    String line = "";
 	    Vector<String> row = new Vector<String>();
 	    row.add("rows");
@@ -397,7 +421,7 @@ public class Main {
 	    String[] wrongExample = null;
 	    HashSet<Integer> hs = new HashSet<Integer>();
 	    String[] xline;
-	    CSVReader xbr = new CSVReader(new FileReader(fpath0), '\t');
+	    xbr = new CSVReader(new FileReader(fpath0), '\t');
 	    xbr.readNext();
 	    while ((xline = xbr.readNext()) != null) {
 		Ruler r = new Ruler();
@@ -412,7 +436,6 @@ public class Main {
 		    evaluator.setRuler(r);
 		    evaluator.rule();
 		    System.out.println("function output " + k);
-		    String rvalue = "";
 		    if (r.toString().compareTo(xline[1]) == 0) {
 			xrow.add(r.toString());
 		    } else {
@@ -436,17 +459,27 @@ public class Main {
 	} catch (Exception ex) {
 	    System.out.println("" + ex.toString());
 	    return null;
+	} finally {
+	    try {
+		if (br != null)
+		    br.close();
+		if (xbr != null)
+		    xbr.close();
+	    } catch (IOException e) {
+	    }
 	}
     }
 
     public void visualFile() {
+	CSVReader cr = null;
+	CSVReader cr1 = null;
 	try {
 	    String gtruth = "/Users/bowu/Research/dataclean/data/RuleData/50_address_pair.csv";
 	    String file = "/Users/bowu/Research/dataclean/data/cluster1.csv";
-	    CSVReader cr = new CSVReader(new FileReader(new File(gtruth)), '\t');
+	    cr = new CSVReader(new FileReader(new File(gtruth)), '\t');
 	    List<String[]> lines = cr.readAll();
 	    lines.remove(0);
-	    CSVReader cr1 = new CSVReader(new FileReader(new File(file)), '\t');
+	    cr1 = new CSVReader(new FileReader(new File(file)), '\t');
 	    String[] ds = cr1.readNext();
 	    ResultViewer rv = new ResultViewer();
 	    for (int p = 0; p < ds.length; p++) {
@@ -464,6 +497,14 @@ public class Main {
 	    rv.publishHTML("/Users/bowu/Research/dataclean/data/cluster1.htm");
 	} catch (Exception e) {
 	    // TODO: handle exception
+	} finally {
+	    try {
+		if (cr != null)
+		    cr.close();
+		if (cr1 != null)
+		    cr1.close();
+	    } catch (IOException e) {
+	    }
 	}
     }
 
@@ -558,7 +599,7 @@ public class Main {
 	Vector<String> names = new Vector<String>();
 	Vector<Integer> exampleCnt = new Vector<Integer>();
 	Vector<Double> timeleng = new Vector<Double>();
-	Vector<Integer> cRuleNum = new Vector<Integer>();
+	new Vector<Integer>();
 	Vector<Vector<String>> ranks = new Vector<Vector<String>>();
 	Vector<Vector<Integer>> consisRules = new Vector<Vector<Integer>>();
 	Vector<String> cRules = new Vector<String>();
@@ -732,7 +773,7 @@ public class Main {
 		System.out.println("" + ex.toString());
 	    }
 	}
-	Random r = new Random();
+	new Random();
 	try {
 	    BufferedWriter bw = new BufferedWriter(new FileWriter(new File(
 		    "/Users/bowu/mysoft/xx/logx.txt")));

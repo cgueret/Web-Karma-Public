@@ -83,11 +83,10 @@ public class RegularityClassifer {
 	Instances instances = new Instances(fileReader);
 	instances.setClassIndex(instances.numAttributes() - 1);
 	Prnt.prn(instances.numAttributes());
-	double confidence = -1;
 	Vector<Double> posConfid = new Vector<Double>();
 	for (int i = 0; i < instances.size(); i++) {
 	    Instance instance = instances.get(i);
-	    double label = instance.value(instances.numAttributes() - 1);
+	    instance.value(instances.numAttributes() - 1);
 	    double[] dist = cf.distributionForInstance(instance);
 	    posConfid.add(dist[1]);// keep history of all the confidence
 	}
@@ -127,8 +126,6 @@ public class RegularityClassifer {
 	if (confidence == -1) {
 	    return -1;
 	}
-	// find the rank of confidence
-	int tiecnt = 0;
 	for (int i = 0; i < posConfid.size(); i++) {
 	    double d = posConfid.get(i);
 	    if (d >= confidence) {

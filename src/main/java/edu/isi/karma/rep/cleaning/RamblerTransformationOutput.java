@@ -25,14 +25,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Vector;
 
-import edu.isi.karma.cleaning.EditOper;
 import edu.isi.karma.cleaning.RuleUtil;
 
 public class RamblerTransformationOutput implements TransformationOutput {
 
     private RamblerTransformationInputs input;
     private HashMap<String, Transformation> transformations;
-    private Vector<EditOper> preEditOpers;
 
     public RamblerTransformationOutput(RamblerTransformationInputs input) {
 	this.input = input;

@@ -123,6 +123,10 @@ public class CSVImportPreviewUpdate extends AbstractUpdate {
 		    JSONArray arr = new JSONArray(headers);
 		    writer.key(JsonKeys.headers.name()).value(arr);
 		    rowCount++;
+
+		    // Close the reader
+		    reader.close();
+
 		    continue;
 		}
 
@@ -149,6 +153,10 @@ public class CSVImportPreviewUpdate extends AbstractUpdate {
 		    // Add to the data rows JSON
 		    dataRows.put(vals);
 		    rowCount++;
+
+		    // Close reader
+		    reader.close();
+
 		    continue;
 		}
 

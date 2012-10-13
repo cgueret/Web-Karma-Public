@@ -78,7 +78,7 @@ public class Data2Features {
 	    Vector<String> oexamples = new Vector<String>();
 	    Vector<String> examples = new Vector<String>();
 	    RegularityFeatureSet rfs = new RegularityFeatureSet();
-	    Collection<Feature> cols = rfs.computeFeatures(examples, oexamples);
+	    rfs.computeFeatures(examples, oexamples);
 	    String[] xyz = new String[rfs.fnames.size() + 1];
 	    for (int i = 0; i < xyz.length - 1; i++) {
 		xyz[i] = "a_" + i;

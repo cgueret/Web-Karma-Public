@@ -82,9 +82,7 @@ public class NonterminalValidator {
 	    target = ex.subList(ops.starPos, ops.endPos + 1);
 	}
 	size = target.size();
-	// shift operation to find whether a positon is 1
-	// 1 means general 0 mean use token
-	int threshold = (int) Math.pow(2, size - 1);
+	Math.pow(2, size - 1);
 	for (int i = 0; i <= Math.pow(2, size); i++) {
 	    String rule = "";
 	    boolean setoken = false;
@@ -251,7 +249,6 @@ public class NonterminalValidator {
     // generate the number for quantity
     public static HashSet<String> genNum(EditOper ops, Vector<TNode> ex) {
 	HashSet<String> rules = new HashSet<String>();
-	int size = 0;
 	/*
 	 * if(ops.tar.size()!=0) { size = ops.tar.size(); } else { size =
 	 * ops.endPos-ops.starPos+1; } rules.add(String.valueOf(size));
@@ -297,8 +294,6 @@ public class NonterminalValidator {
 	// need to get the value for quan,what,pos1 pos2 pos3
 
 	int quan = ops.get(0).tar.size();
-	Vector<TNode> what = new Vector<TNode>();
-	what = ops.get(0).tar;
 	int pos1 = ops.get(0).starPos;
 	int pos2 = ops.get(0).endPos;
 	int pos3 = ops.get(0).dest;
