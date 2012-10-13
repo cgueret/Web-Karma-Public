@@ -21,7 +21,5 @@
 package edu.isi.karma.modeling.alignment;
 
 public enum LinkStatus {
-	ForcedByUser,
-	PreferredByUI,
-	None // default
+    ForcedByUser, PreferredByUI, None // default
 }

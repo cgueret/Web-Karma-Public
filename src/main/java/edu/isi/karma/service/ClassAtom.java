@@ -25,36 +25,37 @@ import edu.isi.karma.modeling.alignment.URI;
 
 public class ClassAtom extends Atom {
 
-	private URI classPredicate;
-	private Argument argument1;
-	
-	public ClassAtom(URI classPredicate, Argument argument1) {
-		this.classPredicate = classPredicate;
-		this.argument1 = argument1;
-	}
+    private URI classPredicate;
+    private Argument argument1;
 
-	public URI getClassPredicate() {
-		return classPredicate;
-	}
+    public ClassAtom(URI classPredicate, Argument argument1) {
+	this.classPredicate = classPredicate;
+	this.argument1 = argument1;
+    }
 
-	public Argument getArgument1() {
-		return argument1;
-	}
-	
-	
-	public void setClassPredicate(URI classPredicate) {
-		this.classPredicate = classPredicate;
-	}
+    public URI getClassPredicate() {
+	return classPredicate;
+    }
 
-	public void setArgument1(Argument argument1) {
-		this.argument1 = argument1;
-	}
+    public Argument getArgument1() {
+	return argument1;
+    }
 
-	public void print() {
-		System.out.println("class predicate uri: " + classPredicate.getUriString());
-		System.out.println("class predicate ns: " + classPredicate.getNs());
-		System.out.println("class predicate prefix: " + classPredicate.getPrefix());
-		System.out.println("argument1: " + argument1.getId());
-	}
-	
+    public void setClassPredicate(URI classPredicate) {
+	this.classPredicate = classPredicate;
+    }
+
+    public void setArgument1(Argument argument1) {
+	this.argument1 = argument1;
+    }
+
+    public void print() {
+	System.out.println("class predicate uri: "
+		+ classPredicate.getUriString());
+	System.out.println("class predicate ns: " + classPredicate.getNs());
+	System.out.println("class predicate prefix: "
+		+ classPredicate.getPrefix());
+	System.out.println("argument1: " + argument1.getId());
+    }
+
 }

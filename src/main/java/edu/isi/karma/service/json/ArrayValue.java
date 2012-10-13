@@ -23,16 +23,15 @@ package edu.isi.karma.service.json;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ArrayValue extends Value{
-	private List<Element> elements = new ArrayList<Element>();
+public class ArrayValue extends Value {
+    private List<Element> elements = new ArrayList<Element>();
 
-	public List<Element> getElements() {
-		return elements;
-	}
+    public List<Element> getElements() {
+	return elements;
+    }
 
-	public void setElements(List<Element> elements) {
-		this.elements = elements;
-	}
-	
-	
+    public void setElements(List<Element> elements) {
+	this.elements = elements;
+    }
+
 }

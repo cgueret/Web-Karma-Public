@@ -23,95 +23,110 @@ package edu.isi.karma.service.json;
 import java.util.List;
 
 public class Element {
-	private String key;
-	private int valueType;
-	private Value value;
-	private String fullPath = "";
-	private Element parent;
-	
-	
-	public Element getParent() {
-		return parent;
-	}
-	public void setParent(Element parent) {
-		this.parent = parent;
-	}
-	public String getLocalName(int depth) {
-		String result = "";
-		if (valueType == ValueType.SINGLE)
-			result += "d=" + depth + ",k=" + getKey() + ",v=" + ((SingleValue)getValue()).getValueString();
-		return result;
-	}
-	public String getFullPath() {
-		return fullPath.trim();
-	}
-	public void setFullPath(String fullPath) {
-		this.fullPath = fullPath;
-	}
-	public String getKey() {
-		// to remove @ in front of keys in process of converting xml to json
-		if (key.startsWith("@"))
-			key = key.substring(1);
-		return key.trim();
-	}
-	public void setKey(String key) {
-		this.key = key;
-	}
-	public int getValueType() {
-		return valueType;
-	}
-	public void setValueType(int valueType) {
-		this.valueType = valueType;
-	}
-	public Value getValue() {
-		return value;
-	}
-	public void setValue(Value value) {
-		this.value = value;
-	}
-	
-    public void print(Element root, int depth) {
-    	String tabs = "";
-    	for (int i = 0; i < depth; i++)
-    		tabs += "\t";
-    	System.out.println(tabs + "name:" + root.key);
-    	System.out.print(tabs + "value:");
+    private String key;
+    private int valueType;
+    private Value value;
+    private String fullPath = "";
+    private Element parent;
 
-    	if (root.valueType == ValueType.SINGLE) {
-    		System.out.println(((SingleValue)root.value).getValueString());
-    		System.out.println();
-    	} else {
-    		System.out.println();
-    		for (int i = 0; i < ((ArrayValue)root.value).getElements().size(); i++)
-    			print(((ArrayValue)root.value).getElements().get(i), depth + 1);
-    	}
+    public Element getParent() {
+	return parent;
+    }
+
+    public void setParent(Element parent) {
+	this.parent = parent;
+    }
+
+    public String getLocalName(int depth) {
+	String result = "";
+	if (valueType == ValueType.SINGLE)
+	    result += "d=" + depth + ",k=" + getKey() + ",v="
+		    + ((SingleValue) getValue()).getValueString();
+	return result;
+    }
+
+    public String getFullPath() {
+	return fullPath.trim();
+    }
+
+    public void setFullPath(String fullPath) {
+	this.fullPath = fullPath;
+    }
+
+    public String getKey() {
+	// to remove @ in front of keys in process of converting xml to json
+	if (key.startsWith("@"))
+	    key = key.substring(1);
+	return key.trim();
+    }
+
+    public void setKey(String key) {
+	this.key = key;
+    }
+
+    public int getValueType() {
+	return valueType;
+    }
+
+    public void setValueType(int valueType) {
+	this.valueType = valueType;
+    }
+
+    public Value getValue() {
+	return value;
+    }
+
+    public void setValue(Value value) {
+	this.value = value;
+    }
+
+    public void print(Element root, int depth) {
+	String tabs = "";
+	for (int i = 0; i < depth; i++)
+	    tabs += "\t";
+	System.out.println(tabs + "name:" + root.key);
+	System.out.print(tabs + "value:");
+
+	if (root.valueType == ValueType.SINGLE) {
+	    System.out.println(((SingleValue) root.value).getValueString());
+	    System.out.println();
+	} else {
+	    System.out.println();
+	    for (int i = 0; i < ((ArrayValue) root.value).getElements().size(); i++)
+		print(((ArrayValue) root.value).getElements().get(i), depth + 1);
+	}
     }
 
     public void printFullPaths(Element root, List<String> result) {
-    	if (root.getFullPath().length() > 0) 
-    		result.add(root.getFullPath());
-    	if (root.valueType == ValueType.SINGLE) {
-    	} else {
-    		for (int i = 0; i < ((ArrayValue)root.value).getElements().size(); i++)
-    			printFullPaths(((ArrayValue)root.value).getElements().get(i), result);
-    	}
+	if (root.getFullPath().length() > 0)
+	    result.add(root.getFullPath());
+	if (root.valueType == ValueType.SINGLE) {
+	} else {
+	    for (int i = 0; i < ((ArrayValue) root.value).getElements().size(); i++)
+		printFullPaths(((ArrayValue) root.value).getElements().get(i),
+			result);
+	}
     }
-    
+
     public void moveUpOneValueElements(Element root) {
-    	if (root.valueType == ValueType.SINGLE) {
-    		while (true) {
-	    		if (root.getParent() == null || ((ArrayValue)root.getParent().getValue()).getElements().size() != 1) 
-	    			break;
-				root.getParent().setValue(root.getValue());
-				if (root.getParent().getKey().equalsIgnoreCase("ROOT"))
-					root.getParent().setKey(root.getKey());
-				root.getParent().setValueType(ValueType.SINGLE);
-				root = root.getParent();
-    		}
-    	} else for (int i = 0; i < ((ArrayValue)root.value).getElements().size(); i++) { 
-    			moveUpOneValueElements(((ArrayValue)root.value).getElements().get(i));
-        		if (root.valueType == ValueType.SINGLE)
-        			return;
-    	}
+	if (root.valueType == ValueType.SINGLE) {
+	    while (true) {
+		if (root.getParent() == null
+			|| ((ArrayValue) root.getParent().getValue())
+				.getElements().size() != 1)
+		    break;
+		root.getParent().setValue(root.getValue());
+		if (root.getParent().getKey().equalsIgnoreCase("ROOT"))
+		    root.getParent().setKey(root.getKey());
+		root.getParent().setValueType(ValueType.SINGLE);
+		root = root.getParent();
+	    }
+	} else
+	    for (int i = 0; i < ((ArrayValue) root.value).getElements().size(); i++) {
+		moveUpOneValueElements(((ArrayValue) root.value).getElements()
+			.get(i));
+		if (root.valueType == ValueType.SINGLE)
+		    return;
+	    }
     }
 }

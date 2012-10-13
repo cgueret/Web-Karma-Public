@@ -42,125 +42,132 @@ import edu.isi.karma.view.VWorkspace;
 
 public class DataPropertyHierarchyUpdate extends AbstractUpdate {
 
-	private OntModel model;
+    private OntModel model;
 
-	private static Logger logger = LoggerFactory
-			.getLogger(DatabaseTablesListUpdate.class.getSimpleName());
+    private static Logger logger = LoggerFactory
+	    .getLogger(DatabaseTablesListUpdate.class.getSimpleName());
 
-	public enum JsonKeys {
-		data, URI, metadata, children
-	}
+    public enum JsonKeys {
+	data, URI, metadata, children
+    }
 
-	public DataPropertyHierarchyUpdate(OntModel model) {
-		this.model = model;
-	}
+    public DataPropertyHierarchyUpdate(OntModel model) {
+	this.model = model;
+    }
 
-	@Override
-	public void generateJson(String prefix, PrintWriter pw,
-			VWorkspace vWorkspace) {
-		Set<String> propertiesAdded = new HashSet<String>();
+    @Override
+    public void generateJson(String prefix, PrintWriter pw,
+	    VWorkspace vWorkspace) {
+	Set<String> propertiesAdded = new HashSet<String>();
 
-		ExtendedIterator<DatatypeProperty> propsIter = model.listDatatypeProperties();
-		Map<String, String> prefixMap = vWorkspace.getWorkspace().getOntologyManager().getPrefixMap();
+	ExtendedIterator<DatatypeProperty> propsIter = model
+		.listDatatypeProperties();
+	Map<String, String> prefixMap = vWorkspace.getWorkspace()
+		.getOntologyManager().getPrefixMap();
 
+	try {
+	    JSONArray dataArray = new JSONArray();
+
+	    while (propsIter.hasNext()) {
+		DatatypeProperty prop = propsIter.next();
+
+		if (propertiesAdded.contains(prop.getURI()))
+		    continue;
 		try {
-			JSONArray dataArray = new JSONArray();
-
-			while (propsIter.hasNext()) {
-				DatatypeProperty prop = propsIter.next();
-				
-				if (propertiesAdded.contains(prop.getURI()))
-					continue;
-				try {
-					if ((prop.listSuperProperties().toList().size() != 0)) {
-						// Check if all the super properties are object properties
-						boolean hasObjectPropertiesAsAllSuperProperties = true; 
-						List<? extends OntProperty> superProps = prop.listSuperProperties().toList();
-						for (OntProperty s : superProps) {
-							if (s.isDatatypeProperty()) {
-								hasObjectPropertiesAsAllSuperProperties = false;
-								break;
-							}
-						}
-						if(!hasObjectPropertiesAsAllSuperProperties)
-							continue;
-					}
-				} catch (ConversionException e) {
-					logger.debug(e.getMessage());
-				}
-				JSONObject classObject = new JSONObject();
-
-				if (prop.listSubProperties().toList().size() != 0) {
-					JSONArray childrenArray = new JSONArray();
-					addSubclassChildren(prop, childrenArray, 0, propertiesAdded, prefixMap);
-					classObject.put(JsonKeys.children.name(), childrenArray);
-				}
-
-				String pr = prefixMap.get(prop.getNameSpace());
-				if(pr != null && !pr.equals(""))
-					classObject.put(JsonKeys.data.name(), pr + ":" + prop.getLocalName());
-				else
-					classObject.put(JsonKeys.data.name(), prop.getLocalName());
-
-				propertiesAdded.add(prop.getURI());
-
-				JSONObject metadataObject = new JSONObject();
-				metadataObject.put(JsonKeys.URI.name(), prop.getURI());
-				classObject.put(JsonKeys.metadata.name(), metadataObject);
-				dataArray.put(classObject);
+		    if ((prop.listSuperProperties().toList().size() != 0)) {
+			// Check if all the super properties are object
+			// properties
+			boolean hasObjectPropertiesAsAllSuperProperties = true;
+			List<? extends OntProperty> superProps = prop
+				.listSuperProperties().toList();
+			for (OntProperty s : superProps) {
+			    if (s.isDatatypeProperty()) {
+				hasObjectPropertiesAsAllSuperProperties = false;
+				break;
+			    }
 			}
-
-			// Prepare the output JSON
-			JSONObject outputObject = new JSONObject();
-			outputObject.put(GenericJsonKeys.updateType.name(),
-					"DataPropertyListUpdate");
-			outputObject.put(JsonKeys.data.name(), dataArray);
-
-			pw.println(outputObject.toString());
-		} catch (JSONException e) {
-			logger.error("Error occured while creating JSON!", e);
+			if (!hasObjectPropertiesAsAllSuperProperties)
+			    continue;
+		    }
+		} catch (ConversionException e) {
+		    logger.debug(e.getMessage());
 		}
-	}
+		JSONObject classObject = new JSONObject();
 
-	private static void addSubclassChildren(OntProperty prop,
-			JSONArray childrenArray, int level, Set<String> propertiesAdded, Map<String, String> prefixMap)
-			throws JSONException {
-
-		ExtendedIterator<? extends OntProperty> subProperties = prop
-				.listSubProperties();
-		while (subProperties.hasNext()) {
-			OntProperty subProp = subProperties.next();
-			if(subProp.getURI().equals(prop.getURI())) {
-				continue;
-			}
-			
-			propertiesAdded.add(subProp.getURI());
-
-			JSONObject classObject = new JSONObject();
-			
-			String pr = prefixMap.get(prop.getNameSpace());
-			if(pr != null && !pr.equals(""))
-				classObject.put(JsonKeys.data.name(), pr + ":" + subProp.getLocalName());
-			else
-				classObject.put(JsonKeys.data.name(), subProp.getLocalName());
-			
-			JSONObject metadataObject = new JSONObject();
-			metadataObject.put(JsonKeys.URI.name(), subProp.getURI());
-			classObject.put(JsonKeys.metadata.name(), metadataObject);
-			try{
-				if (subProp.listSubProperties().toList().size() != 0) {
-					JSONArray childrenArraySubClass = new JSONArray();
-					addSubclassChildren(subProp, childrenArraySubClass, level + 1,
-							propertiesAdded, prefixMap);
-					classObject
-							.put(JsonKeys.children.name(), childrenArraySubClass);
-				}
-				childrenArray.put(classObject);
-			} catch (ConversionException e) {
-				logger.debug(e.getMessage());
-				continue;
-			}
+		if (prop.listSubProperties().toList().size() != 0) {
+		    JSONArray childrenArray = new JSONArray();
+		    addSubclassChildren(prop, childrenArray, 0,
+			    propertiesAdded, prefixMap);
+		    classObject.put(JsonKeys.children.name(), childrenArray);
 		}
+
+		String pr = prefixMap.get(prop.getNameSpace());
+		if (pr != null && !pr.equals(""))
+		    classObject.put(JsonKeys.data.name(),
+			    pr + ":" + prop.getLocalName());
+		else
+		    classObject.put(JsonKeys.data.name(), prop.getLocalName());
+
+		propertiesAdded.add(prop.getURI());
+
+		JSONObject metadataObject = new JSONObject();
+		metadataObject.put(JsonKeys.URI.name(), prop.getURI());
+		classObject.put(JsonKeys.metadata.name(), metadataObject);
+		dataArray.put(classObject);
+	    }
+
+	    // Prepare the output JSON
+	    JSONObject outputObject = new JSONObject();
+	    outputObject.put(GenericJsonKeys.updateType.name(),
+		    "DataPropertyListUpdate");
+	    outputObject.put(JsonKeys.data.name(), dataArray);
+
+	    pw.println(outputObject.toString());
+	} catch (JSONException e) {
+	    logger.error("Error occured while creating JSON!", e);
 	}
+    }
+
+    private static void addSubclassChildren(OntProperty prop,
+	    JSONArray childrenArray, int level, Set<String> propertiesAdded,
+	    Map<String, String> prefixMap) throws JSONException {
+
+	ExtendedIterator<? extends OntProperty> subProperties = prop
+		.listSubProperties();
+	while (subProperties.hasNext()) {
+	    OntProperty subProp = subProperties.next();
+	    if (subProp.getURI().equals(prop.getURI())) {
+		continue;
+	    }
+
+	    propertiesAdded.add(subProp.getURI());
+
+	    JSONObject classObject = new JSONObject();
+
+	    String pr = prefixMap.get(prop.getNameSpace());
+	    if (pr != null && !pr.equals(""))
+		classObject.put(JsonKeys.data.name(),
+			pr + ":" + subProp.getLocalName());
+	    else
+		classObject.put(JsonKeys.data.name(), subProp.getLocalName());
+
+	    JSONObject metadataObject = new JSONObject();
+	    metadataObject.put(JsonKeys.URI.name(), subProp.getURI());
+	    classObject.put(JsonKeys.metadata.name(), metadataObject);
+	    try {
+		if (subProp.listSubProperties().toList().size() != 0) {
+		    JSONArray childrenArraySubClass = new JSONArray();
+		    addSubclassChildren(subProp, childrenArraySubClass,
+			    level + 1, propertiesAdded, prefixMap);
+		    classObject.put(JsonKeys.children.name(),
+			    childrenArraySubClass);
+		}
+		childrenArray.put(classObject);
+	    } catch (ConversionException e) {
+		logger.debug(e.getMessage());
+		continue;
+	    }
+	}
+    }
 
 }

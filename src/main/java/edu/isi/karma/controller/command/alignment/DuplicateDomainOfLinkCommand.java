@@ -42,95 +42,104 @@ import edu.isi.karma.view.VWorkspace;
 
 public class DuplicateDomainOfLinkCommand extends Command {
 
-	private final String vWorksheetId;
-	private final String edgeId;
-	private final String alignmentId;
-	
-	private static Logger logger = LoggerFactory.getLogger(DuplicateDomainOfLinkCommand.class);
+    private final String vWorksheetId;
+    private final String edgeId;
+    private final String alignmentId;
 
-	protected DuplicateDomainOfLinkCommand(String id, String edgeId,
-			String alignmentId, String vWorksheetId) {
-		super(id);
-		this.edgeId = edgeId;
-		this.alignmentId = alignmentId;
-		this.vWorksheetId = vWorksheetId;
-		
-		addTag(CommandTag.Modeling);
+    private static Logger logger = LoggerFactory
+	    .getLogger(DuplicateDomainOfLinkCommand.class);
+
+    protected DuplicateDomainOfLinkCommand(String id, String edgeId,
+	    String alignmentId, String vWorksheetId) {
+	super(id);
+	this.edgeId = edgeId;
+	this.alignmentId = alignmentId;
+	this.vWorksheetId = vWorksheetId;
+
+	addTag(CommandTag.Modeling);
+    }
+
+    @Override
+    public String getCommandName() {
+	return this.getClass().getSimpleName();
+    }
+
+    @Override
+    public String getTitle() {
+	return "Duplicate Domain of Link";
+    }
+
+    @Override
+    public String getDescription() {
+	return "";
+    }
+
+    @Override
+    public CommandType getCommandType() {
+	return CommandType.notUndoable;
+    }
+
+    @Override
+    public UpdateContainer doIt(VWorkspace vWorkspace) throws CommandException {
+	Alignment alignment = AlignmentManager.Instance().getAlignment(
+		alignmentId);
+
+	Worksheet worksheet = vWorkspace.getViewFactory()
+		.getVWorksheet(vWorksheetId).getWorksheet();
+	if (alignment == null
+		|| alignment.getAlignmentGraph().edgeSet().size() == 0) {
+	    AlignToOntology align = new AlignToOntology(worksheet, vWorkspace,
+		    vWorksheetId);
+	    try {
+		align.align(true);
+	    } catch (Exception e) {
+		logger.error(
+			"Error occured while generating the model Reason:.", e);
+		return new UpdateContainer(
+			new ErrorUpdate(
+				"Error occured while generating the model for the source."));
+	    }
+	    alignment = AlignmentManager.Instance().getAlignment(alignmentId);
 	}
 
-	@Override
-	public String getCommandName() {
-		return this.getClass().getSimpleName();
-	}
+	// Duplicate the domain of the edge
+	alignment.duplicateDomainOfLink(edgeId);
 
-	@Override
-	public String getTitle() {
-		return "Duplicate Domain of Link";
-	}
+	return getAlignmentUpdateContainer(alignment, worksheet, vWorkspace);
+    }
 
-	@Override
-	public String getDescription() {
-		return "";
-	}
+    @Override
+    public UpdateContainer undoIt(VWorkspace vWorkspace) {
+	return null;
+    }
 
-	@Override
-	public CommandType getCommandType() {
-		return CommandType.notUndoable;
-	}
+    private UpdateContainer getAlignmentUpdateContainer(Alignment alignment,
+	    Worksheet worksheet, VWorkspace vWorkspace) {
+	// DirectedWeightedMultigraph<Vertex, LabeledWeightedEdge> tree =
+	// alignment
+	// .getSteinerTree();
+	// GraphUtil.printGraph(tree);
 
-	@Override
-	public UpdateContainer doIt(VWorkspace vWorkspace) throws CommandException {
-		Alignment alignment = AlignmentManager.Instance().getAlignment(alignmentId);
-		
-		Worksheet worksheet = vWorkspace.getViewFactory().getVWorksheet(vWorksheetId).getWorksheet();
-		if(alignment == null || alignment.getAlignmentGraph().edgeSet().size() == 0) {
-			AlignToOntology align = new AlignToOntology(worksheet, vWorkspace, vWorksheetId);
-			try {
-				align.align(true);
-			} catch (Exception e) {
-				logger.error("Error occured while generating the model Reason:.", e);
-				return new UpdateContainer(new ErrorUpdate("Error occured while generating the model for the source."));
-			}
-			alignment = AlignmentManager.Instance().getAlignment(alignmentId);
-		}
-		
-		// Duplicate the domain of the edge
-		alignment.duplicateDomainOfLink(edgeId);
+	List<String> hNodeIdList = new ArrayList<String>();
+	VWorksheet vw = vWorkspace.getViewFactory().getVWorksheet(vWorksheetId);
+	List<HNodePath> columns = vw.getColumns();
+	for (HNodePath path : columns)
+	    hNodeIdList.add(path.getLeaf().getId());
 
-		return getAlignmentUpdateContainer(alignment, worksheet, vWorkspace);
-	}
+	SVGAlignmentUpdate_ForceKarmaLayout svgUpdate = new SVGAlignmentUpdate_ForceKarmaLayout(
+		vWorksheetId, alignmentId, alignment, hNodeIdList);
 
-	@Override
-	public UpdateContainer undoIt(VWorkspace vWorkspace) {
-		return null;
-	}
-
-	private UpdateContainer getAlignmentUpdateContainer(Alignment alignment,
-			Worksheet worksheet, VWorkspace vWorkspace){
-//		DirectedWeightedMultigraph<Vertex, LabeledWeightedEdge> tree = alignment
-//				.getSteinerTree();
-//		GraphUtil.printGraph(tree);
-
-		List<String> hNodeIdList = new ArrayList<String>();
-		VWorksheet vw = vWorkspace.getViewFactory().getVWorksheet(vWorksheetId);
-		List<HNodePath> columns = vw.getColumns();
-		for(HNodePath path:columns)
-			hNodeIdList.add(path.getLeaf().getId());
-		
-		SVGAlignmentUpdate_ForceKarmaLayout svgUpdate = new SVGAlignmentUpdate_ForceKarmaLayout(vWorksheetId, alignmentId, alignment, hNodeIdList);
-		
-		//mariam
-		/*
-		try{
-			WorksheetRDFGenerator.testRDFGeneration(vWorkspace.getWorkspace(), worksheet, alignment);
-		}catch(KarmaException e){
-			e.printStackTrace();
-		}
-*/
-		UpdateContainer c = new UpdateContainer();
-		c.add(new SemanticTypesUpdate(worksheet, vWorksheetId));
-		c.add(svgUpdate);
-		return c;
-	}
+	// mariam
+	/*
+	 * try{
+	 * WorksheetRDFGenerator.testRDFGeneration(vWorkspace.getWorkspace(),
+	 * worksheet, alignment); }catch(KarmaException e){ e.printStackTrace();
+	 * }
+	 */
+	UpdateContainer c = new UpdateContainer();
+	c.add(new SemanticTypesUpdate(worksheet, vWorksheetId));
+	c.add(svgUpdate);
+	return c;
+    }
 
 }

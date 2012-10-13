@@ -38,52 +38,52 @@ import edu.isi.karma.view.tableheadings.HeadersColorKeyTranslator;
  */
 public class WorksheetHierarchicalHeadersUpdate extends AbstractUpdate {
 
-	private final VWorksheet vWorksheet;
+    private final VWorksheet vWorksheet;
 
-	public enum JsonKeys {
-		worksheetId, rows, hTableId,
-		//
-		hNodeId, columnNameFull, columnNameShort, path,
-		//
-		cells,
-		//
-		cellType, fillId, topBorder, leftBorder, rightBorder, colSpan,
-		//
-		border, heading, headingPadding
-	}
+    public enum JsonKeys {
+	worksheetId, rows, hTableId,
+	//
+	hNodeId, columnNameFull, columnNameShort, path,
+	//
+	cells,
+	//
+	cellType, fillId, topBorder, leftBorder, rightBorder, colSpan,
+	//
+	border, heading, headingPadding
+    }
 
-	public WorksheetHierarchicalHeadersUpdate(VWorksheet vWorksheet) {
-		super();
-		this.vWorksheet = vWorksheet;
-	}
+    public WorksheetHierarchicalHeadersUpdate(VWorksheet vWorksheet) {
+	super();
+	this.vWorksheet = vWorksheet;
+    }
 
-	@Override
-	public void generateJson(String prefix, PrintWriter pw,
-			VWorkspace vWorkspace) {
-		//vWorksheet.generateWorksheetHierarchicalHeadersJson(pw, vWorkspace);
-		
-		HHTree hHtree = new HHTree();
-		hHtree.constructHHTree(vWorksheet.getvHeaderForest());
-		
-		ColspanMap cspanmap = new ColspanMap(hHtree);
-		ColumnCoordinateSet ccSet = new ColumnCoordinateSet(hHtree, cspanmap);
-		vWorksheet.setColumnCoordinatesSet(ccSet);
-		LeafColumnIndexMap lfMap = new LeafColumnIndexMap(hHtree);
-		vWorksheet.setLeafColIndexMap(lfMap);
-		
-		hHtree.computeHTMLColSpanUsingColCoordinates(ccSet, cspanmap);
-		
-		HHTable table = new HHTable();
-		table.constructCells(hHtree);
+    @Override
+    public void generateJson(String prefix, PrintWriter pw,
+	    VWorkspace vWorkspace) {
+	// vWorksheet.generateWorksheetHierarchicalHeadersJson(pw, vWorkspace);
 
-		HeadersColorKeyTranslator trans = new HeadersColorKeyTranslator();
-		pw.println(prefix + "{");
-		pw.println("\"" + GenericJsonKeys.updateType.name()
-				+ "\": \"WorksheetHierarchicalHeadersUpdate\",");
-		pw.println("\"" + JsonKeys.worksheetId.name() + "\": \"" + vWorksheet.getId()
-				+ "\",");
-		pw.println("\""+JsonKeys.rows.name()+ "\":");
-		table.generateJson(pw, trans, false);
-		pw.println(prefix + "}");
-	}
+	HHTree hHtree = new HHTree();
+	hHtree.constructHHTree(vWorksheet.getvHeaderForest());
+
+	ColspanMap cspanmap = new ColspanMap(hHtree);
+	ColumnCoordinateSet ccSet = new ColumnCoordinateSet(hHtree, cspanmap);
+	vWorksheet.setColumnCoordinatesSet(ccSet);
+	LeafColumnIndexMap lfMap = new LeafColumnIndexMap(hHtree);
+	vWorksheet.setLeafColIndexMap(lfMap);
+
+	hHtree.computeHTMLColSpanUsingColCoordinates(ccSet, cspanmap);
+
+	HHTable table = new HHTable();
+	table.constructCells(hHtree);
+
+	HeadersColorKeyTranslator trans = new HeadersColorKeyTranslator();
+	pw.println(prefix + "{");
+	pw.println("\"" + GenericJsonKeys.updateType.name()
+		+ "\": \"WorksheetHierarchicalHeadersUpdate\",");
+	pw.println("\"" + JsonKeys.worksheetId.name() + "\": \""
+		+ vWorksheet.getId() + "\",");
+	pw.println("\"" + JsonKeys.rows.name() + "\":");
+	table.generateJson(pw, trans, false);
+	pw.println(prefix + "}");
+    }
 }

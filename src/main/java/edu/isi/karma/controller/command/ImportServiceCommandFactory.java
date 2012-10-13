@@ -25,22 +25,21 @@ import javax.servlet.http.HttpServletRequest;
 import edu.isi.karma.view.VWorkspace;
 
 public class ImportServiceCommandFactory extends CommandFactory {
-	private enum Arguments {
-		vWorksheetId, ServiceUrl,sourceName,commandType
-	}
+    private enum Arguments {
+	vWorksheetId, ServiceUrl, sourceName, commandType
+    }
 
-	@Override
-	public Command createCommand(HttpServletRequest request,
-			VWorkspace vWorkspace) {
+    @Override
+    public Command createCommand(HttpServletRequest request,
+	    VWorkspace vWorkspace) {
 
-		String commandType = request.getParameter(Arguments.commandType.name());
-		
-		ImportServiceCommand comm = new ImportServiceCommand(getNewId(vWorkspace), 
-				commandType,
-				request.getParameter(Arguments.ServiceUrl.name()),
-				request.getParameter(Arguments.sourceName.name())
-				);
-		return comm;
-	}
+	String commandType = request.getParameter(Arguments.commandType.name());
+
+	ImportServiceCommand comm = new ImportServiceCommand(
+		getNewId(vWorkspace), commandType,
+		request.getParameter(Arguments.ServiceUrl.name()),
+		request.getParameter(Arguments.sourceName.name()));
+	return comm;
+    }
 
 }

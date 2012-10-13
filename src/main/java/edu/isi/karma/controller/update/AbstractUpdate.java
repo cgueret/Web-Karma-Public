@@ -35,19 +35,20 @@ import edu.isi.karma.view.VWorkspace;
  */
 public abstract class AbstractUpdate {
 
-	/**
-	 * JSON keys that must appear in EVERY update object.
-	 * 
-	 * @author szekely
-	 * 
-	 */
-	public enum GenericJsonKeys {
-		updateType
-	}
+    /**
+     * JSON keys that must appear in EVERY update object.
+     * 
+     * @author szekely
+     * 
+     */
+    public enum GenericJsonKeys {
+	updateType
+    }
 
-	public abstract void generateJson(String prefix, PrintWriter pw, VWorkspace vWorkspace);
+    public abstract void generateJson(String prefix, PrintWriter pw,
+	    VWorkspace vWorkspace);
 
-	protected String getUpdateType() {
-		return this.getClass().getSimpleName();
-	}
+    protected String getUpdateType() {
+	return this.getClass().getSimpleName();
+    }
 }

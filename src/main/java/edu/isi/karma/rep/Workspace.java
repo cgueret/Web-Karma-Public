@@ -38,73 +38,73 @@ import edu.isi.karma.rep.metadata.TagsContainer;
  */
 public class Workspace extends Entity {
 
-	/**
-	 * Keep a copy of RepFactor for convenience.
-	 */
-	private final RepFactory factory;
+    /**
+     * Keep a copy of RepFactor for convenience.
+     */
+    private final RepFactory factory;
 
-	/**
-	 * History of commands performed in this workspace.
-	 */
-	private final CommandHistory commandHistory = new CommandHistory();
+    /**
+     * History of commands performed in this workspace.
+     */
+    private final CommandHistory commandHistory = new CommandHistory();
 
-	/**
-	 * Record all the worksheets defined in this workspace.
-	 */
-	private final Map<String, Worksheet> worksheets = new HashMap<String, Worksheet>();
-	
-	/**
-	 * Saves all the tagging information
-	 */
-	private final TagsContainer tagsContainer = new TagsContainer();
+    /**
+     * Record all the worksheets defined in this workspace.
+     */
+    private final Map<String, Worksheet> worksheets = new HashMap<String, Worksheet>();
 
-	/**
-	 * Manages the model constructed from the imported ontologies
-	 */
-	private final OntologyManager ontologyManager = new OntologyManager();
-	
-	/**
-	 * The CRF Model for the workspace
-	 */
-	private final CRFModelHandler crfModelHandler = new CRFModelHandler();
-	
-	/**
-	 * In the future we may need to keep track of user info.
-	 */
-	protected Workspace(String id, RepFactory factory) {
-		super(id);
-		this.factory = factory;
-	}
+    /**
+     * Saves all the tagging information
+     */
+    private final TagsContainer tagsContainer = new TagsContainer();
 
-	public CommandHistory getCommandHistory() {
-		return commandHistory;
-	}
+    /**
+     * Manages the model constructed from the imported ontologies
+     */
+    private final OntologyManager ontologyManager = new OntologyManager();
 
-	void addWorksheet(Worksheet worksheet) {
-		worksheets.put(worksheet.getId(), worksheet);
-	}
+    /**
+     * The CRF Model for the workspace
+     */
+    private final CRFModelHandler crfModelHandler = new CRFModelHandler();
 
-	public Worksheet getWorksheet(String id) {
-		return worksheets.get(id);
-	}
+    /**
+     * In the future we may need to keep track of user info.
+     */
+    protected Workspace(String id, RepFactory factory) {
+	super(id);
+	this.factory = factory;
+    }
 
-	public Collection<Worksheet> getWorksheets() {
-		return worksheets.values();
-	}
+    public CommandHistory getCommandHistory() {
+	return commandHistory;
+    }
 
-	public RepFactory getFactory() {
-		return factory;
-	}
+    void addWorksheet(Worksheet worksheet) {
+	worksheets.put(worksheet.getId(), worksheet);
+    }
 
-	public TagsContainer getTagsContainer() {
-		return tagsContainer;
-	}
+    public Worksheet getWorksheet(String id) {
+	return worksheets.get(id);
+    }
 
-	public OntologyManager getOntologyManager() {
-		return ontologyManager;
-	}
+    public Collection<Worksheet> getWorksheets() {
+	return worksheets.values();
+    }
 
-	public CRFModelHandler getCrfModelHandler() {
-		return crfModelHandler;
-	}
+    public RepFactory getFactory() {
+	return factory;
+    }
+
+    public TagsContainer getTagsContainer() {
+	return tagsContainer;
+    }
+
+    public OntologyManager getOntologyManager() {
+	return ontologyManager;
+    }
+
+    public CRFModelHandler getCrfModelHandler() {
+	return crfModelHandler;
+    }
 }

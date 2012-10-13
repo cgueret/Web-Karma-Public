@@ -21,10 +21,15 @@
 package edu.isi.karma.rep.cleaning;
 
 public interface TransformationExample {
-	public abstract String getNodeId();
-	public abstract String getBefore();
-	public abstract String getAfter();
-	public abstract void setNodeId(String s);
-	public abstract void setBefore(String s);
-	public abstract void setAfter(String s);
+    public abstract String getNodeId();
+
+    public abstract String getBefore();
+
+    public abstract String getAfter();
+
+    public abstract void setNodeId(String s);
+
+    public abstract void setBefore(String s);
+
+    public abstract void setAfter(String s);
 }

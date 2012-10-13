@@ -31,52 +31,52 @@ import edu.isi.karma.view.VWorkspace;
 
 public class TablePagerResizeCommand extends Command {
 
-	private final String tableIdArg;
-	private final String vWorksheetIdArg;
-	private final int	newPageSize;
+    private final String tableIdArg;
+    private final String vWorksheetIdArg;
+    private final int newPageSize;
 
-	protected TablePagerResizeCommand(String id, String vWorksheetIdArg,
-			String tableIdArg, String newPageSize) {
-		super(id);
-		this.tableIdArg = tableIdArg;
-		this.vWorksheetIdArg = vWorksheetIdArg;
-		this.newPageSize = Integer.parseInt(newPageSize);
-	}
+    protected TablePagerResizeCommand(String id, String vWorksheetIdArg,
+	    String tableIdArg, String newPageSize) {
+	super(id);
+	this.tableIdArg = tableIdArg;
+	this.vWorksheetIdArg = vWorksheetIdArg;
+	this.newPageSize = Integer.parseInt(newPageSize);
+    }
 
-	@Override
-	public String getCommandName() {
-		return "Page resize";
-	}
+    @Override
+    public String getCommandName() {
+	return "Page resize";
+    }
 
-	@Override
-	public String getTitle() {
-		return "Page Resize";
-	}
+    @Override
+    public String getTitle() {
+	return "Page Resize";
+    }
 
-	@Override
-	public String getDescription() {
-		return "Page Resize to" + this.newPageSize;
-	}
+    @Override
+    public String getDescription() {
+	return "Page Resize to" + this.newPageSize;
+    }
 
-	@Override
-	public CommandType getCommandType() {
-		return CommandType.notInHistory;
-	}
+    @Override
+    public CommandType getCommandType() {
+	return CommandType.notInHistory;
+    }
 
-	@Override
-	public UpdateContainer doIt(VWorkspace vWorkspace) throws CommandException {
-		VWorksheet vWorksheet = vWorkspace.getViewFactory().getVWorksheet(
-				vWorksheetIdArg);
-		TablePager pager = vWorksheet.getTablePager(tableIdArg);
-		pager.setDesiredSize(newPageSize);
-		vWorksheet.udateDataTable(vWorkspace.getViewFactory());
-		return new UpdateContainer(new WorksheetDataUpdate(vWorksheet));
-	}
+    @Override
+    public UpdateContainer doIt(VWorkspace vWorkspace) throws CommandException {
+	VWorksheet vWorksheet = vWorkspace.getViewFactory().getVWorksheet(
+		vWorksheetIdArg);
+	TablePager pager = vWorksheet.getTablePager(tableIdArg);
+	pager.setDesiredSize(newPageSize);
+	vWorksheet.udateDataTable(vWorkspace.getViewFactory());
+	return new UpdateContainer(new WorksheetDataUpdate(vWorksheet));
+    }
 
-	@Override
-	public UpdateContainer undoIt(VWorkspace vWorkspace) {
-		// not undoable.
-		return new UpdateContainer();
-	}
+    @Override
+    public UpdateContainer undoIt(VWorkspace vWorkspace) {
+	// not undoable.
+	return new UpdateContainer();
+    }
 
 }

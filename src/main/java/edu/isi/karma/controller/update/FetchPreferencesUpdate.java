@@ -31,34 +31,38 @@ import edu.isi.karma.view.VWorkspace;
 import edu.isi.karma.view.ViewPreferences;
 
 public class FetchPreferencesUpdate extends AbstractUpdate {
-	VWorkspace vWorkspace;
-	String commandName;
+    VWorkspace vWorkspace;
+    String commandName;
 
-	private static Logger logger = LoggerFactory.getLogger(FetchPreferencesUpdate.class);
-	
-	public FetchPreferencesUpdate(VWorkspace vWorkspace, String commandName) {
-		this.vWorkspace = vWorkspace;
-		this.commandName = commandName;
-	}
+    private static Logger logger = LoggerFactory
+	    .getLogger(FetchPreferencesUpdate.class);
 
-	@Override
-	public void generateJson(String prefix, PrintWriter pw,
-			VWorkspace vWorkspace) {
-		ViewPreferences prefs = vWorkspace.getPreferences();
-		JSONObject prefObject = prefs.getCommandPreferencesJSONObject(commandName);
-		JSONObject responseObj = new JSONObject();
-		try {
-			responseObj.put("commandId", vWorkspace.getWorkspace().getCommandHistory().getCurrentCommand().getId());
-			responseObj.put("updateType", commandName);
-			
-			// Populate the preferences if there are any
-			if(prefObject != null) {
-				responseObj.put("PreferenceValues", prefObject);
-			}
-			pw.print(responseObj.toString());
-		} catch (JSONException e) {
-			logger.error("Error writing JSON values for the preference update!", e);
-		}
+    public FetchPreferencesUpdate(VWorkspace vWorkspace, String commandName) {
+	this.vWorkspace = vWorkspace;
+	this.commandName = commandName;
+    }
+
+    @Override
+    public void generateJson(String prefix, PrintWriter pw,
+	    VWorkspace vWorkspace) {
+	ViewPreferences prefs = vWorkspace.getPreferences();
+	JSONObject prefObject = prefs
+		.getCommandPreferencesJSONObject(commandName);
+	JSONObject responseObj = new JSONObject();
+	try {
+	    responseObj.put("commandId", vWorkspace.getWorkspace()
+		    .getCommandHistory().getCurrentCommand().getId());
+	    responseObj.put("updateType", commandName);
+
+	    // Populate the preferences if there are any
+	    if (prefObject != null) {
+		responseObj.put("PreferenceValues", prefObject);
+	    }
+	    pw.print(responseObj.toString());
+	} catch (JSONException e) {
+	    logger.error(
+		    "Error writing JSON values for the preference update!", e);
 	}
+    }
 
 }

@@ -29,73 +29,73 @@ import java.util.List;
 import org.eclipse.jetty.http.HttpMethods;
 
 public class Request {
-	
-	private String type;
-	private URL url;
-	private String endPoint;
-	private List<Attribute> attributes;
 
-	public Request(Request request) {
-		this.type = request.type;
-		this.url = request.url;
-		this.endPoint = request.endPoint;
-		this.attributes = new ArrayList<Attribute>(request.getAttributes());
-	}
-	
-	public Request(URL url) {
-		this.type = HttpMethods.GET;
-		this.url = url;
-	}
-	
-	public Request(String urlString) throws MalformedURLException {
-		this.type = HttpMethods.GET;
-		setUrl(urlString);
-	}
-	
-	public URL getUrl() {
-		return url;
-	}
+    private String type;
+    private URL url;
+    private String endPoint;
+    private List<Attribute> attributes;
 
-	public void setUrl(String urlString) throws MalformedURLException {
-		URL url = new URL(urlString);
-		this.url = url;
-	}
-	
-	public String getType() {
-		return type;
-	}
-	
-	public void setType(String type) {
-		this.type = type;
-	}
+    public Request(Request request) {
+	this.type = request.type;
+	this.url = request.url;
+	this.endPoint = request.endPoint;
+	this.attributes = new ArrayList<Attribute>(request.getAttributes());
+    }
 
-	public String getEndPoint() {
-		return endPoint;
-	}
+    public Request(URL url) {
+	this.type = HttpMethods.GET;
+	this.url = url;
+    }
 
-	public void setEndPoint(String endPoint) {
-		this.endPoint = endPoint;
-	}
+    public Request(String urlString) throws MalformedURLException {
+	this.type = HttpMethods.GET;
+	setUrl(urlString);
+    }
 
-	public List<Attribute> getAttributes() {
-		return attributes;
-	}
+    public URL getUrl() {
+	return url;
+    }
 
-	public void setAttributes(List<Attribute> attributes) {
-		this.attributes = attributes;
-	}
+    public void setUrl(String urlString) throws MalformedURLException {
+	URL url = new URL(urlString);
+	this.url = url;
+    }
 
-//	public void createTableFromAttributeList() {
-//		
-//		this.attributeTable = new Table();
-//		
-//		for (Attribute p : attributes) {
-//			attributeTable.getColumns().add(p.getName());
-//			attributeTable.getTypes().add(IOType.INPUT);
-//			List<String> values = new ArrayList<String>();
-//			values.add(p.getValue());
-//			attributeTable.getValues().add(values);
-//		}
-//	}
-	
+    public String getType() {
+	return type;
+    }
+
+    public void setType(String type) {
+	this.type = type;
+    }
+
+    public String getEndPoint() {
+	return endPoint;
+    }
+
+    public void setEndPoint(String endPoint) {
+	this.endPoint = endPoint;
+    }
+
+    public List<Attribute> getAttributes() {
+	return attributes;
+    }
+
+    public void setAttributes(List<Attribute> attributes) {
+	this.attributes = attributes;
+    }
+
+    // public void createTableFromAttributeList() {
+    //
+    // this.attributeTable = new Table();
+    //
+    // for (Attribute p : attributes) {
+    // attributeTable.getColumns().add(p.getName());
+    // attributeTable.getTypes().add(IOType.INPUT);
+    // List<String> values = new ArrayList<String>();
+    // values.add(p.getValue());
+    // attributeTable.getValues().add(values);
+    // }
+    // }
+
 }

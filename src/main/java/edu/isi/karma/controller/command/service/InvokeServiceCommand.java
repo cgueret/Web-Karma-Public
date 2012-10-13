@@ -53,127 +53,140 @@ import edu.isi.karma.webserver.KarmaException;
  */
 public class InvokeServiceCommand extends WorksheetCommand {
 
-	static Logger logger = Logger.getLogger(InvokeServiceCommand.class);
-	private final String hNodeId;
-	private final String vWorksheetId;
-	
-	private Worksheet worksheetBeforeInvocation = null;
+    static Logger logger = Logger.getLogger(InvokeServiceCommand.class);
+    private final String hNodeId;
+    private final String vWorksheetId;
 
-	InvokeServiceCommand(String id, String worksheetId, String vWorksheetId, String hNodeId) {
-		super(id, worksheetId);
-		this.hNodeId = hNodeId;
-		this.vWorksheetId = vWorksheetId;
+    private Worksheet worksheetBeforeInvocation = null;
+
+    InvokeServiceCommand(String id, String worksheetId, String vWorksheetId,
+	    String hNodeId) {
+	super(id, worksheetId);
+	this.hNodeId = hNodeId;
+	this.vWorksheetId = vWorksheetId;
+    }
+
+    @Override
+    public String getCommandName() {
+	return this.getClass().getSimpleName();
+    }
+
+    @Override
+    public UpdateContainer doIt(VWorkspace vWorkspace) throws CommandException {
+	UpdateContainer c = new UpdateContainer();
+	Workspace ws = vWorkspace.getWorkspace();
+	Worksheet wk = vWorkspace.getRepFactory().getWorksheet(worksheetId);
+
+	// Clone the worksheet just before the invocation
+	Cloner cloner = new Cloner();
+	this.worksheetBeforeInvocation = cloner.deepClone(wk);
+
+	List<String> requestURLStrings = new ArrayList<String>();
+	List<Row> rows = wk.getDataTable().getRows(0,
+		wk.getDataTable().getNumRows());
+	if (rows == null || rows.size() == 0) {
+	    logger.error("Data table does not have any row.");
+	    return new UpdateContainer(new ErrorUpdate(
+		    "Data table does not have any row."));
 	}
 
-	@Override
-	public String getCommandName() {
-		return this.getClass().getSimpleName();
+	List<String> requestIds = new ArrayList<String>();
+	for (int i = 0; i < rows.size(); i++) {
+	    requestIds.add(rows.get(i).getId());
+	    requestURLStrings.add(rows.get(i).getNode(hNodeId).getValue()
+		    .asString());
 	}
 
-	@Override
-	public UpdateContainer doIt(VWorkspace vWorkspace) throws CommandException {
-		UpdateContainer c = new UpdateContainer();
-		Workspace ws = vWorkspace.getWorkspace();
-		Worksheet wk = vWorkspace.getRepFactory().getWorksheet(worksheetId);
-		
-		// Clone the worksheet just before the invocation
-		Cloner cloner = new Cloner();
-		this.worksheetBeforeInvocation = cloner.deepClone(wk);
-		
-		List<String> requestURLStrings = new ArrayList<String>();
-		List<Row> rows = wk.getDataTable().getRows(0, wk.getDataTable().getNumRows());
-		if (rows == null || rows.size() == 0) {
-			logger.error("Data table does not have any row.");
-			return new UpdateContainer(new ErrorUpdate("Data table does not have any row."));	
-		}
-		
-		List<String> requestIds = new ArrayList<String>();
-		for (int i = 0; i < rows.size(); i++) {
-			requestIds.add(rows.get(i).getId());
-			requestURLStrings.add(rows.get(i).getNode(hNodeId).getValue().asString());
-		}
+	InvocationManager invocatioManager;
+	try {
+	    invocatioManager = new InvocationManager(requestIds,
+		    requestURLStrings);
+	    logger.info("Requesting data with includeURL=" + false
+		    + ",includeInput=" + true + ",includeOutput=" + true);
+	    Table serviceTable = invocatioManager.getServiceData(false, true,
+		    true);
+	    // logger.debug(serviceTable.getPrintInfo());
+	    ServiceTableUtil.populateWorksheet(serviceTable, wk,
+		    ws.getFactory());
 
-		InvocationManager invocatioManager;
-		try {
-			invocatioManager = new InvocationManager(requestIds, requestURLStrings);
-			logger.info("Requesting data with includeURL=" + false + ",includeInput=" + true + ",includeOutput=" + true);
-			Table serviceTable = invocatioManager.getServiceData(false, true, true);
-//			logger.debug(serviceTable.getPrintInfo());
-			ServiceTableUtil.populateWorksheet(serviceTable, wk, ws.getFactory());
-			
-			Service service = invocatioManager.getInitialServiceModel(null);
-			MetadataContainer metaData = wk.getMetadataContainer();
-			if (metaData == null) {
-				metaData = new MetadataContainer();
-				wk.setMetadataContainer(metaData);
-			}
-			metaData.setService(service);
-			logger.info("Service added to the Worksheet.");
+	    Service service = invocatioManager.getInitialServiceModel(null);
+	    MetadataContainer metaData = wk.getMetadataContainer();
+	    if (metaData == null) {
+		metaData = new MetadataContainer();
+		wk.setMetadataContainer(metaData);
+	    }
+	    metaData.setService(service);
+	    logger.info("Service added to the Worksheet.");
 
-		} catch (MalformedURLException e) {
-			logger.error("Malformed service request URL.");
-			return new UpdateContainer(new ErrorUpdate("Malformed service request URL."));
-		} catch (KarmaException e) {
-			logger.error(e.getMessage());
-			return new UpdateContainer(new ErrorUpdate(e.getMessage()));
-		}
-		
-		// Create new vWorksheet using the new header order
-		List<HNodePath> columnPaths = new ArrayList<HNodePath>();
-		for (HNode node : wk.getHeaders().getSortedHNodes()) {
-			HNodePath path = new HNodePath(node);
-			columnPaths.add(path);
-		}
-		vWorkspace.getViewFactory().updateWorksheet(vWorksheetId,
-				wk, columnPaths, vWorkspace);
-		VWorksheet vw = vWorkspace.getViewFactory().getVWorksheet(vWorksheetId);
-		vw.update(c);
-		
-		return c;
-	}
-	
-	public Worksheet generateWorksheet(Workspace workspace, String title) throws KarmaException, IOException {
-
-		if (workspace == null)
-			throw new KarmaException("Workspace is null.");
-		
-		Worksheet worksheet = workspace.getFactory().createWorksheet(title, workspace);
-		
-		return worksheet;
-	}
-	
-	@Override
-	public UpdateContainer undoIt(VWorkspace vWorkspace) {
-		UpdateContainer c = new UpdateContainer();
-		
-		// Create new vWorksheet using the new header order
-		List<HNodePath> columnPaths = new ArrayList<HNodePath>();
-		for (HNode node : worksheetBeforeInvocation.getHeaders().getSortedHNodes()) {
-			HNodePath path = new HNodePath(node);
-			columnPaths.add(path);
-		}
-		vWorkspace.getRepFactory().replaceWorksheet(this.worksheetId, this.worksheetBeforeInvocation);
-		vWorkspace.getViewFactory().updateWorksheet(vWorksheetId,
-				this.worksheetBeforeInvocation, columnPaths, vWorkspace);
-		VWorksheet vw = vWorkspace.getViewFactory().getVWorksheet(vWorksheetId);
-		vw.update(c);
-		
-		return c;	
+	} catch (MalformedURLException e) {
+	    logger.error("Malformed service request URL.");
+	    return new UpdateContainer(new ErrorUpdate(
+		    "Malformed service request URL."));
+	} catch (KarmaException e) {
+	    logger.error(e.getMessage());
+	    return new UpdateContainer(new ErrorUpdate(e.getMessage()));
 	}
 
-	@Override
-	public String getTitle() {
-		return "Invoke Service";
+	// Create new vWorksheet using the new header order
+	List<HNodePath> columnPaths = new ArrayList<HNodePath>();
+	for (HNode node : wk.getHeaders().getSortedHNodes()) {
+	    HNodePath path = new HNodePath(node);
+	    columnPaths.add(path);
 	}
+	vWorkspace.getViewFactory().updateWorksheet(vWorksheetId, wk,
+		columnPaths, vWorkspace);
+	VWorksheet vw = vWorkspace.getViewFactory().getVWorksheet(vWorksheetId);
+	vw.update(c);
 
-	@Override
-	public String getDescription() {
-		return "";
-	}
+	return c;
+    }
 
-	@Override
-	public CommandType getCommandType() {
-		return CommandType.undoable;
+    public Worksheet generateWorksheet(Workspace workspace, String title)
+	    throws KarmaException, IOException {
+
+	if (workspace == null)
+	    throw new KarmaException("Workspace is null.");
+
+	Worksheet worksheet = workspace.getFactory().createWorksheet(title,
+		workspace);
+
+	return worksheet;
+    }
+
+    @Override
+    public UpdateContainer undoIt(VWorkspace vWorkspace) {
+	UpdateContainer c = new UpdateContainer();
+
+	// Create new vWorksheet using the new header order
+	List<HNodePath> columnPaths = new ArrayList<HNodePath>();
+	for (HNode node : worksheetBeforeInvocation.getHeaders()
+		.getSortedHNodes()) {
+	    HNodePath path = new HNodePath(node);
+	    columnPaths.add(path);
 	}
+	vWorkspace.getRepFactory().replaceWorksheet(this.worksheetId,
+		this.worksheetBeforeInvocation);
+	vWorkspace.getViewFactory().updateWorksheet(vWorksheetId,
+		this.worksheetBeforeInvocation, columnPaths, vWorkspace);
+	VWorksheet vw = vWorkspace.getViewFactory().getVWorksheet(vWorksheetId);
+	vw.update(c);
+
+	return c;
+    }
+
+    @Override
+    public String getTitle() {
+	return "Invoke Service";
+    }
+
+    @Override
+    public String getDescription() {
+	return "";
+    }
+
+    @Override
+    public CommandType getCommandType() {
+	return CommandType.undoable;
+    }
 
 }

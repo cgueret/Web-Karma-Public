@@ -37,73 +37,79 @@ import edu.isi.karma.util.AbstractJDBCUtil.DBType;
 import edu.isi.karma.util.JDBCUtilFactory;
 
 public class DatabaseTableImport {
-	
-	private AbstractJDBCUtil.DBType dbType;
-	private String 	hostname;
-	private int 	portnumber;
-	private String 	username;
-	private String 	password;
-	private String 	dBorSIDName;
-	private String tableName;
-	private final RepFactory factory;
-	private final Worksheet worksheet;
-	
-	//private static Logger logger = LoggerFactory.getLogger(DatabaseTableImport.class);
 
-	public DatabaseTableImport(DBType dbType, String hostname, int portnumber,
-			String username, String password, String dBorSIDName,
-			String tableName, Workspace workspace) {
-		super();
-		this.dbType = dbType;
-		this.hostname = hostname;
-		this.portnumber = portnumber;
-		this.username = username;
-		this.password = password;
-		this.dBorSIDName = dBorSIDName;
-		this.tableName = tableName;
-		this.factory = workspace.getFactory();
-		this.worksheet = factory.createWorksheet(tableName, workspace);
+    private AbstractJDBCUtil.DBType dbType;
+    private String hostname;
+    private int portnumber;
+    private String username;
+    private String password;
+    private String dBorSIDName;
+    private String tableName;
+    private final RepFactory factory;
+    private final Worksheet worksheet;
+
+    // private static Logger logger =
+    // LoggerFactory.getLogger(DatabaseTableImport.class);
+
+    public DatabaseTableImport(DBType dbType, String hostname, int portnumber,
+	    String username, String password, String dBorSIDName,
+	    String tableName, Workspace workspace) {
+	super();
+	this.dbType = dbType;
+	this.hostname = hostname;
+	this.portnumber = portnumber;
+	this.username = username;
+	this.password = password;
+	this.dBorSIDName = dBorSIDName;
+	this.tableName = tableName;
+	this.factory = workspace.getFactory();
+	this.worksheet = factory.createWorksheet(tableName, workspace);
+    }
+
+    public Worksheet generateWorksheet() throws SQLException,
+	    ClassNotFoundException {
+	/** Get the data from the database table **/
+	AbstractJDBCUtil dbUtil = JDBCUtilFactory.getInstance(dbType);
+	// TODO Limiting the number of rows to 1000 for now to avoid all data in
+	// memory
+	ArrayList<ArrayList<String>> data = dbUtil.getDataForLimitedRows(
+		dbType, hostname, portnumber, username, password, tableName,
+		dBorSIDName, 1000);
+
+	/** Add the headers **/
+	HTable headers = worksheet.getHeaders();
+	ArrayList<String> headersList = new ArrayList<String>();
+	for (int i = 0; i < data.get(0).size(); i++) {
+	    HNode hNode = null;
+	    hNode = headers.addHNode(data.get(0).get(i), worksheet, factory);
+	    headersList.add(hNode.getId());
 	}
 
-	public Worksheet generateWorksheet() throws SQLException, ClassNotFoundException {
-		/** Get the data from the database table **/
-		AbstractJDBCUtil dbUtil = JDBCUtilFactory.getInstance(dbType);
-		// TODO Limiting the number of rows to 1000 for now to avoid all data in memory
-		ArrayList<ArrayList<String>> data = dbUtil.getDataForLimitedRows(dbType, hostname, 
-				portnumber, username, password, tableName, dBorSIDName, 1000);
-		
-		/** Add the headers **/
-		HTable headers = worksheet.getHeaders();
-		ArrayList<String> headersList = new ArrayList<String>();
-        for(int i=0; i<data.get(0).size(); i++){
-        	HNode hNode = null;
-        	hNode = headers.addHNode(data.get(0).get(i), worksheet, factory);
-        	headersList.add(hNode.getId());
-        }
-        
-        /** Add the data **/
-        Table dataTable = worksheet.getDataTable();
-        for(int i=1; i<data.size(); i++) {
-        	Row row = dataTable.addRow(factory);
-        	ArrayList<String> rowData = data.get(i);
-			for (int j = 0; j < rowData.size(); j++) {
-				row.setValue(headersList.get(j), rowData.get(j));
-			}
-        }
-        
-        /** Save the db info in the source information part of worksheet's metadata **/
-        SourceInformation srcInfo = new SourceInformation();
-        srcInfo.setAttributeValue(InfoAttribute.dbType, dbType.name());
-        srcInfo.setAttributeValue(InfoAttribute.hostname, hostname);
-        srcInfo.setAttributeValue(InfoAttribute.portnumber, String.valueOf(portnumber));
-        srcInfo.setAttributeValue(InfoAttribute.username, username);
-        srcInfo.setAttributeValue(InfoAttribute.dBorSIDName, dBorSIDName);
-        srcInfo.setAttributeValue(InfoAttribute.tableName, tableName);
-        worksheet.getMetadataContainer().setSourceInformation(srcInfo);
-		
-		return worksheet;
+	/** Add the data **/
+	Table dataTable = worksheet.getDataTable();
+	for (int i = 1; i < data.size(); i++) {
+	    Row row = dataTable.addRow(factory);
+	    ArrayList<String> rowData = data.get(i);
+	    for (int j = 0; j < rowData.size(); j++) {
+		row.setValue(headersList.get(j), rowData.get(j));
+	    }
 	}
 
-	
+	/**
+	 * Save the db info in the source information part of worksheet's
+	 * metadata
+	 **/
+	SourceInformation srcInfo = new SourceInformation();
+	srcInfo.setAttributeValue(InfoAttribute.dbType, dbType.name());
+	srcInfo.setAttributeValue(InfoAttribute.hostname, hostname);
+	srcInfo.setAttributeValue(InfoAttribute.portnumber,
+		String.valueOf(portnumber));
+	srcInfo.setAttributeValue(InfoAttribute.username, username);
+	srcInfo.setAttributeValue(InfoAttribute.dBorSIDName, dBorSIDName);
+	srcInfo.setAttributeValue(InfoAttribute.tableName, tableName);
+	worksheet.getMetadataContainer().setSourceInformation(srcInfo);
+
+	return worksheet;
+    }
 
 }

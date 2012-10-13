@@ -22,85 +22,82 @@ package edu.isi.karma.modeling.alignment;
 
 public class URI {
 
-	private String uriString;
-	private String ns;
-	private String prefix;
-	
-	public URI(String uri, String ns, String prefix) {
-		this.uriString = uri;
-		this.ns = ns;
-		this.prefix = prefix;
+    private String uriString;
+    private String ns;
+    private String prefix;
+
+    public URI(String uri, String ns, String prefix) {
+	this.uriString = uri;
+	this.ns = ns;
+	this.prefix = prefix;
+    }
+
+    public URI(String uri) {
+	this.uriString = uri;
+	this.ns = null;
+	this.prefix = null;
+    }
+
+    public URI(URI uri) {
+	this.uriString = uri.getUriString();
+	this.ns = uri.getNs();
+	this.prefix = uri.getPrefix();
+    }
+
+    public void setUriString(String uri) {
+	this.uriString = uri;
+    }
+
+    public void setNs(String ns) {
+	this.ns = ns;
+    }
+
+    public void setPrefix(String prefix) {
+	this.prefix = prefix;
+    }
+
+    public String getUriString() {
+	return uriString;
+    }
+
+    public String getNs() {
+	return ns;
+    }
+
+    public String getPrefix() {
+	return prefix;
+    }
+
+    public String getLocalName() {
+	if (uriString == null)
+	    return null;
+
+	String name = uriString;
+	if (ns != null)
+	    name = name.replaceFirst(ns, "");
+
+	return name;
+    }
+
+    public String getLocalNameWithPrefix() {
+	if (uriString == null)
+	    return null;
+
+	String name = uriString;
+	if (ns != null && prefix != null) {
+	    name = name.replaceFirst(ns, "");
+	    name = prefix + ":" + name;
 	}
 
-	public URI(String uri) {
-		this.uriString = uri;
-		this.ns = null;
-		this.prefix = null;
-	}
-	
-	public URI(URI uri) {
-		this.uriString = uri.getUriString();
-		this.ns = uri.getNs();
-		this.prefix = uri.getPrefix();
-	}
-	
-	public void setUriString(String uri) {
-		this.uriString = uri;
-	}
+	return name;
+    }
 
-
-	public void setNs(String ns) {
-		this.ns = ns;
+    public String getLocalNameWithPrefixIfAvailable() {
+	if (prefix == null || prefix.equals("")) {
+	    return getLocalName();
+	} else {
+	    return getLocalNameWithPrefix();
 	}
-
-
-	public void setPrefix(String prefix) {
-		this.prefix = prefix;
-	}
-
-
-	public String getUriString() {
-		return uriString;
-	}
-
-	public String getNs() {
-		return ns;
-	}
-
-	public String getPrefix() {
-		return prefix;
-	}
-	
-	public String getLocalName() {
-		if (uriString == null)
-			return null;
-		
-		String name = uriString;
-		if (ns != null)
-			name = name.replaceFirst(ns, "");
-		
-		return name;
-	}
-
-	public String getLocalNameWithPrefix() {
-		if (uriString == null)
-			return null;
-		
-		String name = uriString;
-		if (ns != null && prefix != null) {
-			name = name.replaceFirst(ns, "");
-			name = prefix + ":" + name;
-		}
-		
-		return name;
-	}
-	
-	public String getLocalNameWithPrefixIfAvailable() {
-		if (prefix == null || prefix.equals("")) {
-			return getLocalName();
-		} else {
-			return getLocalNameWithPrefix();
-		}
-	}
+    }
 
 }

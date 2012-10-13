@@ -36,29 +36,32 @@ import edu.isi.karma.util.FileUtil;
 import edu.isi.karma.webserver.ServletContextParameterMap.ContextParameter;
 
 public class KMLFileTransferHandler extends HttpServlet {
-	/**
+    /**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
-	
-	static Logger logger = LoggerFactory.getLogger(KMLFileTransferHandler.class);
+    private static final long serialVersionUID = 1L;
 
-	protected void doPost(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException {
-		File file = FileUtil.downloadFileFromHTTPRequest(request);
+    static Logger logger = LoggerFactory
+	    .getLogger(KMLFileTransferHandler.class);
 
-		// Move the file to the webapp directory so that it is public
-		File dir = new File(ServletContextParameterMap.getParameterValue(ContextParameter.USER_DIRECTORY_PATH) + 
-				"KML/"+file.getName());
-		if(dir.exists())
-			dir.delete();
-		file.renameTo(dir);
-		try {
-			Writer writer = response.getWriter();
-			writer.write("done");
-			response.flushBuffer();
-		} catch (IOException e) {
-			logger.error("Error occured while downloading the file!",e);
-		}
+    protected void doPost(HttpServletRequest request,
+	    HttpServletResponse response) throws ServletException {
+	File file = FileUtil.downloadFileFromHTTPRequest(request);
+
+	// Move the file to the webapp directory so that it is public
+	File dir = new File(
+		ServletContextParameterMap
+			.getParameterValue(ContextParameter.USER_DIRECTORY_PATH)
+			+ "KML/" + file.getName());
+	if (dir.exists())
+	    dir.delete();
+	file.renameTo(dir);
+	try {
+	    Writer writer = response.getWriter();
+	    writer.write("done");
+	    response.flushBuffer();
+	} catch (IOException e) {
+	    logger.error("Error occured while downloading the file!", e);
 	}
+    }
 }

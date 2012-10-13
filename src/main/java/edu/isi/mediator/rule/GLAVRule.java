@@ -21,39 +21,41 @@
 
 package edu.isi.mediator.rule;
 
-
-
-
 /**
  * Defines a Rule.
+ * 
  * @author mariam
- *
+ * 
  */
-public class GLAVRule extends Rule{
-	
-	//GLAV_RULES: antecedent -> consequent (multiple predicates in antecedent and consequent)
+public class GLAVRule extends Rule {
 
-	public GLAVRule(){}
-	
-	/* (non-Javadoc)
-	 * @see edu.isi.mediator.gav.domain.Rule#clone()
-	 */
-	public GLAVRule clone(){
-		GLAVRule r = new GLAVRule();
-		for(int i=0; i<antecedent.size(); i++){
-			Predicate p = antecedent.get(i);
-			r.antecedent.add(p.clone());
-		}
-		for(int i=0; i<consequent.size(); i++){
-			Predicate p = consequent.get(i);
-			r.consequent.add(p.clone());
-		}
-		return r;
-	}
+    // GLAV_RULES: antecedent -> consequent (multiple predicates in antecedent
+    // and consequent)
 
-	public boolean isValid(){
-		//I am not sure yet what this method should do for LAV rules
-		return true;
+    public GLAVRule() {
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see edu.isi.mediator.gav.domain.Rule#clone()
+     */
+    public GLAVRule clone() {
+	GLAVRule r = new GLAVRule();
+	for (int i = 0; i < antecedent.size(); i++) {
+	    Predicate p = antecedent.get(i);
+	    r.antecedent.add(p.clone());
 	}
+	for (int i = 0; i < consequent.size(); i++) {
+	    Predicate p = consequent.get(i);
+	    r.consequent.add(p.clone());
+	}
+	return r;
+    }
+
+    public boolean isValid() {
+	// I am not sure yet what this method should do for LAV rules
+	return true;
+    }
 
 }

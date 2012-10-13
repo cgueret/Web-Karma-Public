@@ -23,26 +23,27 @@ package edu.isi.karma.modeling.semantictypes.myutils;
 import java.util.Collection;
 
 /**
- * This is utility class for printing to console. It is widely used in the package.
+ * This is utility class for printing to console. It is widely used in the
+ * package.
  * 
  * @author amangoel
- *
+ * 
  */
 public class Prnt {
-	
-	public static void prn(Object obj) {
-		System.out.println(obj) ;
+
+    public static void prn(Object obj) {
+	System.out.println(obj);
+    }
+
+    public static void endIt(String msg) {
+	prn(msg);
+	System.exit(1);
+    }
+
+    public static void prnCollection(Collection<String> list, String prefix) {
+	for (String str : list) {
+	    prn((prefix == null ? "" : prefix) + str);
 	}
-	
-	public static void endIt(String msg) {
-		prn(msg);
-		System.exit(1) ;
-	}
-	
-	public static void prnCollection(Collection<String> list, String prefix) {
-		for(String str : list) {
-			prn((prefix == null ? "" : prefix) + str) ;
-		}
-	}
+    }
 
 }

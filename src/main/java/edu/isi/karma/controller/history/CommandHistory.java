@@ -50,238 +50,240 @@ import edu.isi.karma.view.VWorkspace;
  */
 public class CommandHistory {
 
-	private final ArrayList<Command> history = new ArrayList<Command>();
+    private final ArrayList<Command> history = new ArrayList<Command>();
 
-	private final ArrayList<Command> redoStack = new ArrayList<Command>();
+    private final ArrayList<Command> redoStack = new ArrayList<Command>();
 
-	/**
-	 * If the last command was undo, and then we do a command that goes on the
-	 * history, then we need to send the browser the full history BEFORE we send
-	 * the update for the command the user just did. The reason is that the
-	 * history may contain undoable commands, and the browser does not know how
-	 * to reset the history.
-	 */
-	private boolean lastCommandWasUndo = false;
-	
-	/**
-	 * Used to keep a pointer to the command which require user-interaction
-	 * through multiple HTTP requests.
-	 */
-	private Command currentCommand;
-	
-	private final Logger logger = LoggerFactory.getLogger(this.getClass().getSimpleName());
+    /**
+     * If the last command was undo, and then we do a command that goes on the
+     * history, then we need to send the browser the full history BEFORE we send
+     * the update for the command the user just did. The reason is that the
+     * history may contain undoable commands, and the browser does not know how
+     * to reset the history.
+     */
+    private boolean lastCommandWasUndo = false;
 
-	public CommandHistory() {
+    /**
+     * Used to keep a pointer to the command which require user-interaction
+     * through multiple HTTP requests.
+     */
+    private Command currentCommand;
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass()
+	    .getSimpleName());
+
+    public CommandHistory() {
+    }
+
+    public CommandHistory(ArrayList<Command> history,
+	    ArrayList<Command> redoStack) {
+	for (Command c : history) {
+	    this.history.add(c);
+	}
+	for (Command c : redoStack) {
+	    this.redoStack.add(c);
+	}
+    }
+
+    public boolean isUndoEnabled() {
+	return !history.isEmpty();
+    }
+
+    public boolean isRedoEnabled() {
+	return !redoStack.isEmpty();
+    }
+
+    public ArrayList<Command> _getHistory() {
+	return history;
+    }
+
+    public ArrayList<Command> _getRedoStack() {
+	return redoStack;
+    }
+
+    public CommandHistory clone() {
+	return new CommandHistory(history, redoStack);
+    }
+
+    public void setCurrentCommand(Command command) {
+	this.currentCommand = command;
+    }
+
+    public Command getCurrentCommand() {
+	return this.currentCommand;
+    }
+
+    /**
+     * Commands go onto the history when they have all their arguments and are
+     * ready to be executed. If a command needs multiple user interactions to
+     * define the parameters, then the command object must be created,
+     * interacted with and then executed.
+     * 
+     * @param command
+     * @param vWorkspace
+     * @return UpdateContainer with all the changes done by the command.
+     * @throws CommandException
+     */
+    public UpdateContainer doCommand(Command command, VWorkspace vWorkspace)
+	    throws CommandException {
+	UpdateContainer effects = new UpdateContainer();
+	effects.append(command.doIt(vWorkspace));
+	command.setExecuted(true);
+
+	if (command.getCommandType() != CommandType.notInHistory) {
+	    redoStack.clear();
+
+	    // Send the history before the command we just executed.
+	    if (lastCommandWasUndo && !(command instanceof UndoRedoCommand)) {
+		effects.append(new UpdateContainer(new HistoryUpdate(this)));
+	    }
+	    lastCommandWasUndo = false;
+
+	    history.add(command);
+	    effects.add(new HistoryAddCommandUpdate(command));
 	}
 
-	public CommandHistory(ArrayList<Command> history,
-			ArrayList<Command> redoStack) {
-		for (Command c : history) {
-			this.history.add(c);
-		}
-		for (Command c : redoStack) {
-			this.redoStack.add(c);
-		}
+	// Save the modeling commands
+	CommandHistoryWriter chWriter = new CommandHistoryWriter(history,
+		vWorkspace);
+	try {
+	    chWriter.writeHistoryPerWorksheet();
+	} catch (JSONException e) {
+	    logger.error("Error occured while writing history!", e);
+	    e.printStackTrace();
 	}
 
-	public boolean isUndoEnabled() {
-		return !history.isEmpty();
+	return effects;
+    }
+
+    /**
+     * @param vWorkspace
+     * @param commandId
+     *            is the id of a command that should be either in the undo or
+     *            redo histories. If it is in none, then nothing will be done.
+     * @return the effects of the undone or redone commands.
+     * @throws CommandException
+     */
+    public UpdateContainer undoOrRedoCommandsUntil(VWorkspace vWorkspace,
+	    String commandId) throws CommandException {
+	List<Command> commandsToUndo = getCommandsUntil(history, commandId);
+	if (!commandsToUndo.isEmpty()) {
+	    lastCommandWasUndo = true;
+	    return undoCommands(vWorkspace, commandsToUndo);
+	} else {
+	    List<Command> commandsToRedo = getCommandsUntil(redoStack,
+		    commandId);
+	    if (!commandsToRedo.isEmpty()) {
+		return redoCommands(vWorkspace, commandsToRedo);
+	    } else {
+		return new UpdateContainer();
+	    }
+	}
+    }
+
+    /**
+     * Undo all commands in the given list.
+     * 
+     * @param vWorkspace
+     * @param commandsToUndo
+     * 
+     * @return UpdateContainer with the effects of all undone commands.
+     */
+    private UpdateContainer undoCommands(VWorkspace vWorkspace,
+	    List<Command> commandsToUndo) {
+
+	UpdateContainer effects = new UpdateContainer();
+	for (Command c : commandsToUndo) {
+	    history.remove(c);
+	    redoStack.add(c);
+	    effects.append(c.undoIt(vWorkspace));
+	}
+	return effects;
+    }
+
+    /**
+     * Redo all the commands in the given list.
+     * 
+     * @param vWorkspace
+     * @param commandsToRedo
+     * @return
+     * @throws CommandException
+     */
+    private UpdateContainer redoCommands(VWorkspace vWorkspace,
+	    List<Command> commandsToRedo) throws CommandException {
+	if (!redoStack.isEmpty()) {
+
+	    UpdateContainer effects = new UpdateContainer();
+	    for (Command c : commandsToRedo) {
+		redoStack.remove(c);
+		history.add(c);
+		effects.append(c.doIt(vWorkspace));
+	    }
+	    return effects;
+	} else {
+	    return new UpdateContainer();
+	}
+    }
+
+    /**
+     * @param commands
+     *            , a list of commands.
+     * @param commandId
+     *            , the id of a command.
+     * @return the sublist of commands from the start until and including a
+     *         command with the given id. If the command with the given id is
+     *         not in the list, return the empty list.
+     */
+    private List<Command> getCommandsUntil(ArrayList<Command> commands,
+	    String commandId) {
+	if (commands.isEmpty()) {
+	    return Collections.emptyList();
+	}
+	List<Command> result = new LinkedList<Command>();
+	boolean foundCommand = false;
+	for (int i = commands.size() - 1; i >= 0; i--) {
+	    Command c = commands.get(i);
+	    if (c.getCommandType() == Command.CommandType.undoable) {
+		result.add(c);
+	    }
+	    if (c.getId().equals(commandId)) {
+		foundCommand = true;
+		break;
+	    }
+	}
+	if (foundCommand) {
+	    return result;
+	} else {
+	    return Collections.emptyList();
+	}
+    }
+
+    public void generateFullHistoryJson(String prefix, PrintWriter pw,
+	    VWorkspace vWorkspace) {
+	Iterator<Command> histIt = history.iterator();
+	while (histIt.hasNext()) {
+	    histIt.next().generateJson(prefix, pw, vWorkspace,
+		    Command.HistoryType.undo);
+	    if (histIt.hasNext() || isRedoEnabled()) {
+		pw.println(prefix + ",");
+	    }
 	}
 
-	public boolean isRedoEnabled() {
-		return !redoStack.isEmpty();
+	for (int i = redoStack.size() - 1; i >= 0; i--) {
+	    Command redoComm = redoStack.get(i);
+	    redoComm.generateJson(prefix, pw, vWorkspace,
+		    Command.HistoryType.redo);
+	    if (i != 0)
+		pw.println(prefix + ",");
 	}
+    }
 
-	public ArrayList<Command> _getHistory() {
-		return history;
+    public void removeCommands(CommandTag tag) {
+	List<Command> commandsToBeRemoved = new ArrayList<Command>();
+	for (Command command : history) {
+	    if (command.hasTag(tag))
+		commandsToBeRemoved.add(command);
 	}
-
-	public ArrayList<Command> _getRedoStack() {
-		return redoStack;
-	}
-
-	public CommandHistory clone() {
-		return new CommandHistory(history, redoStack);
-	}
-	
-	public void setCurrentCommand(Command command) {
-		this.currentCommand = command;
-	}
-	
-	public Command getCurrentCommand() {
-		return this.currentCommand;
-	}
-
-	/**
-	 * Commands go onto the history when they have all their arguments and are
-	 * ready to be executed. If a command needs multiple user interactions to
-	 * define the parameters, then the command object must be created,
-	 * interacted with and then executed. 
-	 * 
-	 * @param command
-	 * @param vWorkspace
-	 * @return UpdateContainer with all the changes done by the command.
-	 * @throws CommandException
-	 */
-	public UpdateContainer doCommand(Command command, VWorkspace vWorkspace)
-			throws CommandException {
-		UpdateContainer effects = new UpdateContainer();
-		effects.append(command.doIt(vWorkspace));
-		command.setExecuted(true);
-		
-		if (command.getCommandType() != CommandType.notInHistory) {
-			redoStack.clear();
-			
-			// Send the history before the command we just executed.
-			if (lastCommandWasUndo && !(command instanceof UndoRedoCommand)) {
-				effects.append(new UpdateContainer(new HistoryUpdate(this)));
-			}
-			lastCommandWasUndo = false;
-			
-			history.add(command);
-			effects.add(new HistoryAddCommandUpdate(command));
-		}
-		
-		// Save the modeling commands
-		CommandHistoryWriter chWriter = new CommandHistoryWriter(history, vWorkspace);
-		try {
-			chWriter.writeHistoryPerWorksheet();
-		} catch (JSONException e) {
-			logger.error("Error occured while writing history!" , e);
-			e.printStackTrace();
-		}
-		
-		return effects;
-	}
-
-	/**
-	 * @param vWorkspace
-	 * @param commandId
-	 *            is the id of a command that should be either in the undo or
-	 *            redo histories. If it is in none, then nothing will be done.
-	 * @return the effects of the undone or redone commands.
-	 * @throws CommandException
-	 */
-	public UpdateContainer undoOrRedoCommandsUntil(VWorkspace vWorkspace,
-			String commandId) throws CommandException {
-		List<Command> commandsToUndo = getCommandsUntil(history, commandId);
-		if (!commandsToUndo.isEmpty()) {
-			lastCommandWasUndo = true;
-			return undoCommands(vWorkspace, commandsToUndo);
-		} else {
-			List<Command> commandsToRedo = getCommandsUntil(redoStack,
-					commandId);
-			if (!commandsToRedo.isEmpty()) {
-				return redoCommands(vWorkspace, commandsToRedo);
-			} else {
-				return new UpdateContainer();
-			}
-		}
-	}
-
-	/**
-	 * Undo all commands in the given list.
-	 * 
-	 * @param vWorkspace
-	 * @param commandsToUndo
-	 * 
-	 * @return UpdateContainer with the effects of all undone commands.
-	 */
-	private UpdateContainer undoCommands(VWorkspace vWorkspace,
-			List<Command> commandsToUndo) {
-
-		UpdateContainer effects = new UpdateContainer();
-		for (Command c : commandsToUndo) {
-			history.remove(c);
-			redoStack.add(c);
-			effects.append(c.undoIt(vWorkspace));
-		}
-		return effects;
-	}
-
-	/**
-	 * Redo all the commands in the given list.
-	 * 
-	 * @param vWorkspace
-	 * @param commandsToRedo
-	 * @return
-	 * @throws CommandException
-	 */
-	private UpdateContainer redoCommands(VWorkspace vWorkspace,
-			List<Command> commandsToRedo) throws CommandException {
-		if (!redoStack.isEmpty()) {
-
-			UpdateContainer effects = new UpdateContainer();
-			for (Command c : commandsToRedo) {
-				redoStack.remove(c);
-				history.add(c);
-				effects.append(c.doIt(vWorkspace));
-			}
-			return effects;
-		} else {
-			return new UpdateContainer();
-		}
-	}
-
-	/**
-	 * @param commands
-	 *            , a list of commands.
-	 * @param commandId
-	 *            , the id of a command.
-	 * @return the sublist of commands from the start until and including a
-	 *         command with the given id. If the command with the given id is
-	 *         not in the list, return the empty list.
-	 */
-	private List<Command> getCommandsUntil(ArrayList<Command> commands,
-			String commandId) {
-		if (commands.isEmpty()) {
-			return Collections.emptyList();
-		}
-		List<Command> result = new LinkedList<Command>();
-		boolean foundCommand = false;
-		for (int i = commands.size() - 1; i >= 0; i--) {
-			Command c = commands.get(i);
-			if (c.getCommandType() == Command.CommandType.undoable) {
-				result.add(c);
-			}
-			if (c.getId().equals(commandId)) {
-				foundCommand = true;
-				break;
-			}
-		}
-		if (foundCommand) {
-			return result;
-		} else {
-			return Collections.emptyList();
-		}
-	}
-
-	public void generateFullHistoryJson(String prefix, PrintWriter pw,
-			VWorkspace vWorkspace) {
-		Iterator<Command> histIt = history.iterator();
-		while (histIt.hasNext()) {
-			histIt.next().generateJson(prefix, pw, vWorkspace,
-					Command.HistoryType.undo);
-			if (histIt.hasNext() || isRedoEnabled()) {
-				pw.println(prefix + ",");
-			}
-		}
-
-		for(int i = redoStack.size()-1; i>=0; i--) {
-			Command redoComm = redoStack.get(i);
-			redoComm.generateJson(prefix, pw, vWorkspace,
-					Command.HistoryType.redo);
-			if(i != 0)
-				pw.println(prefix + ",");
-		}
-	}
-
-	public void removeCommands(CommandTag tag) {
-		List<Command> commandsToBeRemoved = new ArrayList<Command>();
-		for(Command command: history) {
-			if(command.hasTag(tag))
-				commandsToBeRemoved.add(command);
-		}
-		history.removeAll(commandsToBeRemoved);
-	}
+	history.removeAll(commandsToBeRemoved);
+    }
 }

@@ -28,70 +28,71 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class OracleUtil extends AbstractJDBCUtil {
-	
-	static final String DRIVER = 
-		"oracle.jdbc.driver.OracleDriver";
-	
-	static final String CONNECT_STRING_TEMPLATE = 
-		"jdbc:oracle:thin:username/pwd@//host:port/sid";
 
-	@Override
-	public ArrayList<String> getListOfTables(Connection conn)
-			throws SQLException, ClassNotFoundException {
-		ArrayList<String> tableNames = new ArrayList<String>();
-		
-		Statement stmt = conn.createStatement(); 
-	    ResultSet rs = stmt.executeQuery("select object_name from user_objects " +
-	    		"where object_type = 'TABLE'");
+    static final String DRIVER = "oracle.jdbc.driver.OracleDriver";
 
-	    while (rs.next()) {
-	      String tableName = rs.getString(1);
-	      tableNames.add(tableName);
-	    }
-	    Collections.sort(tableNames);
-		return tableNames;
+    static final String CONNECT_STRING_TEMPLATE = "jdbc:oracle:thin:username/pwd@//host:port/sid";
+
+    @Override
+    public ArrayList<String> getListOfTables(Connection conn)
+	    throws SQLException, ClassNotFoundException {
+	ArrayList<String> tableNames = new ArrayList<String>();
+
+	Statement stmt = conn.createStatement();
+	ResultSet rs = stmt
+		.executeQuery("select object_name from user_objects "
+			+ "where object_type = 'TABLE'");
+
+	while (rs.next()) {
+	    String tableName = rs.getString(1);
+	    tableNames.add(tableName);
+	}
+	Collections.sort(tableNames);
+	return tableNames;
+    }
+
+    @Override
+    public ArrayList<ArrayList<String>> getDataForLimitedRows(DBType dbType,
+	    String hostname, int portnumber, String username, String password,
+	    String tableName, String dBorSIDName, int rowCount)
+	    throws SQLException, ClassNotFoundException {
+
+	String connectString = getConnectString(hostname, portnumber, username,
+		password, dBorSIDName);
+	Connection conn = getConnection(DRIVER, connectString);
+
+	Statement s = conn.createStatement();
+	ResultSet r = s.executeQuery("select * from " + tableName
+		+ " where rownum < " + rowCount);
+
+	if (r == null) {
+	    s.close();
+	    return null;
 	}
 
-	@Override
-	public ArrayList<ArrayList<String>> getDataForLimitedRows(DBType dbType,
-			String hostname, int portnumber, String username, String password,
-			String tableName, String dBorSIDName, int rowCount)
-			throws SQLException, ClassNotFoundException {
-		
-		String connectString = getConnectString(hostname, portnumber, username, password, dBorSIDName);
-		Connection conn = getConnection(DRIVER, connectString);
-		
-		Statement s = conn.createStatement();
-		ResultSet r = s.executeQuery("select * from " + tableName + " where rownum < " + rowCount);
+	ArrayList<ArrayList<String>> vals = parseResultSetIntoArrayListOfRows(r);
 
-		if (r == null) {
-			s.close();
-			return null;
-		}
-		
-		ArrayList<ArrayList<String>> vals = parseResultSetIntoArrayListOfRows(r);
-		
-		r.close();
-		s.close();
-		return vals;
-	}
-	
-	@Override
-	public String prepareName(String name) {
-		String s = name;
-		s = name.replace('-', '_');
-		s = "`" + s + "`";
-		return s;
-	}
+	r.close();
+	s.close();
+	return vals;
+    }
 
-	@Override
-	protected String getDriver() {
-		return DRIVER;
-	}
+    @Override
+    public String prepareName(String name) {
+	String s = name;
+	s = name.replace('-', '_');
+	s = "`" + s + "`";
+	return s;
+    }
 
-	@Override
-	protected String getConnectStringTemplate() {
-		return CONNECT_STRING_TEMPLATE;
-	}
+    @Override
+    protected String getDriver() {
+	return DRIVER;
+    }
+
+    @Override
+    protected String getConnectStringTemplate() {
+	return CONNECT_STRING_TEMPLATE;
+    }
 
 }

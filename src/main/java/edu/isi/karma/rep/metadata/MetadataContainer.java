@@ -25,46 +25,46 @@ import edu.isi.karma.service.Service;
 import edu.isi.karma.service.Source;
 
 public class MetadataContainer {
-	
-	@SuppressWarnings("unused")
-	private String 			worksheetName;
-	@SuppressWarnings("unused")
-	private SemanticTypes 	semanticTypes;
-	
-	private Service service;
-	private Source source;
-	
-	private SourceInformation sourceInfo;
 
-	public void initializeFromJSON() {
-		
-	}
-	
-	public void save() {
-		
-	}
+    @SuppressWarnings("unused")
+    private String worksheetName;
+    @SuppressWarnings("unused")
+    private SemanticTypes semanticTypes;
 
-	public Service getService() {
-		return service;
-	}
+    private Service service;
+    private Source source;
 
-	public void setService(Service service) {
-		this.service = service;
-	}
+    private SourceInformation sourceInfo;
 
-	public Source getSource() {
-		return source;
-	}
+    public void initializeFromJSON() {
 
-	public void setSource(Source source) {
-		this.source = source;
-	}
+    }
 
-	public SourceInformation getSourceInformation() {
-		return sourceInfo;
-	}
+    public void save() {
 
-	public void setSourceInformation(SourceInformation sourceInfo) {
-		this.sourceInfo = sourceInfo;
-	}	
+    }
+
+    public Service getService() {
+	return service;
+    }
+
+    public void setService(Service service) {
+	this.service = service;
+    }
+
+    public Source getSource() {
+	return source;
+    }
+
+    public void setSource(Source source) {
+	this.source = source;
+    }
+
+    public SourceInformation getSourceInformation() {
+	return sourceInfo;
+    }
+
+    public void setSourceInformation(SourceInformation sourceInfo) {
+	this.sourceInfo = sourceInfo;
+    }
 }

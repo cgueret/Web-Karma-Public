@@ -120,147 +120,164 @@ import edu.isi.karma.view.VWorkspace;
  */
 public class ExecutionController {
 
-	private static Logger logger = LoggerFactory
-			.getLogger(ExecutionController.class);
+    private static Logger logger = LoggerFactory
+	    .getLogger(ExecutionController.class);
 
-	private final HashMap<String, CommandFactory> commandFactoryMap = new HashMap<String, CommandFactory>();
+    private final HashMap<String, CommandFactory> commandFactoryMap = new HashMap<String, CommandFactory>();
 
-	private final VWorkspace vWorkspace;
+    private final VWorkspace vWorkspace;
 
-	public ExecutionController(VWorkspace vWorkspace) {
-		this.vWorkspace = vWorkspace;
-		initializeCommandFactoryMap();
+    public ExecutionController(VWorkspace vWorkspace) {
+	this.vWorkspace = vWorkspace;
+	initializeCommandFactoryMap();
+    }
+
+    private void initializeCommandFactoryMap() {
+	// TODO: there must be a way to do this using Reflection with all
+	// subclasses of CommandFactory.
+	commandFactoryMap.put(EditCellCommand.class.getSimpleName(),
+		new EditCellCommandFactory());
+	commandFactoryMap.put(UndoRedoCommand.class.getSimpleName(),
+		new UndoRedoCommandFactory());
+	commandFactoryMap.put(TablePagerCommand.class.getSimpleName(),
+		new TablePagerCommandFactory());
+	commandFactoryMap.put(TablePagerResizeCommand.class.getSimpleName(),
+		new TablePagerResizeCommandFactory());
+	commandFactoryMap.put(ImportJSONFileCommand.class.getSimpleName(),
+		new ImportJSONFileCommandFactory());
+	commandFactoryMap.put(ImportCSVFileCommand.class.getSimpleName(),
+		new ImportCSVFileCommandFactory());
+	commandFactoryMap.put(ImportDatabaseTableCommand.class.getSimpleName(),
+		new ImportDatabaseTableCommandFactory());
+	commandFactoryMap.put(ImportXMLFileCommand.class.getSimpleName(),
+		new ImportXMLFileCommandFactory());
+	commandFactoryMap.put(
+		GetOntologyClassHierarchyCommand.class.getSimpleName(),
+		new GetOntologyClassHierarchyCommandFactory());
+	commandFactoryMap.put(
+		GetDataPropertyHierarchyCommand.class.getSimpleName(),
+		new GetDataPropertyHierarchyCommandFactory());
+	commandFactoryMap.put(SetSemanticTypeCommand.class.getSimpleName(),
+		new SetSemanticTypeCommandFactory());
+	commandFactoryMap.put(ImportOntologyCommand.class.getSimpleName(),
+		new ImportOntologyCommandFactory());
+	commandFactoryMap.put(
+		GetDomainsForDataPropertyCommand.class.getSimpleName(),
+		new GetDomainsForDataPropertyCommandFactory());
+	commandFactoryMap.put(
+		GetDataPropertiesForClassCommand.class.getSimpleName(),
+		new GetDataPropertiesForClassCommandFactory());
+	commandFactoryMap.put(GetAlternativeLinksCommand.class.getSimpleName(),
+		new GetAlternativeLinksCommandFactory());
+	commandFactoryMap.put(
+		AddUserLinkToAlignmentCommand.class.getSimpleName(),
+		new AddUserLinkToAlignmentCommandFactory());
+	commandFactoryMap.put(
+		UnassignSemanticTypeCommand.class.getSimpleName(),
+		new UnassignSemanticTypeCommandFactory());
+	commandFactoryMap.put(ShowModelCommand.class.getSimpleName(),
+		new ShowModelCommandFactory());
+	commandFactoryMap.put(SplitByCommaCommand.class.getSimpleName(),
+		new SplitByCommaCommandFactory());
+	commandFactoryMap.put(
+		DuplicateDomainOfLinkCommand.class.getSimpleName(),
+		new DuplicateDomainOfLinkCommandFactory());
+	commandFactoryMap.put(CloseWorkspaceCommand.class.getSimpleName(),
+		new CloseWorkspaceCommandFactory());
+	commandFactoryMap.put(PublishKMLLayerCommand.class.getSimpleName(),
+		new PublishKMLLayerCommandFactory());
+	commandFactoryMap.put(ImportExcelFileCommand.class.getSimpleName(),
+		new ImportExcelFileCommandFactory());
+	commandFactoryMap.put(ImportServiceCommand.class.getSimpleName(),
+		new ImportServiceCommandFactory());
+	commandFactoryMap.put(PublishRDFCommand.class.getSimpleName(),
+		new PublishRDFCommandFactory());
+	commandFactoryMap.put(PublishDatabaseCommand.class.getSimpleName(),
+		new PublishDatabaseCommandFactory());
+	commandFactoryMap.put(AddNewColumnCommand.class.getSimpleName(),
+		new AddNewColumnCommandFactory());
+	commandFactoryMap.put(PublishRDFCellCommand.class.getSimpleName(),
+		new PublishRDFCellCommandFactory());
+	commandFactoryMap.put(FetchPreferencesCommand.class.getSimpleName(),
+		new FetchPreferencesCommandFactory());
+	commandFactoryMap.put(ResetModelCommand.class.getSimpleName(),
+		new ResetModelCommandFactory());
+	commandFactoryMap.put(
+		GenerateCleaningRulesCommand.class.getSimpleName(),
+		new GenerateCleaningRulesCommandFactory());
+	commandFactoryMap.put(InvokeServiceCommand.class.getSimpleName(),
+		new InvokeServiceCommandFactory());
+	commandFactoryMap.put(
+		GetPropertiesAndClassesList.class.getSimpleName(),
+		new GetPropertiesAndClassesListCommandFactory());
+	commandFactoryMap.put(PublishModelCommand.class.getSimpleName(),
+		new PublishModelCommandFactory());
+	commandFactoryMap.put(PopulateCommand.class.getSimpleName(),
+		new PopulateCommandFactory());
+	commandFactoryMap.put(
+		PublishWorksheetHistoryCommand.class.getSimpleName(),
+		new PublishWorksheetHistoryCommandFactory());
+	commandFactoryMap.put(
+		ApplyWorksheetHistoryCommand.class.getSimpleName(),
+		new ApplyWorksheetHistoryCommandFactory());
+    }
+
+    public VWorkspace getvWorkspace() {
+	return vWorkspace;
+    }
+
+    public HashMap<String, CommandFactory> getCommandFactoryMap() {
+	return commandFactoryMap;
+    }
+
+    public Command getCommand(HttpServletRequest request) {
+	CommandFactory cf = commandFactoryMap.get(request
+		.getParameter("command"));
+	if (cf != null) {
+	    if (cf instanceof JSONInputCommandFactory) {
+		try {
+		    JSONInputCommandFactory scf = (JSONInputCommandFactory) cf;
+		    return scf.createCommand(
+			    new JSONArray(request.getParameter("newInfo")),
+			    vWorkspace);
+		} catch (Exception e) {
+		    e.printStackTrace();
+		    return null;
+		}
+	    } else
+		return cf.createCommand(request, vWorkspace);
+	} else {
+	    logger.error("Command " + request.getParameter("command")
+		    + " not found!");
+	    return null;
 	}
+    }
 
-	private void initializeCommandFactoryMap() {
-		// TODO: there must be a way to do this using Reflection with all
-		// subclasses of CommandFactory.
-		commandFactoryMap.put(EditCellCommand.class.getSimpleName(),
-				new EditCellCommandFactory());
-		commandFactoryMap.put(UndoRedoCommand.class.getSimpleName(),
-				new UndoRedoCommandFactory());
-		commandFactoryMap.put(TablePagerCommand.class.getSimpleName(),
-				new TablePagerCommandFactory());
-		commandFactoryMap.put(TablePagerResizeCommand.class.getSimpleName(),
-				new TablePagerResizeCommandFactory());
-		commandFactoryMap.put(ImportJSONFileCommand.class.getSimpleName(),
-				new ImportJSONFileCommandFactory());
-		commandFactoryMap.put(ImportCSVFileCommand.class.getSimpleName(),
-				new ImportCSVFileCommandFactory());
-		commandFactoryMap.put(ImportDatabaseTableCommand.class.getSimpleName(),
-				new ImportDatabaseTableCommandFactory());
-		commandFactoryMap.put(ImportXMLFileCommand.class.getSimpleName(),
-				new ImportXMLFileCommandFactory());
-		commandFactoryMap.put(GetOntologyClassHierarchyCommand.class.getSimpleName(),
-				new GetOntologyClassHierarchyCommandFactory());
-		commandFactoryMap.put(GetDataPropertyHierarchyCommand.class.getSimpleName(),
-				new GetDataPropertyHierarchyCommandFactory());
-		commandFactoryMap.put(SetSemanticTypeCommand.class.getSimpleName(),
-				new SetSemanticTypeCommandFactory());
-		commandFactoryMap.put(ImportOntologyCommand.class.getSimpleName(),
-				new ImportOntologyCommandFactory());
-		commandFactoryMap.put(GetDomainsForDataPropertyCommand.class.getSimpleName(),
-				new GetDomainsForDataPropertyCommandFactory());
-		commandFactoryMap.put(GetDataPropertiesForClassCommand.class.getSimpleName(),
-				new GetDataPropertiesForClassCommandFactory());
-		commandFactoryMap.put(GetAlternativeLinksCommand.class.getSimpleName(),
-				new GetAlternativeLinksCommandFactory());
-		commandFactoryMap.put(AddUserLinkToAlignmentCommand.class.getSimpleName(),
-				new AddUserLinkToAlignmentCommandFactory());
-		commandFactoryMap.put(UnassignSemanticTypeCommand.class.getSimpleName(),
-				new UnassignSemanticTypeCommandFactory());
-		commandFactoryMap.put(ShowModelCommand.class.getSimpleName(),
-				new ShowModelCommandFactory());
-		commandFactoryMap.put(SplitByCommaCommand.class.getSimpleName(),
-				new SplitByCommaCommandFactory());
-		commandFactoryMap.put(DuplicateDomainOfLinkCommand.class.getSimpleName(),
-				new DuplicateDomainOfLinkCommandFactory());
-		commandFactoryMap.put(CloseWorkspaceCommand.class.getSimpleName(),
-				new CloseWorkspaceCommandFactory());
-		commandFactoryMap.put(PublishKMLLayerCommand.class.getSimpleName(),
-				new PublishKMLLayerCommandFactory());
-		commandFactoryMap.put(ImportExcelFileCommand.class.getSimpleName(),
-				new ImportExcelFileCommandFactory());
-		commandFactoryMap.put(ImportServiceCommand.class.getSimpleName(),
-				new ImportServiceCommandFactory());
-		commandFactoryMap.put(PublishRDFCommand.class.getSimpleName(),
-				new PublishRDFCommandFactory());
-		commandFactoryMap.put(PublishDatabaseCommand.class.getSimpleName(),
-				new PublishDatabaseCommandFactory());
-		commandFactoryMap.put(AddNewColumnCommand.class.getSimpleName(),
-				new AddNewColumnCommandFactory());
-		commandFactoryMap.put(PublishRDFCellCommand.class.getSimpleName(),
-				new PublishRDFCellCommandFactory());
-		commandFactoryMap.put(FetchPreferencesCommand.class.getSimpleName(),
-				new FetchPreferencesCommandFactory());
-		commandFactoryMap.put(ResetModelCommand.class.getSimpleName(),
-				new ResetModelCommandFactory());
-		commandFactoryMap.put(GenerateCleaningRulesCommand.class.getSimpleName(),
-				new GenerateCleaningRulesCommandFactory());
-		commandFactoryMap.put(InvokeServiceCommand.class.getSimpleName(),
-				new InvokeServiceCommandFactory());
-		commandFactoryMap.put(GetPropertiesAndClassesList.class.getSimpleName(),
-				new GetPropertiesAndClassesListCommandFactory());
-		commandFactoryMap.put(PublishModelCommand.class.getSimpleName(),
-				new PublishModelCommandFactory());
-		commandFactoryMap.put(PopulateCommand.class.getSimpleName(),
-				new PopulateCommandFactory());
-		commandFactoryMap.put(PublishWorksheetHistoryCommand.class.getSimpleName(),
-				new PublishWorksheetHistoryCommandFactory());
-		commandFactoryMap.put(ApplyWorksheetHistoryCommand.class.getSimpleName(),
-				new ApplyWorksheetHistoryCommandFactory());
-	}
-
-	public VWorkspace getvWorkspace() {
-		return vWorkspace;
-	}
-
-	public HashMap<String, CommandFactory> getCommandFactoryMap() {
-		return commandFactoryMap;
-	}
-
-	public Command getCommand(HttpServletRequest request) {
-		CommandFactory cf = commandFactoryMap.get(request.getParameter("command"));
-		if (cf != null) {
-			if (cf instanceof JSONInputCommandFactory) {
-				try {
-					JSONInputCommandFactory scf = (JSONInputCommandFactory)cf;
-					return scf.createCommand(new JSONArray(request.getParameter("newInfo")), vWorkspace);
-				}  catch (Exception e) {
-					e.printStackTrace();
-					return null;
-				} 
-			} else
-				return cf.createCommand(request, vWorkspace);
+    public String invokeCommand(Command command) {
+	synchronized (this) {
+	    try {
+		UpdateContainer updateContainer = null;
+		vWorkspace.getWorkspace().getCommandHistory()
+			.setCurrentCommand(command);
+		if (command instanceof CommandWithPreview) {
+		    updateContainer = ((CommandWithPreview) command)
+			    .showPreview(vWorkspace);
 		} else {
-			logger.error("Command " + request.getParameter("command")
-					+ " not found!");
-			return null;
-		}
-	}
-
-	public String invokeCommand(Command command) {
-		synchronized (this) {
-			try {
-				UpdateContainer updateContainer = null;
-				vWorkspace.getWorkspace().getCommandHistory().setCurrentCommand(command);
-				if(command instanceof CommandWithPreview){
-					updateContainer = ((CommandWithPreview)command).showPreview(vWorkspace);
-				} else {
-					updateContainer = vWorkspace.getWorkspace().getCommandHistory().doCommand(command, vWorkspace);
-				}
-				
-				String responseJson = updateContainer.generateJson(vWorkspace);
-				//logger.info(responseJson);
-				return responseJson;
-			} catch (CommandException e) {
-				logger.error(
-						"Error occured with command " + command.toString(), e);
-				return ""; // TODO probably need a return that indicates an
-				// error.
-			}
+		    updateContainer = vWorkspace.getWorkspace()
+			    .getCommandHistory().doCommand(command, vWorkspace);
 		}
 
+		String responseJson = updateContainer.generateJson(vWorkspace);
+		// logger.info(responseJson);
+		return responseJson;
+	    } catch (CommandException e) {
+		logger.error(
+			"Error occured with command " + command.toString(), e);
+		return ""; // TODO probably need a return that indicates an
+		// error.
+	    }
 	}
+
+    }
 
 }

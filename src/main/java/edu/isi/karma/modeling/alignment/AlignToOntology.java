@@ -36,91 +36,98 @@ import edu.isi.karma.view.VWorksheet;
 import edu.isi.karma.view.VWorkspace;
 
 public class AlignToOntology {
-	private final String vWorksheetId;
-	private final String alignmentId;
-	private Worksheet worksheet;
-	private VWorkspace vWorkspace;
-	private Alignment alignment;
-	
-//	private static Logger logger = LoggerFactory.getLogger(AlignToOntology.class);
-	
-	public AlignToOntology(Worksheet worksheet, VWorkspace vWorkspace,
-			String vWorksheetId) {
-		super();
-		this.worksheet = worksheet;
-		this.vWorkspace = vWorkspace;
-		this.vWorksheetId = vWorksheetId;
-		this.alignmentId = AlignmentManager.Instance().constructAlignmentId(vWorkspace.getWorkspace().getId(), vWorksheetId);
-	}
-	
-	public void align(boolean replaceExistingAlignment) {
-		// Get the previous alignment
-		alignment = AlignmentManager.Instance().getAlignment(alignmentId);
-		// If we need to use the previous alignment (if it exists)
-		if (!replaceExistingAlignment) {
-			// If the alignment does not exists, create a new one
-			if (alignment == null) {
-				alignment = getNewAlignment();
-			}
-		} else {
-			// Save the previously added user links and duplicated links
-			List<LabeledWeightedEdge> userLinks = null;
-			List<String> duplicatedLinks = null;
-			if(alignment != null) {
-				userLinks = alignment.getLinksForcedByUser();
-				duplicatedLinks = alignment.getDuplicatedLinkIds();
-			}
-			
-			alignment = getNewAlignment();
-			// Add duplicated links
-			if (duplicatedLinks != null && duplicatedLinks.size() != 0) {
-				for (String linkId : duplicatedLinks)
-					alignment.duplicateDomainOfLink(linkId);
-			}
-			// Add user links if any
-			if (userLinks != null && userLinks.size() != 0) {
-				for (LabeledWeightedEdge edge : userLinks)
-					alignment.addUserLink(edge.getID());
-			}
-		}
-		AlignmentManager.Instance().addAlignmentToMap(alignmentId, alignment);
-	}
+    private final String vWorksheetId;
+    private final String alignmentId;
+    private Worksheet worksheet;
+    private VWorkspace vWorkspace;
+    private Alignment alignment;
 
-	public void update(UpdateContainer c) {
-		List<String> hNodeIdList = new ArrayList<String>();
-		VWorksheet vw = vWorkspace.getViewFactory().getVWorksheet(vWorksheetId);
-		List<HNodePath> columns = vw.getColumns();
-		for(HNodePath path:columns)
-			hNodeIdList.add(path.getLeaf().getId());
+    // private static Logger logger =
+    // LoggerFactory.getLogger(AlignToOntology.class);
 
-		SVGAlignmentUpdate_ForceKarmaLayout svgUpdate = new SVGAlignmentUpdate_ForceKarmaLayout(vWorksheetId, alignmentId, alignment, hNodeIdList);
-		/*
-		if (root != null) {
-			// mariam
-			WorksheetRDFGenerator.testRDFGeneration(vWorkspace.getWorkspace(), worksheet, alignment);
-		}
-		*/
-		// Debug
-		DirectedWeightedMultigraph<Vertex, LabeledWeightedEdge> tree = alignment.getSteinerTree();
-		GraphUtil.printGraph(tree);
-		
-		c.add(new SemanticTypesUpdate(worksheet, vWorksheetId));
-		c.add(svgUpdate);
-	}
-	
-	public void alignAndUpdate(UpdateContainer c, boolean replaceExistingAlignment) {
-		align(replaceExistingAlignment);
-		update(c);
-	}
+    public AlignToOntology(Worksheet worksheet, VWorkspace vWorkspace,
+	    String vWorksheetId) {
+	super();
+	this.worksheet = worksheet;
+	this.vWorkspace = vWorkspace;
+	this.vWorksheetId = vWorksheetId;
+	this.alignmentId = AlignmentManager.Instance().constructAlignmentId(
+		vWorkspace.getWorkspace().getId(), vWorksheetId);
+    }
 
-	private Alignment getNewAlignment() {
-		SemanticTypes semTypes = worksheet.getSemanticTypes();
-		// Get the list of semantic types
-		List<SemanticType> types = new ArrayList<SemanticType>();
-		for (SemanticType type : semTypes.getTypes().values()) {
-//		System.out.println("Type: " + type.getType().getLocalName() + " of " + type.getDomain().getLocalName() + "HNode ID: " + type.getHNodeId());
-			types.add(type);
-		}
-		return new Alignment(vWorkspace.getWorkspace().getOntologyManager(), types);
+    public void align(boolean replaceExistingAlignment) {
+	// Get the previous alignment
+	alignment = AlignmentManager.Instance().getAlignment(alignmentId);
+	// If we need to use the previous alignment (if it exists)
+	if (!replaceExistingAlignment) {
+	    // If the alignment does not exists, create a new one
+	    if (alignment == null) {
+		alignment = getNewAlignment();
+	    }
+	} else {
+	    // Save the previously added user links and duplicated links
+	    List<LabeledWeightedEdge> userLinks = null;
+	    List<String> duplicatedLinks = null;
+	    if (alignment != null) {
+		userLinks = alignment.getLinksForcedByUser();
+		duplicatedLinks = alignment.getDuplicatedLinkIds();
+	    }
+
+	    alignment = getNewAlignment();
+	    // Add duplicated links
+	    if (duplicatedLinks != null && duplicatedLinks.size() != 0) {
+		for (String linkId : duplicatedLinks)
+		    alignment.duplicateDomainOfLink(linkId);
+	    }
+	    // Add user links if any
+	    if (userLinks != null && userLinks.size() != 0) {
+		for (LabeledWeightedEdge edge : userLinks)
+		    alignment.addUserLink(edge.getID());
+	    }
 	}
+	AlignmentManager.Instance().addAlignmentToMap(alignmentId, alignment);
+    }
+
+    public void update(UpdateContainer c) {
+	List<String> hNodeIdList = new ArrayList<String>();
+	VWorksheet vw = vWorkspace.getViewFactory().getVWorksheet(vWorksheetId);
+	List<HNodePath> columns = vw.getColumns();
+	for (HNodePath path : columns)
+	    hNodeIdList.add(path.getLeaf().getId());
+
+	SVGAlignmentUpdate_ForceKarmaLayout svgUpdate = new SVGAlignmentUpdate_ForceKarmaLayout(
+		vWorksheetId, alignmentId, alignment, hNodeIdList);
+	/*
+	 * if (root != null) { // mariam
+	 * WorksheetRDFGenerator.testRDFGeneration(vWorkspace.getWorkspace(),
+	 * worksheet, alignment); }
+	 */
+	// Debug
+	DirectedWeightedMultigraph<Vertex, LabeledWeightedEdge> tree = alignment
+		.getSteinerTree();
+	GraphUtil.printGraph(tree);
+
+	c.add(new SemanticTypesUpdate(worksheet, vWorksheetId));
+	c.add(svgUpdate);
+    }
+
+    public void alignAndUpdate(UpdateContainer c,
+	    boolean replaceExistingAlignment) {
+	align(replaceExistingAlignment);
+	update(c);
+    }
+
+    private Alignment getNewAlignment() {
+	SemanticTypes semTypes = worksheet.getSemanticTypes();
+	// Get the list of semantic types
+	List<SemanticType> types = new ArrayList<SemanticType>();
+	for (SemanticType type : semTypes.getTypes().values()) {
+	    // System.out.println("Type: " + type.getType().getLocalName() +
+	    // " of " + type.getDomain().getLocalName() + "HNode ID: " +
+	    // type.getHNodeId());
+	    types.add(type);
+	}
+	return new Alignment(vWorkspace.getWorkspace().getOntologyManager(),
+		types);
+    }
 }

@@ -34,21 +34,21 @@ import edu.isi.karma.view.VWorkspace;
  */
 public class WorksheetHeadersUpdate extends AbstractUpdate {
 
-	private final VWorksheet vWorksheet;
+    private final VWorksheet vWorksheet;
 
-	public enum JsonKeys {
-		worksheetId, columns, columnNameFull, columnNameShort, path
-	}
+    public enum JsonKeys {
+	worksheetId, columns, columnNameFull, columnNameShort, path
+    }
 
-	public WorksheetHeadersUpdate(VWorksheet vWorksheet) {
-		super();
-		this.vWorksheet = vWorksheet;
-	}
+    public WorksheetHeadersUpdate(VWorksheet vWorksheet) {
+	super();
+	this.vWorksheet = vWorksheet;
+    }
 
-	public void generateJson(String prefix, PrintWriter pw,
-			VWorkspace vWorkspace) {
-		vWorksheet.generateWorksheetHeadersJson(prefix, pw,
-				vWorkspace.getViewFactory());
-	}
+    public void generateJson(String prefix, PrintWriter pw,
+	    VWorkspace vWorkspace) {
+	vWorksheet.generateWorksheetHeadersJson(prefix, pw,
+		vWorkspace.getViewFactory());
+    }
 
 }

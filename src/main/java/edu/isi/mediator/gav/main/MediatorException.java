@@ -21,10 +21,15 @@
 
 package edu.isi.mediator.gav.main;
 
-public class MediatorException extends java.lang.Exception 
-{ 
-private static final long serialVersionUID = 1L;
-public MediatorException() { super(); }
-  public MediatorException(String a_mesg) { super(a_mesg); }
+public class MediatorException extends java.lang.Exception {
+    private static final long serialVersionUID = 1L;
+
+    public MediatorException() {
+	super();
+    }
+
+    public MediatorException(String a_mesg) {
+	super(a_mesg);
+    }
 
 }

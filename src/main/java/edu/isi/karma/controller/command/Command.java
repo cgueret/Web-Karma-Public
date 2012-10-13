@@ -40,113 +40,113 @@ import edu.isi.karma.view.VWorkspace;
  */
 public abstract class Command extends Entity {
 
-	public enum HistoryType {
-		undo, redo
-	}
+    public enum HistoryType {
+	undo, redo
+    }
 
-	public enum CommandType {
-		undoable, notUndoable, notInHistory
-	}
+    public enum CommandType {
+	undoable, notUndoable, notInHistory
+    }
 
-	public enum JsonKeys {
-		commandId, title, description, commandType, historyType
-	}
+    public enum JsonKeys {
+	commandId, title, description, commandType, historyType
+    }
 
-	/**
-	 * @return the internal name of this command. Used to communicate between
-	 *         the server and the browser.
-	 */
-	public abstract String getCommandName();
+    /**
+     * @return the internal name of this command. Used to communicate between
+     *         the server and the browser.
+     */
+    public abstract String getCommandName();
 
-	/**
-	 * @return the label shown in the user interface.
-	 */
-	public abstract String getTitle();
+    /**
+     * @return the label shown in the user interface.
+     */
+    public abstract String getTitle();
 
-	/**
-	 * @return a description of what the command does or did, if it was
-	 *         executed.
-	 */
-	public abstract String getDescription();
+    /**
+     * @return a description of what the command does or did, if it was
+     *         executed.
+     */
+    public abstract String getDescription();
 
-	/**
-	 * @return the type of this command.
-	 */
-	public abstract CommandType getCommandType();
+    /**
+     * @return the type of this command.
+     */
+    public abstract CommandType getCommandType();
 
-	public abstract UpdateContainer doIt(VWorkspace vWorkspace)
-			throws CommandException;
+    public abstract UpdateContainer doIt(VWorkspace vWorkspace)
+	    throws CommandException;
 
-	public abstract UpdateContainer undoIt(VWorkspace vWorkspace);
+    public abstract UpdateContainer undoIt(VWorkspace vWorkspace);
 
-	/**
-	 * Has this command been executed already?
-	 */
-	private boolean isExecuted = false;
+    /**
+     * Has this command been executed already?
+     */
+    private boolean isExecuted = false;
 
-	/**
-	 * List of tags for the command
-	 */
-	private List<CommandTag> tags = new ArrayList<CommandTag>();
-	
-	private String inputParameterJson;
+    /**
+     * List of tags for the command
+     */
+    private List<CommandTag> tags = new ArrayList<CommandTag>();
 
-	public enum CommandTag {
-		Modeling, Transformation, Cleaning, Integration, Import
-	}
+    private String inputParameterJson;
 
-	protected Command(String id) {
-		super(id);
-	}
+    public enum CommandTag {
+	Modeling, Transformation, Cleaning, Integration, Import
+    }
 
-	public boolean isExecuted() {
-		return isExecuted;
-	}
+    protected Command(String id) {
+	super(id);
+    }
 
-	public void setExecuted(boolean isExecuted) {
-		this.isExecuted = isExecuted;
-	}
+    public boolean isExecuted() {
+	return isExecuted;
+    }
 
-	/**
-	 * @param prefix
-	 * @param pw
-	 * @param vWorkspace
-	 * @param historyType
-	 *            of the lists where the command is, either undo or redo.
-	 */
-	public void generateJson(String prefix, PrintWriter pw,
-			VWorkspace vWorkspace, HistoryType historyType) {
-		pw.println(prefix + "{");
-		String newPref = prefix + "  ";
-		pw.println(newPref + JSONUtil.json(JsonKeys.commandId, getId()));
-		pw.println(newPref + JSONUtil.json(JsonKeys.title, getTitle()));
-		pw.println(newPref
-				+ JSONUtil.json(JsonKeys.description, getDescription()));
-		pw.println(newPref
-				+ JSONUtil.json(JsonKeys.historyType, historyType.name()));
-		pw.println(newPref
-				+ JSONUtil.jsonLast(JsonKeys.commandType, getCommandType()
-						.name()));
-		pw.println(prefix + "}");
-	}
+    public void setExecuted(boolean isExecuted) {
+	this.isExecuted = isExecuted;
+    }
 
-	public boolean hasTag(CommandTag tag) {
-		return tags.contains(tag);
-	}
+    /**
+     * @param prefix
+     * @param pw
+     * @param vWorkspace
+     * @param historyType
+     *            of the lists where the command is, either undo or redo.
+     */
+    public void generateJson(String prefix, PrintWriter pw,
+	    VWorkspace vWorkspace, HistoryType historyType) {
+	pw.println(prefix + "{");
+	String newPref = prefix + "  ";
+	pw.println(newPref + JSONUtil.json(JsonKeys.commandId, getId()));
+	pw.println(newPref + JSONUtil.json(JsonKeys.title, getTitle()));
+	pw.println(newPref
+		+ JSONUtil.json(JsonKeys.description, getDescription()));
+	pw.println(newPref
+		+ JSONUtil.json(JsonKeys.historyType, historyType.name()));
+	pw.println(newPref
+		+ JSONUtil.jsonLast(JsonKeys.commandType, getCommandType()
+			.name()));
+	pw.println(prefix + "}");
+    }
 
-	public void addTag(CommandTag tag) {
-		tags.add(tag);
-	}
+    public boolean hasTag(CommandTag tag) {
+	return tags.contains(tag);
+    }
 
-	public String getInputParameterJson() {
-		return inputParameterJson;
-	}
+    public void addTag(CommandTag tag) {
+	tags.add(tag);
+    }
 
-	public void setInputParameterJson(String inputParamJson) {
-		this.inputParameterJson = inputParamJson;
-	}
+    public String getInputParameterJson() {
+	return inputParameterJson;
+    }
 
-	public List<CommandTag> getTags() {
-		return tags;
-	}
+    public void setInputParameterJson(String inputParamJson) {
+	this.inputParameterJson = inputParamJson;
+    }
+
+    public List<CommandTag> getTags() {
+	return tags;
+    }
 }

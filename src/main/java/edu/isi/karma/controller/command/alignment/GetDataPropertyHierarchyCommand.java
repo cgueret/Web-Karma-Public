@@ -29,44 +29,44 @@ import edu.isi.karma.view.VWorkspace;
 
 public class GetDataPropertyHierarchyCommand extends Command {
 
-	protected GetDataPropertyHierarchyCommand(String id) {
-		super(id);
-		// TODO Auto-generated constructor stub
-	}
+    protected GetDataPropertyHierarchyCommand(String id) {
+	super(id);
+	// TODO Auto-generated constructor stub
+    }
 
-	@Override
-	public String getCommandName() {
-		return this.getClass().getSimpleName();
-	}
+    @Override
+    public String getCommandName() {
+	return this.getClass().getSimpleName();
+    }
 
-	@Override
-	public String getTitle() {
-		return "Get Data Property Hierarchy";
-	}
+    @Override
+    public String getTitle() {
+	return "Get Data Property Hierarchy";
+    }
 
-	@Override
-	public String getDescription() {
-		return "";
-	}
+    @Override
+    public String getDescription() {
+	return "";
+    }
 
-	@Override
-	public CommandType getCommandType() {
-		return CommandType.notInHistory;
-	}
+    @Override
+    public CommandType getCommandType() {
+	return CommandType.notInHistory;
+    }
 
-	@Override
-	public UpdateContainer doIt(VWorkspace vWorkspace) throws CommandException {
-		UpdateContainer c = new UpdateContainer();
-		
-		OntologyManager ontMgr = vWorkspace.getWorkspace().getOntologyManager();
-		c.add(new DataPropertyHierarchyUpdate(ontMgr.getOntModel()));
-		return c;
-	}
+    @Override
+    public UpdateContainer doIt(VWorkspace vWorkspace) throws CommandException {
+	UpdateContainer c = new UpdateContainer();
 
-	@Override
-	public UpdateContainer undoIt(VWorkspace vWorkspace) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	OntologyManager ontMgr = vWorkspace.getWorkspace().getOntologyManager();
+	c.add(new DataPropertyHierarchyUpdate(ontMgr.getOntModel()));
+	return c;
+    }
+
+    @Override
+    public UpdateContainer undoIt(VWorkspace vWorkspace) {
+	// TODO Auto-generated method stub
+	return null;
+    }
 
 }

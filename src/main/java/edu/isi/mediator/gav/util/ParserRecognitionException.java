@@ -29,22 +29,19 @@ import org.antlr.runtime.RecognitionException;
 
 /**
  * Raised when a parse exception occurs.
- *
+ * 
  * @author The OGSA-DAI Project Team.
  */
 
-public class ParserRecognitionException 
-    extends Exception 
-{
-	private static final long serialVersionUID = 1L;
-	protected String mToken;
+public class ParserRecognitionException extends Exception {
+    private static final long serialVersionUID = 1L;
+    protected String mToken;
     protected int mLine;
     protected int mPositionInLine;
     protected String mErrorID;
-    
-    private ParserRecognitionException(String errorID)
-    {
-        super(errorID);
+
+    private ParserRecognitionException(String errorID) {
+	super(errorID);
     }
 
     /**
@@ -55,54 +52,38 @@ public class ParserRecognitionException
      * @return parser exception
      */
     public static ParserRecognitionException getInstance(
-            RecognitionException cause)
-    {
-        String errorID;
-        if (cause instanceof NoViableAltException)
-        {
-            errorID = "NO_VIABLE_ALT_EXCEPTION";
-        }
-        else if (cause instanceof EarlyExitException)
-        {
-            errorID = "EARLY_EXIT_EXCEPTION";
-        }
-        else if (cause instanceof MismatchedRangeException)
-        {
-            errorID = "MISMATCHED_RANGE_EXCEPTION";
-        }
-        else if (cause instanceof MismatchedSetException)
-        {
-            errorID = "MISMATCHED_SET_EXCEPTION";
-        }
-        else if (cause instanceof MismatchedTokenException)
-        {
-            errorID = "MISMATCHED_TOKEN_EXCEPTION";
-        }
-        else if (cause instanceof MismatchedTreeNodeException)
-        {
-            errorID = "MISMATCHED_TREE_NODE_EXCEPTION";
-        }
-        else if (cause instanceof FailedPredicateException)
-        {
-            errorID = "FAILED_PREDICATE_EXCEPTION";
-        }
-        else
-        {
-            errorID = "RECOGNITION_EXCEPTION";
-        }
-        ParserRecognitionException result = new ParserRecognitionException(errorID); 
-        result.mToken = cause.token.getText();
-        result.mLine = cause.line;
-        result.mPositionInLine = cause.charPositionInLine;
-        result.mErrorID = errorID;
-        
-        return result;
+	    RecognitionException cause) {
+	String errorID;
+	if (cause instanceof NoViableAltException) {
+	    errorID = "NO_VIABLE_ALT_EXCEPTION";
+	} else if (cause instanceof EarlyExitException) {
+	    errorID = "EARLY_EXIT_EXCEPTION";
+	} else if (cause instanceof MismatchedRangeException) {
+	    errorID = "MISMATCHED_RANGE_EXCEPTION";
+	} else if (cause instanceof MismatchedSetException) {
+	    errorID = "MISMATCHED_SET_EXCEPTION";
+	} else if (cause instanceof MismatchedTokenException) {
+	    errorID = "MISMATCHED_TOKEN_EXCEPTION";
+	} else if (cause instanceof MismatchedTreeNodeException) {
+	    errorID = "MISMATCHED_TREE_NODE_EXCEPTION";
+	} else if (cause instanceof FailedPredicateException) {
+	    errorID = "FAILED_PREDICATE_EXCEPTION";
+	} else {
+	    errorID = "RECOGNITION_EXCEPTION";
+	}
+	ParserRecognitionException result = new ParserRecognitionException(
+		errorID);
+	result.mToken = cause.token.getText();
+	result.mLine = cause.line;
+	result.mPositionInLine = cause.charPositionInLine;
+	result.mErrorID = errorID;
+
+	return result;
     }
-    
-    public String toString()
-    {
-        return "Line " + mLine + ":" + mPositionInLine + ": " 
-            + mErrorID + " at input '" + mToken + "'";
+
+    public String toString() {
+	return "Line " + mLine + ":" + mPositionInLine + ": " + mErrorID
+		+ " at input '" + mToken + "'";
     }
 
 }

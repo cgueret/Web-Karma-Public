@@ -26,143 +26,143 @@ import java.util.List;
 import edu.isi.karma.view.Stroke;
 
 public class HHTNode {
-	private int startCol;
-	private int endCol;
-	private int depth;
+    private int startCol;
+    private int endCol;
+    private int depth;
 
-	private Stroke leftStroke;
-	private Stroke rightStroke;
+    private Stroke leftStroke;
+    private Stroke rightStroke;
 
-	private List<Stroke> leftStrokes = new ArrayList<Stroke>();
-	private List<Stroke> rightStrokes = new ArrayList<Stroke>();
+    private List<Stroke> leftStrokes = new ArrayList<Stroke>();
+    private List<Stroke> rightStrokes = new ArrayList<Stroke>();
 
-	private List<HHTNode> children;
-	
-	private final TNode tNode;
-	
-	private int htmlColSpan;
+    private List<HHTNode> children;
 
-	public HHTNode(TNode tNode) {
-		super();
-		this.tNode = tNode;
-	}
+    private final TNode tNode;
 
-	public boolean isLeaf() {
-		if(children == null || children.size() == 0)
-			return true;
-		else
-			return false;
-	}
+    private int htmlColSpan;
 
-	public int getStartCol() {
-		return startCol;
-	}
+    public HHTNode(TNode tNode) {
+	super();
+	this.tNode = tNode;
+    }
 
-	public void setStartCol(int startCol) {
-		this.startCol = startCol;
-	}
+    public boolean isLeaf() {
+	if (children == null || children.size() == 0)
+	    return true;
+	else
+	    return false;
+    }
 
-	public int getEndCol() {
-		return endCol;
-	}
+    public int getStartCol() {
+	return startCol;
+    }
 
-	public void setEndCol(int endCol) {
-		this.endCol = endCol;
-	}
+    public void setStartCol(int startCol) {
+	this.startCol = startCol;
+    }
 
-	public int getDepth() {
-		return depth;
-	}
+    public int getEndCol() {
+	return endCol;
+    }
 
-	public void setDepth(int depth) {
-		this.depth = depth;
-	}
+    public void setEndCol(int endCol) {
+	this.endCol = endCol;
+    }
 
-	public Stroke getLeftStroke() {
-		return leftStroke;
-	}
+    public int getDepth() {
+	return depth;
+    }
 
-	public void setLeftStroke(Stroke leftStroke) {
-		this.leftStroke = leftStroke;
-	}
+    public void setDepth(int depth) {
+	this.depth = depth;
+    }
 
-	public Stroke getRightStroke() {
-		return rightStroke;
-	}
+    public Stroke getLeftStroke() {
+	return leftStroke;
+    }
 
-	public void setRightStroke(Stroke rightStroke) {
-		this.rightStroke = rightStroke;
-	}
+    public void setLeftStroke(Stroke leftStroke) {
+	this.leftStroke = leftStroke;
+    }
 
-	public List<Stroke> getLeftStrokes() {
-		return leftStrokes;
-	}
+    public Stroke getRightStroke() {
+	return rightStroke;
+    }
 
-	public void setLeftStrokes(List<Stroke> leftStrokes) {
-		this.leftStrokes = leftStrokes;
-	}
+    public void setRightStroke(Stroke rightStroke) {
+	this.rightStroke = rightStroke;
+    }
 
-	public List<Stroke> getRightStrokes() {
-		return rightStrokes;
-	}
+    public List<Stroke> getLeftStrokes() {
+	return leftStrokes;
+    }
 
-	public void setRightStrokes(List<Stroke> rightStrokes) {
-		this.rightStrokes = rightStrokes;
-	}
+    public void setLeftStrokes(List<Stroke> leftStrokes) {
+	this.leftStrokes = leftStrokes;
+    }
 
-	public List<HHTNode> getChildren() {
-		return children;
-	}
+    public List<Stroke> getRightStrokes() {
+	return rightStrokes;
+    }
 
-	public void setChildren(List<HHTNode> children) {
-		this.children = children;
-	}
+    public void setRightStrokes(List<Stroke> rightStrokes) {
+	this.rightStrokes = rightStrokes;
+    }
 
-	public TNode gettNode() {
-		return tNode;
-	}
-	
-	public int getHTMLColSpan() {
-//		int corr = 0;
-//		if(isLeaf())
-//			corr = 1;
-//		else {
-//			int span = 0;
-//			for(HHTNode child:children){
-//				span += child.getHTMLColSpan();
-//				if(!child.isLeaf())
-//					span += 2;
-//			}
-//			corr = span;
-////			return span;
-//		}
-//		System.out.println("Correct HTML Col span: " + corr);
-//		System.out.println("Coordinate based: " + htmlColSpan);
-		//return corr;
-		return htmlColSpan;
-	}
-	
-	public int getHtmlColSpan() {
-		return htmlColSpan;
-	}
+    public List<HHTNode> getChildren() {
+	return children;
+    }
 
-	public void setHtmlColSpan(int htmlColSpan) {
-		this.htmlColSpan = htmlColSpan;
-	}
+    public void setChildren(List<HHTNode> children) {
+	this.children = children;
+    }
 
-	public void prettyprint(String prefix) {
-		System.out.print(prefix + "HHTNode [startCol=" + startCol + ", endCol=" + endCol
-				+ ", depth=" + depth + ", leftStroke=" + leftStroke
-				+ ", rightStroke=" + rightStroke + ", leftStrokes="
-				+ leftStrokes + ", rightStrokes=" + rightStrokes
-				+ ", tNode=" + tNode.getId() + "]");
-		
-		if(!isLeaf()) {
-			System.out.println(" Children: ");
-			for(HHTNode node: children) {
-				node.prettyprint(prefix +"    ");
-			}
-		} else
-			System.out.println();
-	}
+    public TNode gettNode() {
+	return tNode;
+    }
+
+    public int getHTMLColSpan() {
+	// int corr = 0;
+	// if(isLeaf())
+	// corr = 1;
+	// else {
+	// int span = 0;
+	// for(HHTNode child:children){
+	// span += child.getHTMLColSpan();
+	// if(!child.isLeaf())
+	// span += 2;
+	// }
+	// corr = span;
+	// // return span;
+	// }
+	// System.out.println("Correct HTML Col span: " + corr);
+	// System.out.println("Coordinate based: " + htmlColSpan);
+	// return corr;
+	return htmlColSpan;
+    }
+
+    public int getHtmlColSpan() {
+	return htmlColSpan;
+    }
+
+    public void setHtmlColSpan(int htmlColSpan) {
+	this.htmlColSpan = htmlColSpan;
+    }
+
+    public void prettyprint(String prefix) {
+	System.out.print(prefix + "HHTNode [startCol=" + startCol + ", endCol="
+		+ endCol + ", depth=" + depth + ", leftStroke=" + leftStroke
+		+ ", rightStroke=" + rightStroke + ", leftStrokes="
+		+ leftStrokes + ", rightStrokes=" + rightStrokes + ", tNode="
+		+ tNode.getId() + "]");
+
+	if (!isLeaf()) {
+	    System.out.println(" Children: ");
+	    for (HHTNode node : children) {
+		node.prettyprint(prefix + "    ");
+	    }
+	} else
+	    System.out.println();
+    }
 }

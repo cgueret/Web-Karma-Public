@@ -30,34 +30,35 @@ import javax.servlet.http.HttpServlet;
 import edu.isi.karma.webserver.ServletContextParameterMap.ContextParameter;
 
 public class ServerStart extends HttpServlet {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	// private static Logger logger = LoggerFactory.getLogger(ServerStart.class);
+    // private static Logger logger =
+    // LoggerFactory.getLogger(ServerStart.class);
 
-	public void init() throws ServletException {
-		// Populate the ServletContextParameterMap data structure
-		// Only the parameters that are specified in the
-		// ServletContextParameterMap are valid. So, to use a context init
-		// parameter, add it to the ServletContextParameterMap
-		ServletContext ctx = getServletContext();
-		Enumeration<?> params = ctx.getInitParameterNames();
-		ArrayList<String> validParams = new ArrayList<String>();
-		for (ContextParameter param : ContextParameter.values()) {
-			validParams.add(param.name());
-		}
-		while (params.hasMoreElements()) {
-			String param = params.nextElement().toString();
-			if (validParams.contains(param)) {
-				ContextParameter mapParam = ContextParameter.valueOf(param);
+    public void init() throws ServletException {
+	// Populate the ServletContextParameterMap data structure
+	// Only the parameters that are specified in the
+	// ServletContextParameterMap are valid. So, to use a context init
+	// parameter, add it to the ServletContextParameterMap
+	ServletContext ctx = getServletContext();
+	Enumeration<?> params = ctx.getInitParameterNames();
+	ArrayList<String> validParams = new ArrayList<String>();
+	for (ContextParameter param : ContextParameter.values()) {
+	    validParams.add(param.name());
+	}
+	while (params.hasMoreElements()) {
+	    String param = params.nextElement().toString();
+	    if (validParams.contains(param)) {
+		ContextParameter mapParam = ContextParameter.valueOf(param);
 
-				ServletContextParameterMap.setParameterValue(mapParam,
-						ctx.getInitParameter(param));
-			}
-		}
+		ServletContextParameterMap.setParameterValue(mapParam,
+			ctx.getInitParameter(param));
+	    }
+	}
 
-		System.out.println("************");
-		System.out.println("Server start servlet initialized successfully..");
-		System.out.println("***********");
+	System.out.println("************");
+	System.out.println("Server start servlet initialized successfully..");
+	System.out.println("***********");
 
-	}		
+    }
 }

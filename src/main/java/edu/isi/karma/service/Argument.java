@@ -22,34 +22,38 @@
 package edu.isi.karma.service;
 
 public class Argument {
-	private String id;
-	private String attOrVarId;
-	private String argType;
-	
-	public Argument(String id, String attOrVarId, String argType) {
-		this.id = id;
-		this.attOrVarId = attOrVarId;
-		this.argType = argType;
-	}
-	
-	public String getId() {
-		return id;
-	}
-	public void setId(String id) {
-		this.id = id;
-	}
-	public String getAttOrVarId() {
-		return attOrVarId;
-	}
-	public void setAttOrVarId(String attOrVarId) {
-		this.attOrVarId = attOrVarId;
-	}
-	public String getArgType() {
-		return argType;
-	}
-	public void setArgType(String argType) {
-		this.argType = argType;
-	}
-	
-	
+    private String id;
+    private String attOrVarId;
+    private String argType;
+
+    public Argument(String id, String attOrVarId, String argType) {
+	this.id = id;
+	this.attOrVarId = attOrVarId;
+	this.argType = argType;
+    }
+
+    public String getId() {
+	return id;
+    }
+
+    public void setId(String id) {
+	this.id = id;
+    }
+
+    public String getAttOrVarId() {
+	return attOrVarId;
+    }
+
+    public void setAttOrVarId(String attOrVarId) {
+	this.attOrVarId = attOrVarId;
+    }
+
+    public String getArgType() {
+	return argType;
+    }
+
+    public void setArgType(String argType) {
+	this.argType = argType;
+    }
+
 }

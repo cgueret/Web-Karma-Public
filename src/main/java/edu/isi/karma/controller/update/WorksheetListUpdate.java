@@ -39,28 +39,29 @@ import edu.isi.karma.view.VWorkspace;
  */
 public class WorksheetListUpdate extends AbstractUpdate {
 
-	public enum JsonKeys {
-		worksheets, worksheetId, title, isUpToDate, isCollapsed
-	}
+    public enum JsonKeys {
+	worksheets, worksheetId, title, isUpToDate, isCollapsed
+    }
 
-	private final VWorksheetList vWorksheetList;
+    private final VWorksheetList vWorksheetList;
 
-	public WorksheetListUpdate(VWorksheetList vWorksheetList) {
-		super();
-		this.vWorksheetList = vWorksheetList;
-	}
+    public WorksheetListUpdate(VWorksheetList vWorksheetList) {
+	super();
+	this.vWorksheetList = vWorksheetList;
+    }
 
-	@Override
-	public void generateJson(String prefix, PrintWriter pw, VWorkspace vWorkspace) {
-		pw.println(prefix + "{");
-		String prefix1 = prefix + "  ";
-		pw.println(prefix1
-				+ JSONUtil.json(GenericJsonKeys.updateType, getUpdateType()));
-		pw.println(prefix1 + JSONUtil.jsonStartList(JsonKeys.worksheets));
-		vWorksheetList.generateJson(prefix1, pw, vWorkspace.getViewFactory());
-		pw.println(prefix1 + "]");
-		pw.println(prefix + "}");
+    @Override
+    public void generateJson(String prefix, PrintWriter pw,
+	    VWorkspace vWorkspace) {
+	pw.println(prefix + "{");
+	String prefix1 = prefix + "  ";
+	pw.println(prefix1
+		+ JSONUtil.json(GenericJsonKeys.updateType, getUpdateType()));
+	pw.println(prefix1 + JSONUtil.jsonStartList(JsonKeys.worksheets));
+	vWorksheetList.generateJson(prefix1, pw, vWorkspace.getViewFactory());
+	pw.println(prefix1 + "]");
+	pw.println(prefix + "}");
 
-	}
+    }
 
 }

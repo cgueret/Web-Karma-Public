@@ -29,11 +29,12 @@ import edu.isi.karma.view.VWorkspace;
 
 public class ImportExcelFileCommandFactory extends CommandFactory {
 
-	@Override
-	public Command createCommand(HttpServletRequest request,
-			VWorkspace vWorkspace) {
-		File uploadedFile = FileUtil.downloadFileFromHTTPRequest(request);
-		return new ImportExcelFileCommand(getNewId(vWorkspace), uploadedFile, vWorkspace);
-	}
+    @Override
+    public Command createCommand(HttpServletRequest request,
+	    VWorkspace vWorkspace) {
+	File uploadedFile = FileUtil.downloadFileFromHTTPRequest(request);
+	return new ImportExcelFileCommand(getNewId(vWorkspace), uploadedFile,
+		vWorkspace);
+    }
 
 }

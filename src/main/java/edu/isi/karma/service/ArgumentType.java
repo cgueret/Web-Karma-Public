@@ -22,6 +22,6 @@
 package edu.isi.karma.service;
 
 public interface ArgumentType {
-	public static final String ATTRIBUTE = "ATTRIBUTE";
-	public static final String VARIABLE = "VARIABLE";
+    public static final String ATTRIBUTE = "ATTRIBUTE";
+    public static final String VARIABLE = "VARIABLE";
 }

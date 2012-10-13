@@ -45,56 +45,56 @@ import java.util.Map;
  * 
  */
 public class RowPathCounts {
-	private final Map<String, Integer> rowPathCounts = new HashMap<String, Integer>();
+    private final Map<String, Integer> rowPathCounts = new HashMap<String, Integer>();
 
-	void incrementCounts(String rowPath) {
-		String[] elements = rowPath.split("/");
-		String path = "";
-		for (int i = 0; i < elements.length; i++) {
-			if (!"".equals(path)) {
-				path = path + "/";
-			}
-			path = path + elements[i];
-			increment(path);
-		}
+    void incrementCounts(String rowPath) {
+	String[] elements = rowPath.split("/");
+	String path = "";
+	for (int i = 0; i < elements.length; i++) {
+	    if (!"".equals(path)) {
+		path = path + "/";
+	    }
+	    path = path + elements[i];
+	    increment(path);
 	}
+    }
 
-	int getCount(String path) {
-		Integer result = rowPathCounts.get(path);
-		if (result != null) {
-			return result;
-		} else {
-			return 0;
-		}
+    int getCount(String path) {
+	Integer result = rowPathCounts.get(path);
+	if (result != null) {
+	    return result;
+	} else {
+	    return 0;
 	}
+    }
 
-	private void increment(String path) {
-		Integer count = rowPathCounts.get(path);
-		if (count == null) {
-			count = 0;
-		}
-		rowPathCounts.put(path, count + 1);
+    private void increment(String path) {
+	Integer count = rowPathCounts.get(path);
+	if (count == null) {
+	    count = 0;
 	}
+	rowPathCounts.put(path, count + 1);
+    }
 
-	public void prettyPrint(String prefix, PrintWriter pw) {
-		for (String key : rowPathCounts.keySet()) {
-			pw.println(prefix + key + "=" + rowPathCounts.get(key));
-		}
+    public void prettyPrint(String prefix, PrintWriter pw) {
+	for (String key : rowPathCounts.keySet()) {
+	    pw.println(prefix + key + "=" + rowPathCounts.get(key));
 	}
+    }
 
-	@Override
-	public String toString() {
-		StringBuffer b = new StringBuffer();
-		Iterator<String> it = rowPathCounts.keySet().iterator();
-		while (it.hasNext()) {
-			String k = it.next();
-			b.append(k);
-			b.append(":");
-			b.append(rowPathCounts.get(k));
-			if (it.hasNext()) {
-				b.append(", ");
-			}
-		}
-		return b.toString();
+    @Override
+    public String toString() {
+	StringBuffer b = new StringBuffer();
+	Iterator<String> it = rowPathCounts.keySet().iterator();
+	while (it.hasNext()) {
+	    String k = it.next();
+	    b.append(k);
+	    b.append(":");
+	    b.append(rowPathCounts.get(k));
+	    if (it.hasNext()) {
+		b.append(", ");
+	    }
 	}
+	return b.toString();
+    }
 }

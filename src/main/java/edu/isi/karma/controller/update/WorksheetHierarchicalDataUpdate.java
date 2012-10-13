@@ -35,56 +35,56 @@ import edu.isi.karma.view.tabledata.VDCell;
  */
 public class WorksheetHierarchicalDataUpdate extends AbstractUpdate {
 
-	private final VWorksheet vWorksheet;
+    private final VWorksheet vWorksheet;
 
-	/**
-	 * The types of cells in the display of data.
-	 * 
-	 */
-	public enum CellType {
-		content("c"), // A cell containing a value.
-		columnSpace("cs"), // A cell with the space between adjacent cells in a
-							// row when space is needed for nested tables.
-		dummyContent("_"), // A cell below a content cell when one is needed.
-		rowSpace("rs") // A cell for space between rows.
-		;
+    /**
+     * The types of cells in the display of data.
+     * 
+     */
+    public enum CellType {
+	content("c"), // A cell containing a value.
+	columnSpace("cs"), // A cell with the space between adjacent cells in a
+			   // row when space is needed for nested tables.
+	dummyContent("_"), // A cell below a content cell when one is needed.
+	rowSpace("rs") // A cell for space between rows.
+	;
 
-		private String code;
+	private String code;
 
-		private CellType(String code) {
-			this.code = code;
-		}
-
-		public String code() {
-			return code;
-		}
+	private CellType(String code) {
+	    this.code = code;
 	}
 
-	public enum JsonKeys {
-		worksheetId, rows, hTableId,
-		//
-		rowCells,
-		//
-		cellType, fillId, topBorder, leftBorder, rightBorder,
-		// row types
-		rowType/* key */, separatorRow, contentRow,
-		// for content cells
-		value, status, attr, nodeId, isTruncated, fullValue
+	public String code() {
+	    return code;
 	}
+    }
 
-	public WorksheetHierarchicalDataUpdate(VWorksheet vWorksheet) {
-		super();
-		this.vWorksheet = vWorksheet;
-	}
+    public enum JsonKeys {
+	worksheetId, rows, hTableId,
+	//
+	rowCells,
+	//
+	cellType, fillId, topBorder, leftBorder, rightBorder,
+	// row types
+	rowType/* key */, separatorRow, contentRow,
+	// for content cells
+	value, status, attr, nodeId, isTruncated, fullValue
+    }
 
-	@Override
-	public void generateJson(String prefix, PrintWriter pw,
-			VWorkspace vWorkspace) {
-		vWorksheet.generateWorksheetHierarchicalDataJson(pw, vWorkspace);
-	}
+    public WorksheetHierarchicalDataUpdate(VWorksheet vWorksheet) {
+	super();
+	this.vWorksheet = vWorksheet;
+    }
 
-	public static String getStrokePositionKey(VDCell.Position position) {
-		return position.name() + "Stroke";
-	}
+    @Override
+    public void generateJson(String prefix, PrintWriter pw,
+	    VWorkspace vWorkspace) {
+	vWorksheet.generateWorksheetHierarchicalDataJson(pw, vWorkspace);
+    }
+
+    public static String getStrokePositionKey(VDCell.Position position) {
+	return position.name() + "Stroke";
+    }
 
 }

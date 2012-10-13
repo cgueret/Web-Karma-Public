@@ -18,27 +18,25 @@
  * University of Southern California.  For more information, publications, 
  * and related projects, please see: http://www.isi.edu/integration
  ******************************************************************************/
-package edu.isi.karma.modeling.semantictypes.mycrf.globaldata ;
+package edu.isi.karma.modeling.semantictypes.mycrf.globaldata;
 
 import java.util.ArrayList;
 
 import edu.isi.karma.modeling.semantictypes.mycrf.graph.GraphInterface;
 
-
 /**
- * This is an abstract class representing global information such as 
- * the list of semantic classes and 
- * the list of training graphs 
+ * This is an abstract class representing global information such as the list of
+ * semantic classes and the list of training graphs
  * 
  * @author amangoel
- *
+ * 
  */
 public abstract class GlobalDataAbstract {
-	
-	public ArrayList<GraphInterface> trainingGraphs ;
-	
-	public abstract double errorValue() ;
-	
-	public abstract void errorGradient(double[] gradient) ;
-	
+
+    public ArrayList<GraphInterface> trainingGraphs;
+
+    public abstract double errorValue();
+
+    public abstract void errorGradient(double[] gradient);
+
 }

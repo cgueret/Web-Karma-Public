@@ -39,84 +39,89 @@ import edu.isi.karma.view.VWorkspace;
 
 public class GetDataPropertiesForClassCommand extends Command {
 
-	final private String classURI;
+    final private String classURI;
 
-	private static Logger logger = LoggerFactory
-			.getLogger(GetDataPropertiesForClassCommand.class.getSimpleName());
+    private static Logger logger = LoggerFactory
+	    .getLogger(GetDataPropertiesForClassCommand.class.getSimpleName());
 
-	public enum JsonKeys {
-		updateType, URI, metadata, data
-	}
+    public enum JsonKeys {
+	updateType, URI, metadata, data
+    }
 
-	public GetDataPropertiesForClassCommand(String id, String uri) {
-		super(id);
-		this.classURI = uri;
-	}
+    public GetDataPropertiesForClassCommand(String id, String uri) {
+	super(id);
+	this.classURI = uri;
+    }
 
-	@Override
-	public String getCommandName() {
-		return "Get Data Properties For Class";
-	}
+    @Override
+    public String getCommandName() {
+	return "Get Data Properties For Class";
+    }
 
-	@Override
-	public String getTitle() {
-		return this.getClass().getSimpleName();
-	}
+    @Override
+    public String getTitle() {
+	return this.getClass().getSimpleName();
+    }
 
-	@Override
-	public String getDescription() {
-		return "";
-	}
+    @Override
+    public String getDescription() {
+	return "";
+    }
 
-	@Override
-	public CommandType getCommandType() {
-		return CommandType.notInHistory;
-	}
+    @Override
+    public CommandType getCommandType() {
+	return CommandType.notInHistory;
+    }
 
-	@Override
-	public UpdateContainer doIt(VWorkspace vWorkspace) throws CommandException {
-		final OntologyManager ontMgr = vWorkspace.getWorkspace().getOntologyManager();
-		final List<String> properties = ontMgr.getDataPropertiesOfClass(classURI, true);
+    @Override
+    public UpdateContainer doIt(VWorkspace vWorkspace) throws CommandException {
+	final OntologyManager ontMgr = vWorkspace.getWorkspace()
+		.getOntologyManager();
+	final List<String> properties = ontMgr.getDataPropertiesOfClass(
+		classURI, true);
 
-		// Generate and return the JSON
-		return new UpdateContainer(new AbstractUpdate() {
-			@Override
-			public void generateJson(String prefix, PrintWriter pw,
-					VWorkspace vWorkspace) {
-				JSONObject outputObject = new JSONObject();
-				try {
-					outputObject.put(JsonKeys.updateType.name(), "DataPropertiesForClassUpdate");
+	// Generate and return the JSON
+	return new UpdateContainer(new AbstractUpdate() {
+	    @Override
+	    public void generateJson(String prefix, PrintWriter pw,
+		    VWorkspace vWorkspace) {
+		JSONObject outputObject = new JSONObject();
+		try {
+		    outputObject.put(JsonKeys.updateType.name(),
+			    "DataPropertiesForClassUpdate");
 
-					JSONArray dataArray = new JSONArray();
+		    JSONArray dataArray = new JSONArray();
 
-					for (String domain : properties) {
-						JSONObject classObject = new JSONObject();
+		    for (String domain : properties) {
+			JSONObject classObject = new JSONObject();
 
-						URI domainURI = ontMgr.getURIFromString(domain);
-						if (domainURI == null)
-							continue;
-						
-						classObject.put(JsonKeys.data.name(), domainURI.getLocalNameWithPrefixIfAvailable());
-						JSONObject metadataObject = new JSONObject();
-						metadataObject.put(JsonKeys.URI.name(), domain);
-						classObject.put(JsonKeys.metadata.name(), metadataObject);
+			URI domainURI = ontMgr.getURIFromString(domain);
+			if (domainURI == null)
+			    continue;
 
-						dataArray.put(classObject);
-					}
-					outputObject.put(JsonKeys.data.name(), dataArray);
+			classObject.put(JsonKeys.data.name(),
+				domainURI.getLocalNameWithPrefixIfAvailable());
+			JSONObject metadataObject = new JSONObject();
+			metadataObject.put(JsonKeys.URI.name(), domain);
+			classObject.put(JsonKeys.metadata.name(),
+				metadataObject);
 
-					pw.println(outputObject.toString());
-				} catch (JSONException e) {
-					logger.error("Error occured while generating JSON!");
-				}
-			}
-		});
-	}
+			dataArray.put(classObject);
+		    }
+		    outputObject.put(JsonKeys.data.name(), dataArray);
 
-	@Override
-	public UpdateContainer undoIt(VWorkspace vWorkspace) {
-		// Not required
-		return null;
-	}
+		    pw.println(outputObject.toString());
+		} catch (JSONException e) {
+		    logger.error("Error occured while generating JSON!");
+		}
+	    }
+	});
+    }
+
+    @Override
+    public UpdateContainer undoIt(VWorkspace vWorkspace) {
+	// Not required
+	return null;
+    }
 
 }

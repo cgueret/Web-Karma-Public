@@ -18,20 +18,19 @@
  * University of Southern California.  For more information, publications, 
  * and related projects, please see: http://www.isi.edu/integration
  ******************************************************************************/
-package edu.isi.karma.modeling.semantictypes.mycrf.graph ;
+package edu.isi.karma.modeling.semantictypes.mycrf.graph;
 
 /**
  * This interface defines the common methods supported by any graph, such as,
  * computing its potential and the partition function.
  * 
  * @author amangoel
- *
+ * 
  */
 public interface GraphInterface {
-	
-	public void computeGraphPotentialAndZ() ; 
-	
-	public void computeGraphPotentialAndZAndMarginals() ;
-	
-	
+
+    public void computeGraphPotentialAndZ();
+
+    public void computeGraphPotentialAndZAndMarginals();
+
 }

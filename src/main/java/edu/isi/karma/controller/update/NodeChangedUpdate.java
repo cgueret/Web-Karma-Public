@@ -39,48 +39,53 @@ import edu.isi.karma.view.ViewPreferences.ViewPreference;
  */
 public class NodeChangedUpdate extends AbstractUpdate {
 
-	public enum JsonKeys {
-		worksheet, nodeId, newStatus, displayValue, fullValue, isTruncated
+    public enum JsonKeys {
+	worksheet, nodeId, newStatus, displayValue, fullValue, isTruncated
+    }
+
+    private final String worksheetId;
+
+    private final String nodeId;
+
+    private final CellValue newValue;
+
+    private final Node.NodeStatus newStatus;
+
+    public NodeChangedUpdate(String worksheetId, String nodeId,
+	    CellValue newValue, Node.NodeStatus newStatus) {
+	super();
+	this.worksheetId = worksheetId;
+	this.nodeId = nodeId;
+	this.newValue = newValue;
+	this.newStatus = newStatus;
+    }
+
+    @Override
+    public void generateJson(String prefix, PrintWriter pw,
+	    VWorkspace vWorkspace) {
+	pw.println(prefix + "{");
+	String newPref = prefix + "  ";
+	pw.println(newPref
+		+ JSONUtil.json(GenericJsonKeys.updateType, getUpdateType()));
+	pw.println(newPref + JSONUtil.json(JsonKeys.worksheet, worksheetId));
+	pw.println(newPref + JSONUtil.json(JsonKeys.nodeId, nodeId));
+	pw.println(newPref
+		+ JSONUtil.json(JsonKeys.newStatus, newStatus.getCodedStatus()));
+	pw.println(newPref
+		+ JSONUtil.json(JsonKeys.fullValue, newValue.asString()));
+
+	String displayValueString = newValue.asString();
+	boolean isTruncated = false;
+	int maxValueLength = vWorkspace.getPreferences()
+		.getIntViewPreferenceValue(ViewPreference.maxCharactersInCell);
+	if (displayValueString.length() > maxValueLength) {
+	    displayValueString = JSONUtil.truncateCellValue(displayValueString,
+		    maxValueLength);
+	    isTruncated = true;
 	}
-	
-	private final String worksheetId;
-
-	private final String nodeId;
-
-	private final CellValue newValue;
-	
-	private final Node.NodeStatus newStatus;
-
-	public NodeChangedUpdate(String worksheetId, String nodeId,
-			CellValue newValue, Node.NodeStatus newStatus) {
-		super();
-		this.worksheetId = worksheetId;
-		this.nodeId = nodeId;
-		this.newValue = newValue;
-		this.newStatus = newStatus;
-	}
-
-	@Override
-	public void generateJson(String prefix, PrintWriter pw, VWorkspace vWorkspace) {
-		pw.println(prefix + "{");
-		String newPref = prefix + "  ";
-		pw.println(newPref + JSONUtil.json(GenericJsonKeys.updateType, getUpdateType()));
-		pw.println(newPref + JSONUtil.json(JsonKeys.worksheet, worksheetId));
-		pw.println(newPref + JSONUtil.json(JsonKeys.nodeId, nodeId));
-		pw.println(newPref + JSONUtil.json(JsonKeys.newStatus, newStatus.getCodedStatus()));
-		pw.println(newPref + JSONUtil.json(JsonKeys.fullValue, newValue.asString()));
-		
-		String displayValueString = newValue.asString();
-		boolean isTruncated = false;
-		int maxValueLength = vWorkspace.getPreferences().getIntViewPreferenceValue(
-				ViewPreference.maxCharactersInCell);
-		if(displayValueString.length() > maxValueLength) {
-			displayValueString = JSONUtil.truncateCellValue(
-					displayValueString,maxValueLength);
-			isTruncated = true;
-		}
-		pw.println(newPref + JSONUtil.json(JsonKeys.isTruncated, isTruncated));
-		pw.println(newPref + JSONUtil.jsonLast(JsonKeys.displayValue, displayValueString));
-		pw.println(prefix + "}");
-	}
+	pw.println(newPref + JSONUtil.json(JsonKeys.isTruncated, isTruncated));
+	pw.println(newPref
+		+ JSONUtil.jsonLast(JsonKeys.displayValue, displayValueString));
+	pw.println(prefix + "}");
+    }
 }

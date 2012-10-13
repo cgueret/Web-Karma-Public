@@ -24,5 +24,5 @@ import org.json.JSONException;
 import org.json.JSONWriter;
 
 public interface Jsonizable {
-	public void write(JSONWriter writer) throws JSONException;
+    public void write(JSONWriter writer) throws JSONException;
 }

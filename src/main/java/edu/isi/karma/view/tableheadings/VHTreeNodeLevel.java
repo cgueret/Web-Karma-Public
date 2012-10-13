@@ -44,53 +44,53 @@ import edu.isi.karma.view.VWorkspace;
  */
 public class VHTreeNodeLevel {
 
-	private final List<VHTreeNode> elements = new LinkedList<VHTreeNode>();
-	private final int depth;
+    private final List<VHTreeNode> elements = new LinkedList<VHTreeNode>();
+    private final int depth;
 
-	VHTreeNodeLevel(int depth) {
-		super();
-		this.depth = depth;
-	}
+    VHTreeNodeLevel(int depth) {
+	super();
+	this.depth = depth;
+    }
 
-	VHTreeNodeLevel(VHTreeNode root) {
-		super();
-		this.elements.add(root);
-		this.depth = 0;
-	}
+    VHTreeNodeLevel(VHTreeNode root) {
+	super();
+	this.elements.add(root);
+	this.depth = 0;
+    }
 
-	int getDepth() {
-		return depth;
-	}
+    int getDepth() {
+	return depth;
+    }
 
-	boolean isFinalLevel() {
-		for (VHTreeNode n : elements) {
-			if (n.hasChildren()) {
-				return false;
-			}
-		}
-		return true;
+    boolean isFinalLevel() {
+	for (VHTreeNode n : elements) {
+	    if (n.hasChildren()) {
+		return false;
+	    }
 	}
+	return true;
+    }
 
-	VHTreeNodeLevel getNextLevel() {
-		VHTreeNodeLevel nextLevel = new VHTreeNodeLevel(depth + 1);
-		for (VHTreeNode n : elements) {
-			if (n.hasChildren()) {
-				nextLevel.elements.addAll(n.getChildren());
-			} else {
-				nextLevel.elements.add(n);
-			}
-		}
-		return nextLevel;
+    VHTreeNodeLevel getNextLevel() {
+	VHTreeNodeLevel nextLevel = new VHTreeNodeLevel(depth + 1);
+	for (VHTreeNode n : elements) {
+	    if (n.hasChildren()) {
+		nextLevel.elements.addAll(n.getChildren());
+	    } else {
+		nextLevel.elements.add(n);
+	    }
 	}
+	return nextLevel;
+    }
 
-	void generateJson(JSONWriter jw, VWorksheet vWorksheet,
-			VWorkspace vWorkspace) throws JSONException {
-		jw.object()//
-				.key(cells.name()).array();
-		for (VHTreeNode n : elements) {
-			n.generateJson(jw, depth, vWorksheet, vWorkspace);
-		}
-		jw.endArray();
-		jw.endObject();
+    void generateJson(JSONWriter jw, VWorksheet vWorksheet,
+	    VWorkspace vWorkspace) throws JSONException {
+	jw.object()//
+		.key(cells.name()).array();
+	for (VHTreeNode n : elements) {
+	    n.generateJson(jw, depth, vWorksheet, vWorkspace);
 	}
+	jw.endArray();
+	jw.endObject();
+    }
 }

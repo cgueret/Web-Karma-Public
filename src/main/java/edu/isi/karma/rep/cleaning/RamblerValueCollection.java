@@ -26,80 +26,70 @@ import java.util.Set;
 
 import org.json.JSONObject;
 
-
 public class RamblerValueCollection implements ValueCollection {
-	private HashMap<String,String> data;
-	public RamblerValueCollection(HashMap<String,String> data)
-	{
-		this.data = data;
-	}
-	public RamblerValueCollection()
-	{
-		data = new HashMap<String,String>();
-	}
-	public void setValue(String id, String val)
-	{
-		if(data.containsKey(id))
-		{
-			data.put(id, val);
-		}
-		else
-		{
-			data.put(id, val);
-		}
-	}
-	@Override
-	public String getValue(String id) {
-		// TODO Auto-generated method stub
-		if(data.containsKey(id))
-		{
-			return data.get(id);
-		}
-		else
-			return "";
-	}
+    private HashMap<String, String> data;
 
-	@Override
-	public Collection<String> getValues() {
-		// TODO Auto-generated method stub
-		return data.values();
-	}
+    public RamblerValueCollection(HashMap<String, String> data) {
+	this.data = data;
+    }
 
-	@Override
-	public Collection<String> getNodeIDs() {
-		// TODO Auto-generated method stub
-		return data.keySet();
-	}
+    public RamblerValueCollection() {
+	data = new HashMap<String, String>();
+    }
 
-	@Override
-	public JSONObject getJson() {
-		// TODO Auto-generated method stub
-		try
-		{
-			JSONObject jb = new JSONObject();
-			Set<String> ss = data.keySet();
-			for(String key:ss)
-			{
-				String val = data.get(key);
-				jb.put(key, val);
-			}
-			return jb;
-		}
-		catch(Exception ex)
-		{
-			System.out.println(""+ex.toString());
-			return null;
-		}
+    public void setValue(String id, String val) {
+	if (data.containsKey(id)) {
+	    data.put(id, val);
+	} else {
+	    data.put(id, val);
 	}
-	public String representation()
-	{
-		String result = "";
-		Set<String> res = data.keySet();
-		for(String s:res)
-		{
-			result += data.get(s);
-			result += " ";
-		}
-		return result;
+    }
+
+    @Override
+    public String getValue(String id) {
+	// TODO Auto-generated method stub
+	if (data.containsKey(id)) {
+	    return data.get(id);
+	} else
+	    return "";
+    }
+
+    @Override
+    public Collection<String> getValues() {
+	// TODO Auto-generated method stub
+	return data.values();
+    }
+
+    @Override
+    public Collection<String> getNodeIDs() {
+	// TODO Auto-generated method stub
+	return data.keySet();
+    }
+
+    @Override
+    public JSONObject getJson() {
+	// TODO Auto-generated method stub
+	try {
+	    JSONObject jb = new JSONObject();
+	    Set<String> ss = data.keySet();
+	    for (String key : ss) {
+		String val = data.get(key);
+		jb.put(key, val);
+	    }
+	    return jb;
+	} catch (Exception ex) {
+	    System.out.println("" + ex.toString());
+	    return null;
 	}
+    }
+
+    public String representation() {
+	String result = "";
+	Set<String> res = data.keySet();
+	for (String s : res) {
+	    result += data.get(s);
+	    result += " ";
+	}
+	return result;
+    }
 }

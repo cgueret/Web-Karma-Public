@@ -29,11 +29,11 @@ import edu.isi.karma.view.VWorkspace;
 
 public class ImportOntologyCommandFactory extends CommandFactory {
 
-	@Override
-	public Command createCommand(HttpServletRequest request,
-			VWorkspace vWorkspace) {
-		File uploadedFile = FileUtil.downloadFileFromHTTPRequest(request);
-		return new ImportOntologyCommand(getNewId(vWorkspace), uploadedFile);
-	}
+    @Override
+    public Command createCommand(HttpServletRequest request,
+	    VWorkspace vWorkspace) {
+	File uploadedFile = FileUtil.downloadFileFromHTTPRequest(request);
+	return new ImportOntologyCommand(getNewId(vWorkspace), uploadedFile);
+    }
 
 }

@@ -18,18 +18,16 @@
  * University of Southern California.  For more information, publications, 
  * and related projects, please see: http://www.isi.edu/integration
  ******************************************************************************/
-package edu.isi.karma.modeling.semantictypes.sl ;
+package edu.isi.karma.modeling.semantictypes.sl;
 
 public class Part {
-	
-	public String string ;
-	public int type ;
-	
-	Part(String string, int type) {
-		this.string = string ;
-		this.type = type ;
-	}
-	
-	
-	
+
+    public String string;
+    public int type;
+
+    Part(String string, int type) {
+	this.string = string;
+	this.type = type;
+    }
+
 }

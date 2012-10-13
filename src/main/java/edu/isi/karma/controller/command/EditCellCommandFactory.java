@@ -26,17 +26,17 @@ import edu.isi.karma.view.VWorkspace;
 
 public class EditCellCommandFactory extends CommandFactory {
 
-	public enum Arguments {
-		vWorksheetId, nodeId, value
-	}
+    public enum Arguments {
+	vWorksheetId, nodeId, value
+    }
 
-	@Override
-	public Command createCommand(HttpServletRequest request,
-			VWorkspace vWorkspace) {
+    @Override
+    public Command createCommand(HttpServletRequest request,
+	    VWorkspace vWorkspace) {
 
-		String nodeId = request.getParameter(Arguments.nodeId.name());
-		String newValue = request.getParameter(Arguments.value.name());
-		return new EditCellCommand(getNewId(vWorkspace), 
-				getWorksheetId(request, vWorkspace), nodeId, newValue);
-	}
+	String nodeId = request.getParameter(Arguments.nodeId.name());
+	String newValue = request.getParameter(Arguments.value.name());
+	return new EditCellCommand(getNewId(vWorkspace), getWorksheetId(
+		request, vWorkspace), nodeId, newValue);
+    }
 }

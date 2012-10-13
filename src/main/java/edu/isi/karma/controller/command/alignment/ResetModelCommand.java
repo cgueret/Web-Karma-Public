@@ -49,147 +49,164 @@ import edu.isi.mediator.gav.util.MediatorUtil;
 
 public class ResetModelCommand extends Command {
 
-	private final String vWorksheetId;
-	private SemanticTypes oldTypes;
-	private Alignment oldAlignment;
-	private String alignmentId;
-	private String oldCRFModel;
-	private String crfModelFilePath;
-	private String oldHistoryFileContent;
-	
-	private static Logger logger = LoggerFactory
-			.getLogger(ResetModelCommand.class);
+    private final String vWorksheetId;
+    private SemanticTypes oldTypes;
+    private Alignment oldAlignment;
+    private String alignmentId;
+    private String oldCRFModel;
+    private String crfModelFilePath;
+    private String oldHistoryFileContent;
 
-	public ResetModelCommand(String id, String vWorksheetId) {
-		super(id);
-		this.vWorksheetId = vWorksheetId;
-	}
+    private static Logger logger = LoggerFactory
+	    .getLogger(ResetModelCommand.class);
 
-	@Override
-	public String getCommandName() {
-		return this.getClass().getSimpleName();
-	}
+    public ResetModelCommand(String id, String vWorksheetId) {
+	super(id);
+	this.vWorksheetId = vWorksheetId;
+    }
 
-	@Override
-	public String getTitle() {
-		return "Reset Model";
-	}
+    @Override
+    public String getCommandName() {
+	return this.getClass().getSimpleName();
+    }
 
-	@Override
-	public String getDescription() {
-		return null;
-	}
+    @Override
+    public String getTitle() {
+	return "Reset Model";
+    }
 
-	@Override
-	public CommandType getCommandType() {
-		return CommandType.undoable;
-	}
+    @Override
+    public String getDescription() {
+	return null;
+    }
 
-	@Override
-	public UpdateContainer doIt(VWorkspace vWorkspace) throws CommandException {
-		Worksheet worksheet = vWorkspace.getViewFactory()
-				.getVWorksheet(vWorksheetId).getWorksheet();
+    @Override
+    public CommandType getCommandType() {
+	return CommandType.undoable;
+    }
 
-		//save CRF model for undo
-		try{
-			crfModelFilePath = vWorkspace.getWorkspace().getCrfModelHandler().getModelFilePath();
-			oldCRFModel=MediatorUtil.getFileAsString(crfModelFilePath);
-		} catch (Exception e) {
-			return new UpdateContainer(new ErrorUpdate(e.getMessage()));
-		}
-		//reset CRF model
-		vWorkspace.getWorkspace().getCrfModelHandler().removeAllLabels();
-		
-		// Save the old SemanticType object for undo
-		SemanticTypes types = worksheet.getSemanticTypes();
-		oldTypes = types;
-		worksheet.clearSemanticTypes();
-		//System.out.println("OLD TYPES=" + oldTypes.getTypes());
-		
-		//save old alignment for undo operation
-//		alignmentId = vWorkspace.getWorkspace().getId() + ":" + vWorksheetId + "AL";
-		alignmentId = AlignmentManager.Instance().constructAlignmentId(vWorkspace.getWorkspace().getId(), vWorksheetId);
-		oldAlignment = AlignmentManager.Instance().getAlignment(alignmentId);
-		
-		// Remove the nodes (if any) from the outlier tag
-		ArrayList<Row> rows = worksheet.getDataTable().getRows(0, worksheet.getDataTable().getNumRows());
-		Set<String> nodeIds = new HashSet<String>();
-		for(Row r:rows){
-			//for each node in the row
-			//logger.debug("Process ROW="+i++);
-			for (Node n : r.getNodes()) {
-				nodeIds.add(n.getId());
-			}
-		}
-		vWorkspace.getWorkspace().getTagsContainer().getTag(TagName.Outlier).removeNodeIds(nodeIds);
-
-		// Update the container
-		UpdateContainer c = new UpdateContainer();
-		c.add(new SemanticTypesUpdate(worksheet, vWorksheetId));
-
-		// Update the alignment
-		AlignToOntology align = new AlignToOntology(worksheet, vWorkspace, vWorksheetId);
-		try {
-			// Delete the existing history that saves the model
-			if(HistoryJsonUtil.historyExists(worksheet.getTitle(), vWorkspace.getPreferencesId())) {
-				File histFile = new File(HistoryJsonUtil.constructWorksheetHistoryJsonFilePath(worksheet.getTitle(), vWorkspace.getPreferencesId()));
-				if(histFile.exists()) {
-					oldHistoryFileContent = FileUtil.readFileContentsToString(histFile);
-					histFile.delete();
-				}
-			}
-			// Remove the modeling commands from the Command History
-			vWorkspace.getWorkspace().getCommandHistory().removeCommands(CommandTag.Modeling);
-			
-			align.alignAndUpdate(c, true);
-		} catch (Exception e) {
-			logger.error("Error occured while resetting model!", e);
-			return new UpdateContainer(new ErrorUpdate("Error occured while resetting model!"));
-		}
-		c.add(new TagsUpdate());
-		
-		return c;
-	}
-
-	@Override
-	public UpdateContainer undoIt(VWorkspace vWorkspace) {
-		Worksheet worksheet = vWorkspace.getViewFactory()
+    @Override
+    public UpdateContainer doIt(VWorkspace vWorkspace) throws CommandException {
+	Worksheet worksheet = vWorkspace.getViewFactory()
 		.getVWorksheet(vWorksheetId).getWorksheet();
 
-		//reset CRF model
-		try{
-			MediatorUtil.saveStringToFile(oldCRFModel, crfModelFilePath);
-			vWorkspace.getWorkspace().getCrfModelHandler().readModelFromFile(crfModelFilePath);
-		} catch (Exception e) {
-			return new UpdateContainer(new ErrorUpdate(e.getMessage()));
-		}
-		//reset old semantic types
-		worksheet.setSemanticTypes(oldTypes);
-
-		//set the old alignment
-		AlignmentManager.Instance().addAlignmentToMap(alignmentId, oldAlignment);
-		
-		// Update the container
-		UpdateContainer c = new UpdateContainer();
-		c.add(new SemanticTypesUpdate(worksheet, vWorksheetId));
-		
-		// Update the alignment
-		AlignToOntology align = new AlignToOntology(worksheet, vWorkspace,
-				vWorksheetId);
-		try {
-			// Write the history file content into the history file
-			File histFile = new File(HistoryJsonUtil.constructWorksheetHistoryJsonFilePath(worksheet.getTitle(), vWorkspace.getPreferencesId()));
-			FileUtil.writeStringToFile(oldHistoryFileContent, histFile.getAbsolutePath());
-			
-			align.alignAndUpdate(c, true);
-		} catch (Exception e) {
-			logger.error("Error occured while undoing alignment!",
-					e);
-			return new UpdateContainer(new ErrorUpdate(
-			"Error occured while undoing alignment!"));
-		}
-		return c;
-
+	// save CRF model for undo
+	try {
+	    crfModelFilePath = vWorkspace.getWorkspace().getCrfModelHandler()
+		    .getModelFilePath();
+	    oldCRFModel = MediatorUtil.getFileAsString(crfModelFilePath);
+	} catch (Exception e) {
+	    return new UpdateContainer(new ErrorUpdate(e.getMessage()));
 	}
+	// reset CRF model
+	vWorkspace.getWorkspace().getCrfModelHandler().removeAllLabels();
+
+	// Save the old SemanticType object for undo
+	SemanticTypes types = worksheet.getSemanticTypes();
+	oldTypes = types;
+	worksheet.clearSemanticTypes();
+	// System.out.println("OLD TYPES=" + oldTypes.getTypes());
+
+	// save old alignment for undo operation
+	// alignmentId = vWorkspace.getWorkspace().getId() + ":" + vWorksheetId
+	// + "AL";
+	alignmentId = AlignmentManager.Instance().constructAlignmentId(
+		vWorkspace.getWorkspace().getId(), vWorksheetId);
+	oldAlignment = AlignmentManager.Instance().getAlignment(alignmentId);
+
+	// Remove the nodes (if any) from the outlier tag
+	ArrayList<Row> rows = worksheet.getDataTable().getRows(0,
+		worksheet.getDataTable().getNumRows());
+	Set<String> nodeIds = new HashSet<String>();
+	for (Row r : rows) {
+	    // for each node in the row
+	    // logger.debug("Process ROW="+i++);
+	    for (Node n : r.getNodes()) {
+		nodeIds.add(n.getId());
+	    }
+	}
+	vWorkspace.getWorkspace().getTagsContainer().getTag(TagName.Outlier)
+		.removeNodeIds(nodeIds);
+
+	// Update the container
+	UpdateContainer c = new UpdateContainer();
+	c.add(new SemanticTypesUpdate(worksheet, vWorksheetId));
+
+	// Update the alignment
+	AlignToOntology align = new AlignToOntology(worksheet, vWorkspace,
+		vWorksheetId);
+	try {
+	    // Delete the existing history that saves the model
+	    if (HistoryJsonUtil.historyExists(worksheet.getTitle(),
+		    vWorkspace.getPreferencesId())) {
+		File histFile = new File(
+			HistoryJsonUtil.constructWorksheetHistoryJsonFilePath(
+				worksheet.getTitle(),
+				vWorkspace.getPreferencesId()));
+		if (histFile.exists()) {
+		    oldHistoryFileContent = FileUtil
+			    .readFileContentsToString(histFile);
+		    histFile.delete();
+		}
+	    }
+	    // Remove the modeling commands from the Command History
+	    vWorkspace.getWorkspace().getCommandHistory()
+		    .removeCommands(CommandTag.Modeling);
+
+	    align.alignAndUpdate(c, true);
+	} catch (Exception e) {
+	    logger.error("Error occured while resetting model!", e);
+	    return new UpdateContainer(new ErrorUpdate(
+		    "Error occured while resetting model!"));
+	}
+	c.add(new TagsUpdate());
+
+	return c;
+    }
+
+    @Override
+    public UpdateContainer undoIt(VWorkspace vWorkspace) {
+	Worksheet worksheet = vWorkspace.getViewFactory()
+		.getVWorksheet(vWorksheetId).getWorksheet();
+
+	// reset CRF model
+	try {
+	    MediatorUtil.saveStringToFile(oldCRFModel, crfModelFilePath);
+	    vWorkspace.getWorkspace().getCrfModelHandler()
+		    .readModelFromFile(crfModelFilePath);
+	} catch (Exception e) {
+	    return new UpdateContainer(new ErrorUpdate(e.getMessage()));
+	}
+	// reset old semantic types
+	worksheet.setSemanticTypes(oldTypes);
+
+	// set the old alignment
+	AlignmentManager.Instance()
+		.addAlignmentToMap(alignmentId, oldAlignment);
+
+	// Update the container
+	UpdateContainer c = new UpdateContainer();
+	c.add(new SemanticTypesUpdate(worksheet, vWorksheetId));
+
+	// Update the alignment
+	AlignToOntology align = new AlignToOntology(worksheet, vWorkspace,
+		vWorksheetId);
+	try {
+	    // Write the history file content into the history file
+	    File histFile = new File(
+		    HistoryJsonUtil.constructWorksheetHistoryJsonFilePath(
+			    worksheet.getTitle(), vWorkspace.getPreferencesId()));
+	    FileUtil.writeStringToFile(oldHistoryFileContent,
+		    histFile.getAbsolutePath());
+
+	    align.alignAndUpdate(c, true);
+	} catch (Exception e) {
+	    logger.error("Error occured while undoing alignment!", e);
+	    return new UpdateContainer(new ErrorUpdate(
+		    "Error occured while undoing alignment!"));
+	}
+	return c;
+
+    }
 
 }

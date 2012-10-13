@@ -28,53 +28,54 @@ import edu.isi.karma.view.VWorkspace;
 import edu.isi.karma.webserver.WorkspaceRegistry;
 
 public class CloseWorkspaceCommand extends Command {
-	private final String workspaceId;
+    private final String workspaceId;
 
-	protected CloseWorkspaceCommand(String id, String workspaceId) {
-		super(id);
-		this.workspaceId = workspaceId;
-	}
+    protected CloseWorkspaceCommand(String id, String workspaceId) {
+	super(id);
+	this.workspaceId = workspaceId;
+    }
 
-	@Override
-	public String getCommandName() {
-		return this.getClass().getSimpleName();
-	}
+    @Override
+    public String getCommandName() {
+	return this.getClass().getSimpleName();
+    }
 
-	@Override
-	public String getTitle() {
-		return "Close Workspace";
-	}
+    @Override
+    public String getTitle() {
+	return "Close Workspace";
+    }
 
-	@Override
-	public String getDescription() {
-		return null;
-	}
+    @Override
+    public String getDescription() {
+	return null;
+    }
 
-	@Override
-	public CommandType getCommandType() {
-		return CommandType.notUndoable;
-	}
+    @Override
+    public CommandType getCommandType() {
+	return CommandType.notUndoable;
+    }
 
-	@Override
-	public UpdateContainer doIt(VWorkspace vWorkspace) throws CommandException {
-		WorkspaceManager mgr = WorkspaceManager.getInstance();
-		// Remove it from the rep factory
-		RepFactory f = mgr.getFactory();
-		f.removeWorkspace(workspaceId);
-		
-		// Remove any alignments from the AlignmentManager
-		AlignmentManager.Instance().removeWorkspaceAlignments(vWorkspace.getWorkspace().getId());
-		
-		// Remove it from the workspace registry
-		WorkspaceRegistry.getInstance().deregister(workspaceId);
-		
-		return new UpdateContainer();
-	}
+    @Override
+    public UpdateContainer doIt(VWorkspace vWorkspace) throws CommandException {
+	WorkspaceManager mgr = WorkspaceManager.getInstance();
+	// Remove it from the rep factory
+	RepFactory f = mgr.getFactory();
+	f.removeWorkspace(workspaceId);
 
-	@Override
-	public UpdateContainer undoIt(VWorkspace vWorkspace) {
-		// Not required
-		return null;
-	}
+	// Remove any alignments from the AlignmentManager
+	AlignmentManager.Instance().removeWorkspaceAlignments(
+		vWorkspace.getWorkspace().getId());
+
+	// Remove it from the workspace registry
+	WorkspaceRegistry.getInstance().deregister(workspaceId);
+
+	return new UpdateContainer();
+    }
+
+    @Override
+    public UpdateContainer undoIt(VWorkspace vWorkspace) {
+	// Not required
+	return null;
+    }
 
 }

@@ -34,7 +34,6 @@
 // limitations under the License.
 // LICENCE-END
 
-
 package edu.isi.mediator.gav.util;
 
 import org.antlr.runtime.ANTLRStringStream;
@@ -42,37 +41,34 @@ import org.antlr.runtime.CharStream;
 
 /**
  * Matches case insensitive strings.
- *
+ * 
  * @author The OGSA-DAI Project Team
  */
-public class ANTLRNoCaseStringStream  extends ANTLRStringStream 
-{
-    
-   
+public class ANTLRNoCaseStringStream extends ANTLRStringStream {
+
     /**
      * Constructor.
+     * 
      * @param string
      */
-    public ANTLRNoCaseStringStream(String string) 
-    {
-        super(string);
+    public ANTLRNoCaseStringStream(String string) {
+	super(string);
     }
 
     /** Interface implementation */
-    public int LA(int i) 
-    {
-        int r = i;
-        if ( r==0 ) {
-            return 0; // undefined
-        }
-        if ( r<0 ) {
-            r++; // e.g., translate LA(-1) to use offset 0
-        }
+    public int LA(int i) {
+	int r = i;
+	if (r == 0) {
+	    return 0; // undefined
+	}
+	if (r < 0) {
+	    r++; // e.g., translate LA(-1) to use offset 0
+	}
 
-        if ( (p+r-1) >= n ) {
+	if ((p + r - 1) >= n) {
 
-            return CharStream.EOF;
-        }
-        return Character.toUpperCase(data[p+i-1]);
+	    return CharStream.EOF;
+	}
+	return Character.toUpperCase(data[p + i - 1]);
     }
 }

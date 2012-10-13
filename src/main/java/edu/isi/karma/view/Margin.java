@@ -32,60 +32,60 @@ import java.util.Iterator;
  */
 public class Margin {
 
-	private final String hTableId;
+    private final String hTableId;
 
-	private final int depth;
+    private final int depth;
 
-	private static Margin rootMargin = new Margin("root", 0);
-	private static Margin leafMargin = new Margin("leaf", -1);
+    private static Margin rootMargin = new Margin("root", 0);
+    private static Margin leafMargin = new Margin("leaf", -1);
 
-	public boolean isRootMargin(Margin margin){
-		return hTableId.equals("root");
-	}
-	
-	public static Margin getRootMargin() {
-		return rootMargin;
-	}
+    public boolean isRootMargin(Margin margin) {
+	return hTableId.equals("root");
+    }
 
-	public static Margin getleafMargin() {
-		return leafMargin;
-	}
+    public static Margin getRootMargin() {
+	return rootMargin;
+    }
 
-	public Margin(String hTableId, int depth) {
-		super();
-		this.hTableId = hTableId;
-		this.depth = depth;
-	}
+    public static Margin getleafMargin() {
+	return leafMargin;
+    }
 
-	public String getHTableId() {
-		return hTableId;
-	}
+    public Margin(String hTableId, int depth) {
+	super();
+	this.hTableId = hTableId;
+	this.depth = depth;
+    }
 
-	public int getDepth() {
-		return depth;
-	}
+    public String getHTableId() {
+	return hTableId;
+    }
 
-	public String toString() {
-		return "m(" + depth + ":" + hTableId + ")";
-	}
-	
-	public static String toString(Collection<Margin> marginList) {
-		StringBuffer b = new StringBuffer();
-		Iterator<Margin> it = marginList.iterator();
-		while (it.hasNext()) {
-			b.append(it.next().toString());
-			if (it.hasNext()) {
-				b.append("/");
-			}
-		}
-		return b.toString();
-	}
+    public int getDepth() {
+	return depth;
+    }
 
-	public static String getMarginsString(Margin margin) {
-		if (margin == null) {
-			return "none";
-		} else {
-			return margin.toString();
-		}
+    public String toString() {
+	return "m(" + depth + ":" + hTableId + ")";
+    }
+
+    public static String toString(Collection<Margin> marginList) {
+	StringBuffer b = new StringBuffer();
+	Iterator<Margin> it = marginList.iterator();
+	while (it.hasNext()) {
+	    b.append(it.next().toString());
+	    if (it.hasNext()) {
+		b.append("/");
+	    }
 	}
+	return b.toString();
+    }
+
+    public static String getMarginsString(Margin margin) {
+	if (margin == null) {
+	    return "none";
+	} else {
+	    return margin.toString();
+	}
+    }
 }

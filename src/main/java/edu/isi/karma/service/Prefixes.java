@@ -23,16 +23,16 @@ package edu.isi.karma.service;
 
 public interface Prefixes {
 
-	public static final String XSD = "xsd"; 
-	public static final String RDF = "rdf"; 
-	public static final String RDFS = "rdfs"; 
-	public static final String OWL = "owl"; 
-	public static final String SAWSDL = "sawsdl"; 
-	public static final String MSM = "msm"; 
-	public static final String WSMO_LITE = "wsmo-lite"; 
-	public static final String HRESTS = "hrests";
-	public static final String KARMA = "km";
-	public static final String RULEML = "ruleml";
-	public static final String SWRL = "swrl";
+    public static final String XSD = "xsd";
+    public static final String RDF = "rdf";
+    public static final String RDFS = "rdfs";
+    public static final String OWL = "owl";
+    public static final String SAWSDL = "sawsdl";
+    public static final String MSM = "msm";
+    public static final String WSMO_LITE = "wsmo-lite";
+    public static final String HRESTS = "hrests";
+    public static final String KARMA = "km";
+    public static final String RULEML = "ruleml";
+    public static final String SWRL = "swrl";
 
 }

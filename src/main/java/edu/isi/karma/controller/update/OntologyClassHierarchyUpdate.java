@@ -40,128 +40,137 @@ import edu.isi.karma.view.VWorkspace;
 
 public class OntologyClassHierarchyUpdate extends AbstractUpdate {
 
-	private OntModel model;
-	
-	private static Logger logger = LoggerFactory
-			.getLogger(OntologyClassHierarchyUpdate.class.getSimpleName());
+    private OntModel model;
 
-	public enum JsonKeys {
-		data, URI, metadata, children
-	}
+    private static Logger logger = LoggerFactory
+	    .getLogger(OntologyClassHierarchyUpdate.class.getSimpleName());
 
-	public OntologyClassHierarchyUpdate(OntModel model) {
-		this.model = model;
-	}
+    public enum JsonKeys {
+	data, URI, metadata, children
+    }
 
-	@Override
-	public void generateJson(String prefix, PrintWriter pw,
-			VWorkspace vWorkspace) {
-		Set<String> classesAdded = new HashSet<String>();
-		
-		Map<String, String> prefixMap = vWorkspace.getWorkspace().getOntologyManager().getPrefixMap();
+    public OntologyClassHierarchyUpdate(OntModel model) {
+	this.model = model;
+    }
 
+    @Override
+    public void generateJson(String prefix, PrintWriter pw,
+	    VWorkspace vWorkspace) {
+	Set<String> classesAdded = new HashSet<String>();
+
+	Map<String, String> prefixMap = vWorkspace.getWorkspace()
+		.getOntologyManager().getPrefixMap();
+
+	try {
+	    JSONArray dataArray = new JSONArray();
+
+	    ExtendedIterator<OntClass> iter = model.listNamedClasses();
+	    while (iter.hasNext()) {
+		OntClass cls = iter.next();
+		boolean hasSupClass = false;
 		try {
-			JSONArray dataArray = new JSONArray();
-
-			ExtendedIterator<OntClass> iter = model.listNamedClasses();
-			while (iter.hasNext()) {
-					OntClass cls = iter.next();
-					boolean hasSupClass = false;
-					try {
-						hasSupClass = cls.hasSuperClass();
-					} catch (ConversionException e) {
-						logger.debug(e.getMessage());
-						continue;
-					}
-					if ((hasSupClass) || classesAdded.contains(cls.getURI())) {
-						// Need to check if it has a non-anonymous superclass
-						boolean flag = false;
-						ExtendedIterator<OntClass> superClasses = cls.listSuperClasses();
-						try {
-							while (superClasses.hasNext()) {
-								OntClass clss = superClasses.next();
-								if (!clss.isAnon() && !clss.getURI().equals("http://www.w3.org/2000/01/rdf-schema#Resource"))
-									flag = true;
-							}
-						} catch (ConversionException e) {
-							logger.debug(e.getMessage());
-						}
-						if (flag) {
-							continue;
-						}
-					}
-	
-					JSONObject classObject = new JSONObject();
-	
-					if (cls.hasSubClass()) {
-						JSONArray childrenArray = new JSONArray();
-						addSubclassChildren(cls, childrenArray, 0, classesAdded, prefixMap);
-						classObject.put(JsonKeys.children.name(), childrenArray);
-					}
-	
-					String pr = prefixMap.get(cls.getNameSpace());
-					if(pr != null && !pr.equals(""))
-						classObject.put(JsonKeys.data.name(), pr + ":" + cls.getLocalName());
-					else
-						classObject.put(JsonKeys.data.name(), cls.getLocalName());
-					classesAdded.add(cls.getURI());
-	
-					JSONObject metadataObject = new JSONObject();
-					metadataObject.put(JsonKeys.URI.name(), cls.getURI());
-					classObject.put(JsonKeys.metadata.name(), metadataObject);
-	
-					dataArray.put(classObject);
+		    hasSupClass = cls.hasSuperClass();
+		} catch (ConversionException e) {
+		    logger.debug(e.getMessage());
+		    continue;
+		}
+		if ((hasSupClass) || classesAdded.contains(cls.getURI())) {
+		    // Need to check if it has a non-anonymous superclass
+		    boolean flag = false;
+		    ExtendedIterator<OntClass> superClasses = cls
+			    .listSuperClasses();
+		    try {
+			while (superClasses.hasNext()) {
+			    OntClass clss = superClasses.next();
+			    if (!clss.isAnon()
+				    && !clss.getURI()
+					    .equals("http://www.w3.org/2000/01/rdf-schema#Resource"))
+				flag = true;
 			}
-
-			// Prepare the output JSON
-			JSONObject outputObject = new JSONObject();
-			outputObject.put(GenericJsonKeys.updateType.name(), "OntologyClassHierarchyUpdate");
-			outputObject.put(JsonKeys.data.name(), dataArray);
-
-			pw.println(outputObject.toString());
-
-		} catch (JSONException e) {
-			logger.error("Error occured while creating JSON", e);
+		    } catch (ConversionException e) {
+			logger.debug(e.getMessage());
+		    }
+		    if (flag) {
+			continue;
+		    }
 		}
 
-	}
+		JSONObject classObject = new JSONObject();
 
-	private void addSubclassChildren(OntClass clazz, JSONArray childrenArray,
-			int level, Set<String> classesAdded, Map<String, String> prefixMap) throws JSONException {
-
-		// logger.debug("Adding children for " + clazz.getLocalName() +
-		// " at level " + level);
-
-		ExtendedIterator<OntClass> subclasses = clazz.listSubClasses();
-		while (subclasses.hasNext()) {
-			OntClass subclass = subclasses.next();
-			classesAdded.add(subclass.getLocalName());
-
-			JSONObject classObject = new JSONObject();
-			String pr = prefixMap.get(subclass.getNameSpace());
-			if (pr != null && !pr.equals(""))
-				classObject.put(JsonKeys.data.name(), pr + ":" + subclass.getLocalName());
-			else
-				classObject.put(JsonKeys.data.name(), subclass.getLocalName());
-			JSONObject metadataObject = new JSONObject();
-			metadataObject.put(JsonKeys.URI.name(), subclass.getURI());
-			classObject.put(JsonKeys.metadata.name(), metadataObject);
-
-			boolean hasSubClass = false;
-			try {
-				hasSubClass = subclass.hasSubClass();
-			} catch (ConversionException e) {
-				logger.debug(e.getMessage());
-				continue;
-			}
-			if (hasSubClass) {
-				JSONArray childrenArraySubClass = new JSONArray();
-				addSubclassChildren(subclass, childrenArraySubClass, level + 1,
-						classesAdded, prefixMap);
-				classObject
-						.put(JsonKeys.children.name(), childrenArraySubClass);
-			}
-			childrenArray.put(classObject);
+		if (cls.hasSubClass()) {
+		    JSONArray childrenArray = new JSONArray();
+		    addSubclassChildren(cls, childrenArray, 0, classesAdded,
+			    prefixMap);
+		    classObject.put(JsonKeys.children.name(), childrenArray);
 		}
+
+		String pr = prefixMap.get(cls.getNameSpace());
+		if (pr != null && !pr.equals(""))
+		    classObject.put(JsonKeys.data.name(),
+			    pr + ":" + cls.getLocalName());
+		else
+		    classObject.put(JsonKeys.data.name(), cls.getLocalName());
+		classesAdded.add(cls.getURI());
+
+		JSONObject metadataObject = new JSONObject();
+		metadataObject.put(JsonKeys.URI.name(), cls.getURI());
+		classObject.put(JsonKeys.metadata.name(), metadataObject);
+
+		dataArray.put(classObject);
+	    }
+
+	    // Prepare the output JSON
+	    JSONObject outputObject = new JSONObject();
+	    outputObject.put(GenericJsonKeys.updateType.name(),
+		    "OntologyClassHierarchyUpdate");
+	    outputObject.put(JsonKeys.data.name(), dataArray);
+
+	    pw.println(outputObject.toString());
+
+	} catch (JSONException e) {
+	    logger.error("Error occured while creating JSON", e);
 	}
+
+    }
+
+    private void addSubclassChildren(OntClass clazz, JSONArray childrenArray,
+	    int level, Set<String> classesAdded, Map<String, String> prefixMap)
+	    throws JSONException {
+
+	// logger.debug("Adding children for " + clazz.getLocalName() +
+	// " at level " + level);
+
+	ExtendedIterator<OntClass> subclasses = clazz.listSubClasses();
+	while (subclasses.hasNext()) {
+	    OntClass subclass = subclasses.next();
+	    classesAdded.add(subclass.getLocalName());
+
+	    JSONObject classObject = new JSONObject();
+	    String pr = prefixMap.get(subclass.getNameSpace());
+	    if (pr != null && !pr.equals(""))
+		classObject.put(JsonKeys.data.name(),
+			pr + ":" + subclass.getLocalName());
+	    else
+		classObject.put(JsonKeys.data.name(), subclass.getLocalName());
+	    JSONObject metadataObject = new JSONObject();
+	    metadataObject.put(JsonKeys.URI.name(), subclass.getURI());
+	    classObject.put(JsonKeys.metadata.name(), metadataObject);
+
+	    boolean hasSubClass = false;
+	    try {
+		hasSubClass = subclass.hasSubClass();
+	    } catch (ConversionException e) {
+		logger.debug(e.getMessage());
+		continue;
+	    }
+	    if (hasSubClass) {
+		JSONArray childrenArraySubClass = new JSONArray();
+		addSubclassChildren(subclass, childrenArraySubClass, level + 1,
+			classesAdded, prefixMap);
+		classObject
+			.put(JsonKeys.children.name(), childrenArraySubClass);
+	    }
+	    childrenArray.put(classObject);
+	}
+    }
 }

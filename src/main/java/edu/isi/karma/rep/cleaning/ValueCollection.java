@@ -25,10 +25,15 @@ import java.util.Collection;
 import org.json.JSONObject;
 
 public interface ValueCollection {
-	public abstract String getValue(String id);
-	public abstract Collection<String> getValues();
-	public abstract Collection<String> getNodeIDs();
-	public abstract void setValue(String id, String val);
-	public abstract JSONObject getJson();
-	public abstract String representation();
+    public abstract String getValue(String id);
+
+    public abstract Collection<String> getValues();
+
+    public abstract Collection<String> getNodeIDs();
+
+    public abstract void setValue(String id, String val);
+
+    public abstract JSONObject getJson();
+
+    public abstract String representation();
 }

@@ -39,116 +39,133 @@ import edu.isi.karma.view.VWorkspace;
 
 public class SetSemanticTypeCommand extends Command {
 
-	private SemanticType oldType;
-	private SynonymSemanticTypes oldSynonymTypes;
-	private final String vWorksheetId;
-	private CRFColumnModel oldColumnModel;
-	private final SemanticType newType;
-	private final SynonymSemanticTypes newSynonymTypes;
-	private final boolean trainAndShowUpdates;
+    private SemanticType oldType;
+    private SynonymSemanticTypes oldSynonymTypes;
+    private final String vWorksheetId;
+    private CRFColumnModel oldColumnModel;
+    private final SemanticType newType;
+    private final SynonymSemanticTypes newSynonymTypes;
+    private final boolean trainAndShowUpdates;
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass().getSimpleName());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass()
+	    .getSimpleName());
 
-	protected SetSemanticTypeCommand(String id, String vWorksheetId,
-			String hNodeId, boolean isPartOfKey, SemanticType type,
-			SynonymSemanticTypes synTypes, boolean trainAndShowUpdates) {
-		super(id);
-		this.vWorksheetId = vWorksheetId;
-		this.newType = type;
-		this.newSynonymTypes = synTypes;
-		this.trainAndShowUpdates = trainAndShowUpdates;
-		
-		addTag(CommandTag.Modeling);
+    protected SetSemanticTypeCommand(String id, String vWorksheetId,
+	    String hNodeId, boolean isPartOfKey, SemanticType type,
+	    SynonymSemanticTypes synTypes, boolean trainAndShowUpdates) {
+	super(id);
+	this.vWorksheetId = vWorksheetId;
+	this.newType = type;
+	this.newSynonymTypes = synTypes;
+	this.trainAndShowUpdates = trainAndShowUpdates;
+
+	addTag(CommandTag.Modeling);
+    }
+
+    @Override
+    public String getCommandName() {
+	return this.getClass().getSimpleName();
+    }
+
+    @Override
+    public String getTitle() {
+	return "Set Semantic Type";
+    }
+
+    @Override
+    public String getDescription() {
+	if (newType.getDomain() == null)
+	    return newType.getType().getLocalName();
+	else
+	    return newType.getType().getLocalName() + " of "
+		    + newType.getDomain().getLocalName();
+    }
+
+    @Override
+    public CommandType getCommandType() {
+	return CommandType.undoable;
+    }
+
+    @Override
+    public UpdateContainer doIt(VWorkspace vWorkspace) throws CommandException {
+	UpdateContainer c = new UpdateContainer();
+	Worksheet worksheet = vWorkspace.getViewFactory()
+		.getVWorksheet(vWorksheetId).getWorksheet();
+	CRFModelHandler crfModelHandler = vWorkspace.getWorkspace()
+		.getCrfModelHandler();
+
+	// Save the old SemanticType object and CRF Model for undo
+	oldType = worksheet.getSemanticTypes().getSemanticTypeForHNodeId(
+		newType.getHNodeId());
+	oldColumnModel = worksheet.getCrfModel().getModelByHNodeId(
+		newType.getHNodeId());
+	oldSynonymTypes = worksheet.getSemanticTypes()
+		.getSynonymTypesForHNodeId(newType.getHNodeId());
+
+	// Update the SemanticTypes data structure for the worksheet
+	worksheet.getSemanticTypes().addType(newType);
+
+	// Update the synonym semanticTypes
+	worksheet.getSemanticTypes().addSynonymTypesForHNodeId(
+		newType.getHNodeId(), newSynonymTypes);
+
+	if (trainAndShowUpdates) {
+	    // Train the semantic type in a separate thread
+	    Thread t = new Thread(new SemanticTypeTrainingThread(
+		    crfModelHandler, worksheet, newType));
+	    t.start();
+
+	    c.add(new SemanticTypesUpdate(worksheet, vWorksheetId));
+	    // Get the alignment update if any
+	    AlignToOntology align = new AlignToOntology(worksheet, vWorkspace,
+		    vWorksheetId);
+
+	    try {
+		align.alignAndUpdate(c, true);
+	    } catch (Exception e) {
+		logger.error("Error occured while setting the semantic type!",
+			e);
+		return new UpdateContainer(new ErrorUpdate(
+			"Error occured while setting the semantic type!"));
+	    }
+	    return c;
+
+	} else {
+	    // Just do the alignment, no training and update JSON required.
+	    // AlignToOntology align = new AlignToOntology(worksheet,
+	    // vWorkspace, vWorksheetId);
+	    // align.align(true);
+	}
+	return c;
+    }
+
+    @Override
+    public UpdateContainer undoIt(VWorkspace vWorkspace) {
+	UpdateContainer c = new UpdateContainer();
+	Worksheet worksheet = vWorkspace.getViewFactory()
+		.getVWorksheet(vWorksheetId).getWorksheet();
+	if (oldType == null) {
+	    worksheet.getSemanticTypes().unassignColumnSemanticType(
+		    newType.getHNodeId());
+	} else {
+	    worksheet.getSemanticTypes().addType(oldType);
+	    worksheet.getSemanticTypes().addSynonymTypesForHNodeId(
+		    newType.getHNodeId(), oldSynonymTypes);
 	}
 
-	@Override
-	public String getCommandName() {
-		return this.getClass().getSimpleName();
+	worksheet.getCrfModel().addColumnModel(newType.getHNodeId(),
+		oldColumnModel);
+
+	// Get the alignment update if any
+	AlignToOntology align = new AlignToOntology(worksheet, vWorkspace,
+		vWorksheetId);
+	try {
+	    align.alignAndUpdate(c, true);
+	} catch (Exception e) {
+	    logger.error("Error occured while unsetting the semantic type!", e);
+	    return new UpdateContainer(new ErrorUpdate(
+		    "Error occured while unsetting the semantic type!"));
 	}
-
-	@Override
-	public String getTitle() {
-		return "Set Semantic Type";
-	}
-
-	@Override
-	public String getDescription() {
-		if (newType.getDomain() == null)
-			return newType.getType().getLocalName();
-		else
-			return newType.getType().getLocalName() + " of " + newType.getDomain().getLocalName();
-	}
-
-	@Override
-	public CommandType getCommandType() {
-		return CommandType.undoable;
-	}
-
-	@Override
-	public UpdateContainer doIt(VWorkspace vWorkspace) throws CommandException {
-		UpdateContainer c = new UpdateContainer();
-		Worksheet worksheet = vWorkspace.getViewFactory().getVWorksheet(vWorksheetId).getWorksheet();
-		CRFModelHandler crfModelHandler = vWorkspace.getWorkspace().getCrfModelHandler();
-
-		// Save the old SemanticType object and CRF Model for undo
-		oldType = worksheet.getSemanticTypes().getSemanticTypeForHNodeId(newType.getHNodeId());
-		oldColumnModel = worksheet.getCrfModel().getModelByHNodeId(newType.getHNodeId());
-		oldSynonymTypes = worksheet.getSemanticTypes().getSynonymTypesForHNodeId(newType.getHNodeId());
-
-		// Update the SemanticTypes data structure for the worksheet
-		worksheet.getSemanticTypes().addType(newType);
-
-		// Update the synonym semanticTypes
-		worksheet.getSemanticTypes().addSynonymTypesForHNodeId(newType.getHNodeId(), newSynonymTypes);
-
-		if(trainAndShowUpdates) {
-			// Train the semantic type in a separate thread
-			Thread t = new Thread(new SemanticTypeTrainingThread(crfModelHandler, worksheet, newType));
-			t.start();
-
-			c.add(new SemanticTypesUpdate(worksheet, vWorksheetId));
-			// Get the alignment update if any
-			AlignToOntology align = new AlignToOntology(worksheet, vWorkspace, vWorksheetId);
-			
-			try {
-				align.alignAndUpdate(c, true);
-			} catch (Exception e) {
-				logger.error("Error occured while setting the semantic type!", e);
-				return new UpdateContainer(new ErrorUpdate(
-						"Error occured while setting the semantic type!"));
-			}
-			return c;
-			
-		} else {
-			// Just do the alignment, no training and update JSON required.
-//			AlignToOntology align = new AlignToOntology(worksheet, vWorkspace, vWorksheetId);
-//			align.align(true);
-		}
-		return c;
-	}
-
-	@Override
-	public UpdateContainer undoIt(VWorkspace vWorkspace) {
-		UpdateContainer c = new UpdateContainer();
-		Worksheet worksheet = vWorkspace.getViewFactory().getVWorksheet(vWorksheetId).getWorksheet();
-		if (oldType == null) {
-			worksheet.getSemanticTypes().unassignColumnSemanticType(newType.getHNodeId());
-		} else {
-			worksheet.getSemanticTypes().addType(oldType);
-			worksheet.getSemanticTypes().addSynonymTypesForHNodeId(newType.getHNodeId(), oldSynonymTypes);
-		}
-
-		worksheet.getCrfModel().addColumnModel(newType.getHNodeId(),oldColumnModel);
-
-		// Get the alignment update if any
-		AlignToOntology align = new AlignToOntology(worksheet, vWorkspace,vWorksheetId);
-		try {
-			align.alignAndUpdate(c, true);
-		} catch (Exception e) {
-			logger.error("Error occured while unsetting the semantic type!", e);
-			return new UpdateContainer(new ErrorUpdate(
-					"Error occured while unsetting the semantic type!"));
-		}
-		return c;
-	}
+	return c;
+    }
 }

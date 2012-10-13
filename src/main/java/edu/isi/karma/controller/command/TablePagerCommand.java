@@ -35,73 +35,73 @@ import edu.isi.karma.view.VWorkspace;
  */
 public class TablePagerCommand extends Command {
 
-	private final String tableIdArg;
+    private final String tableIdArg;
 
-	enum Direction {
-		showPrevious("up"), showNext("down");
+    enum Direction {
+	showPrevious("up"), showNext("down");
 
-		String userLabel;
+	String userLabel;
 
-		private Direction(String userLabel) {
-			this.userLabel = userLabel;
-		}
-
-		String getUserLabel() {
-			return userLabel;
-		}
+	private Direction(String userLabel) {
+	    this.userLabel = userLabel;
 	}
 
-	private final Direction directionArg;
-	private final String vWorksheetIdArg;
-
-	protected TablePagerCommand(String id, String vWorksheetIdArg,
-			String tableIdArg, String direction) {
-		super(id);
-		this.tableIdArg = tableIdArg;
-		this.vWorksheetIdArg = vWorksheetIdArg;
-		this.directionArg = Direction.valueOf(direction);
+	String getUserLabel() {
+	    return userLabel;
 	}
+    }
 
-	@Override
-	public String getCommandName() {
-		return "Page up/down";
-	}
+    private final Direction directionArg;
+    private final String vWorksheetIdArg;
 
-	@Override
-	public String getTitle() {
-		return "Page up/down";
-	}
+    protected TablePagerCommand(String id, String vWorksheetIdArg,
+	    String tableIdArg, String direction) {
+	super(id);
+	this.tableIdArg = tableIdArg;
+	this.vWorksheetIdArg = vWorksheetIdArg;
+	this.directionArg = Direction.valueOf(direction);
+    }
 
-	@Override
-	public String getDescription() {
-		return "Page " + directionArg.getUserLabel();
-	}
+    @Override
+    public String getCommandName() {
+	return "Page up/down";
+    }
 
-	@Override
-	public CommandType getCommandType() {
-		return CommandType.notInHistory;
-	}
+    @Override
+    public String getTitle() {
+	return "Page up/down";
+    }
 
-	@Override
-	public UpdateContainer doIt(VWorkspace vWorkspace) throws CommandException {
-		VWorksheet vWorksheet = vWorkspace.getViewFactory().getVWorksheet(
-				vWorksheetIdArg);
-		TablePager pager = vWorksheet.getTablePager(tableIdArg);
-		switch (directionArg) {
-		case showPrevious:
-			pager.moveToPreviousPage();
-			break;
-		case showNext:
-			pager.moveToNextPage();
-		}
-		vWorksheet.udateDataTable(vWorkspace.getViewFactory());
-		return new UpdateContainer(new WorksheetDataUpdate(vWorksheet));
-	}
+    @Override
+    public String getDescription() {
+	return "Page " + directionArg.getUserLabel();
+    }
 
-	@Override
-	public UpdateContainer undoIt(VWorkspace vWorkspace) {
-		// not undoable.
-		return new UpdateContainer();
+    @Override
+    public CommandType getCommandType() {
+	return CommandType.notInHistory;
+    }
+
+    @Override
+    public UpdateContainer doIt(VWorkspace vWorkspace) throws CommandException {
+	VWorksheet vWorksheet = vWorkspace.getViewFactory().getVWorksheet(
+		vWorksheetIdArg);
+	TablePager pager = vWorksheet.getTablePager(tableIdArg);
+	switch (directionArg) {
+	case showPrevious:
+	    pager.moveToPreviousPage();
+	    break;
+	case showNext:
+	    pager.moveToNextPage();
 	}
+	vWorksheet.udateDataTable(vWorkspace.getViewFactory());
+	return new UpdateContainer(new WorksheetDataUpdate(vWorksheet));
+    }
+
+    @Override
+    public UpdateContainer undoIt(VWorkspace vWorkspace) {
+	// not undoable.
+	return new UpdateContainer();
+    }
 
 }

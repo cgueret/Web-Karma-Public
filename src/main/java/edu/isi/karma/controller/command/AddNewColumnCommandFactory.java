@@ -26,17 +26,19 @@ import edu.isi.karma.view.VWorkspace;
 
 public class AddNewColumnCommandFactory extends CommandFactory {
 
-	private enum Arguments {
-		vWorksheetId, hNodeId,result
-	}
-	
-	@Override
-	public Command createCommand(HttpServletRequest request,
-			VWorkspace vWorkspace) {
-		String hNodeId = request.getParameter(Arguments.hNodeId.name());
-		String vWorksheetId = request.getParameter(Arguments.vWorksheetId.name());
-		String result = request.getParameter(Arguments.result.name());
-		return new AddNewColumnCommand(getNewId(vWorkspace), vWorksheetId, getWorksheetId(request, vWorkspace), hNodeId, result);
-	}
+    private enum Arguments {
+	vWorksheetId, hNodeId, result
+    }
+
+    @Override
+    public Command createCommand(HttpServletRequest request,
+	    VWorkspace vWorkspace) {
+	String hNodeId = request.getParameter(Arguments.hNodeId.name());
+	String vWorksheetId = request.getParameter(Arguments.vWorksheetId
+		.name());
+	String result = request.getParameter(Arguments.result.name());
+	return new AddNewColumnCommand(getNewId(vWorkspace), vWorksheetId,
+		getWorksheetId(request, vWorkspace), hNodeId, result);
+    }
 
 }

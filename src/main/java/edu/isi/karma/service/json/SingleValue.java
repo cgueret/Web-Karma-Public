@@ -20,20 +20,20 @@
  ******************************************************************************/
 package edu.isi.karma.service.json;
 
-public class SingleValue extends Value{
-	
-	private String valueString;
-	
-	public SingleValue(String s) {
-		this.valueString = s;
-	}
-	
-	public String getValueString() {
-		valueString = valueString.trim();
-		if (this.valueString.startsWith("\""))
-			valueString = valueString.substring(1);
-		if (this.valueString.endsWith("\""))
-			valueString = valueString.substring(0, valueString.length() - 1);
-		return this.valueString;
-	}
+public class SingleValue extends Value {
+
+    private String valueString;
+
+    public SingleValue(String s) {
+	this.valueString = s;
+    }
+
+    public String getValueString() {
+	valueString = valueString.trim();
+	if (this.valueString.startsWith("\""))
+	    valueString = valueString.substring(1);
+	if (this.valueString.endsWith("\""))
+	    valueString = valueString.substring(0, valueString.length() - 1);
+	return this.valueString;
+    }
 }

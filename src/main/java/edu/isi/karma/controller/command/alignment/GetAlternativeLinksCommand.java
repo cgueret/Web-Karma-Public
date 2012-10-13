@@ -38,101 +38,107 @@ import edu.isi.karma.modeling.alignment.Vertex;
 import edu.isi.karma.view.VWorkspace;
 
 public class GetAlternativeLinksCommand extends Command {
-	private final String nodeId;
-	private final String alignmentId;
+    private final String nodeId;
+    private final String alignmentId;
 
-	private enum JsonKeys {
-		updateType, edgeLabel, edgeId, edgeSource, Edges, selected
-	}
+    private enum JsonKeys {
+	updateType, edgeLabel, edgeId, edgeSource, Edges, selected
+    }
 
-	public String getNodeId() {
-		return nodeId;
-	}
+    public String getNodeId() {
+	return nodeId;
+    }
 
-	protected GetAlternativeLinksCommand(String id, String nodeId,
-			String alignmentId) {
-		super(id);
-		this.nodeId = nodeId;
-		this.alignmentId = alignmentId;
-	}
+    protected GetAlternativeLinksCommand(String id, String nodeId,
+	    String alignmentId) {
+	super(id);
+	this.nodeId = nodeId;
+	this.alignmentId = alignmentId;
+    }
 
-	@Override
-	public String getCommandName() {
-		return this.getClass().getSimpleName();
-	}
+    @Override
+    public String getCommandName() {
+	return this.getClass().getSimpleName();
+    }
 
-	@Override
-	public String getTitle() {
-		return "Get Alternative Links";
-	}
+    @Override
+    public String getTitle() {
+	return "Get Alternative Links";
+    }
 
-	@Override
-	public String getDescription() {
-		return null;
-	}
+    @Override
+    public String getDescription() {
+	return null;
+    }
 
-	@Override
-	public CommandType getCommandType() {
-		return CommandType.notInHistory;
-	}
+    @Override
+    public CommandType getCommandType() {
+	return CommandType.notInHistory;
+    }
 
-	@Override
-	public UpdateContainer doIt(VWorkspace vWorkspace) throws CommandException {
-		Alignment alignment = AlignmentManager.Instance().getAlignment(
-				alignmentId);
-		final List<LabeledWeightedEdge> edges = alignment.getAlternatives(
-				nodeId, true);
-		final LabeledWeightedEdge currentLink = alignment.getAssignedLink(nodeId); 
+    @Override
+    public UpdateContainer doIt(VWorkspace vWorkspace) throws CommandException {
+	Alignment alignment = AlignmentManager.Instance().getAlignment(
+		alignmentId);
+	final List<LabeledWeightedEdge> edges = alignment.getAlternatives(
+		nodeId, true);
+	final LabeledWeightedEdge currentLink = alignment
+		.getAssignedLink(nodeId);
 
-		UpdateContainer upd = new UpdateContainer(new AbstractUpdate() {
-			@Override
-			public void generateJson(String prefix, PrintWriter pw,
-					VWorkspace vWorkspace) {
-				JSONObject obj = new JSONObject();
-				JSONArray edgesArray = new JSONArray();
+	UpdateContainer upd = new UpdateContainer(new AbstractUpdate() {
+	    @Override
+	    public void generateJson(String prefix, PrintWriter pw,
+		    VWorkspace vWorkspace) {
+		JSONObject obj = new JSONObject();
+		JSONArray edgesArray = new JSONArray();
 
-				try {
-					obj.put(JsonKeys.updateType.name(), "GetAlternativeLinks");
-					for (LabeledWeightedEdge edge : edges) {
-						
-						String edgeLabel = "";
-//						if(edge.getPrefix() != null && !edge.getPrefix().equals(""))
-//							edgeLabel = edge.getPrefix() + ":" + edge.getLocalLabel();
-//						else
-							edgeLabel = edge.getLocalLabel();
-						
-						String edgeSourceLabel = "";
-						Vertex edgeSource = edge.getSource();
-//						if(edgeSource.getPrefix() != null && !edgeSource.getPrefix().equals(""))
-//							edgeSourceLabel = edgeSource.getPrefix() + ":" + edgeSource.getLocalLabel();
-//						else
-							edgeSourceLabel = edgeSource.getLocalID();
-						
-						JSONObject edgeObj = new JSONObject();
-						edgeObj.put(JsonKeys.edgeId.name(), edge.getID());
-						edgeObj.put(JsonKeys.edgeLabel.name(), edgeLabel);
-						edgeObj.put(JsonKeys.edgeSource.name(),edgeSourceLabel);
-						if(currentLink != null && edge.getID().equals(currentLink.getID()))
-							edgeObj.put(JsonKeys.selected.name(), true);
-						else
-							edgeObj.put(JsonKeys.selected.name(), false);
+		try {
+		    obj.put(JsonKeys.updateType.name(), "GetAlternativeLinks");
+		    for (LabeledWeightedEdge edge : edges) {
 
-						edgesArray.put(edgeObj);
-					}
-					obj.put(JsonKeys.Edges.name(), edgesArray);
-					pw.println(obj.toString());
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
-			}
-		});
-		return upd;
-	}
+			String edgeLabel = "";
+			// if(edge.getPrefix() != null &&
+			// !edge.getPrefix().equals(""))
+			// edgeLabel = edge.getPrefix() + ":" +
+			// edge.getLocalLabel();
+			// else
+			edgeLabel = edge.getLocalLabel();
 
-	@Override
-	public UpdateContainer undoIt(VWorkspace vWorkspace) {
-		// Not required!
-		return null;
-	}
+			String edgeSourceLabel = "";
+			Vertex edgeSource = edge.getSource();
+			// if(edgeSource.getPrefix() != null &&
+			// !edgeSource.getPrefix().equals(""))
+			// edgeSourceLabel = edgeSource.getPrefix() + ":" +
+			// edgeSource.getLocalLabel();
+			// else
+			edgeSourceLabel = edgeSource.getLocalID();
+
+			JSONObject edgeObj = new JSONObject();
+			edgeObj.put(JsonKeys.edgeId.name(), edge.getID());
+			edgeObj.put(JsonKeys.edgeLabel.name(), edgeLabel);
+			edgeObj.put(JsonKeys.edgeSource.name(), edgeSourceLabel);
+			if (currentLink != null
+				&& edge.getID().equals(currentLink.getID()))
+			    edgeObj.put(JsonKeys.selected.name(), true);
+			else
+			    edgeObj.put(JsonKeys.selected.name(), false);
+
+			edgesArray.put(edgeObj);
+		    }
+		    obj.put(JsonKeys.Edges.name(), edgesArray);
+		    pw.println(obj.toString());
+		} catch (JSONException e) {
+		    e.printStackTrace();
+		}
+	    }
+	});
+	return upd;
+    }
+
+    @Override
+    public UpdateContainer undoIt(VWorkspace vWorkspace) {
+	// Not required!
+	return null;
+    }
 
 }

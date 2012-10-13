@@ -31,34 +31,35 @@ import edu.isi.karma.view.VWorkspace;
 
 public class ErrorUpdate extends AbstractUpdate {
 
-	String errorMessage;
+    String errorMessage;
 
-	private enum JsonKeys {
-		Error
-	}
-	
-	private enum JsonValues {
-		KarmaError
-	}
-	
-	private static Logger logger = LoggerFactory.getLogger(ErrorUpdate.class);
-	
-	public ErrorUpdate(String errorMessage) {
-		super();
-		this.errorMessage = errorMessage;
-	}
+    private enum JsonKeys {
+	Error
+    }
 
-	@Override
-	public void generateJson(String prefix, PrintWriter pw,
-			VWorkspace vWorkspace) {
-		JSONObject obj = new JSONObject();
-		try {
-			obj.put(GenericJsonKeys.updateType.name(), JsonValues.KarmaError.name());
-			obj.put(JsonKeys.Error.name(), errorMessage);
-			pw.println(obj.toString());
-		} catch (JSONException e) {
-			logger.error("Error generating JSON for ErrorUpdate", e);
-		}
+    private enum JsonValues {
+	KarmaError
+    }
+
+    private static Logger logger = LoggerFactory.getLogger(ErrorUpdate.class);
+
+    public ErrorUpdate(String errorMessage) {
+	super();
+	this.errorMessage = errorMessage;
+    }
+
+    @Override
+    public void generateJson(String prefix, PrintWriter pw,
+	    VWorkspace vWorkspace) {
+	JSONObject obj = new JSONObject();
+	try {
+	    obj.put(GenericJsonKeys.updateType.name(),
+		    JsonValues.KarmaError.name());
+	    obj.put(JsonKeys.Error.name(), errorMessage);
+	    pw.println(obj.toString());
+	} catch (JSONException e) {
+	    logger.error("Error generating JSON for ErrorUpdate", e);
 	}
+    }
 
 }

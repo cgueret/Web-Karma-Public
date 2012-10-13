@@ -45,75 +45,76 @@ import edu.isi.karma.view.tabledata.VDVerticalSeparators;
  */
 public class VTableHeadings {
 
-	@SuppressWarnings("unused")
-	private List<HNodePath> headingHNodePaths;
+    @SuppressWarnings("unused")
+    private List<HNodePath> headingHNodePaths;
 
-	private String hTableId;
+    private String hTableId;
 
-	private VHTreeNode rootVHNode;
+    private VHTreeNode rootVHNode;
 
-	public VTableHeadings(List<HNodePath> headingHNodePaths, String hTableId) {
-		super();
-		this.headingHNodePaths = headingHNodePaths;
-		this.hTableId = hTableId;
-		this.rootVHNode = new VHTreeNode(hTableId);
-		this.rootVHNode.addColumns(headingHNodePaths);
-		this.rootVHNode.computeDerivedInformation();
+    public VTableHeadings(List<HNodePath> headingHNodePaths, String hTableId) {
+	super();
+	this.headingHNodePaths = headingHNodePaths;
+	this.hTableId = hTableId;
+	this.rootVHNode = new VHTreeNode(hTableId);
+	this.rootVHNode.addColumns(headingHNodePaths);
+	this.rootVHNode.computeDerivedInformation();
+    }
+
+    public VHTreeNode getRootVHNode() {
+	return rootVHNode;
+    }
+
+    public void populateVDVerticalSeparators(
+	    VDVerticalSeparators vdVerticalSeparators) {
+	VDVerticalSeparator vs = new VDVerticalSeparator();
+	vs.add(0, hTableId);
+	vdVerticalSeparators.put(rootVHNode.getHNodeId(), vs);
+	rootVHNode.populateVDVerticalSeparators(vdVerticalSeparators);
+    }
+
+    public void generateJson(JSONWriter jw, VWorksheet vWorksheet,
+	    VWorkspace vWorkspace) {
+	try {
+	    jw.object()
+		    .key(AbstractUpdate.GenericJsonKeys.updateType.name())
+		    .value(WorksheetHierarchicalHeadersUpdate.class
+			    .getSimpleName())
+		    //
+		    .key(worksheetId.name())
+		    .value(vWorksheet.getId())
+		    //
+		    .key(WorksheetHierarchicalHeadersUpdate.JsonKeys.hTableId
+			    .name()).value(hTableId)//
+		    .key(rows.name());
+	    generateJsonRows(jw, vWorksheet, vWorkspace);
+	    jw.endObject();
+	} catch (JSONException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
 	}
 
-	public VHTreeNode getRootVHNode() {
-		return rootVHNode;
-	}
+    }
 
-	public void populateVDVerticalSeparators(
-			VDVerticalSeparators vdVerticalSeparators) {
-		VDVerticalSeparator vs = new VDVerticalSeparator();
-		vs.add(0, hTableId);
-		vdVerticalSeparators.put(rootVHNode.getHNodeId(), vs);
-		rootVHNode.populateVDVerticalSeparators(vdVerticalSeparators);
+    private void generateJsonRows(JSONWriter jw, VWorksheet vWorksheet,
+	    VWorkspace vWorkspace) throws JSONException {
+	jw.array();
+	VHTreeNodeLevel level = new VHTreeNodeLevel(rootVHNode).getNextLevel();
+	while (!level.isFinalLevel()) {
+	    level.generateJson(jw, vWorksheet, vWorkspace);
+	    level = level.getNextLevel();
 	}
+	level.generateJson(jw, vWorksheet, vWorkspace);
+	jw.endArray();
+    }
 
-	public void generateJson(JSONWriter jw, VWorksheet vWorksheet,
-			VWorkspace vWorkspace) {
-		try {
-			jw.object()
-					.key(AbstractUpdate.GenericJsonKeys.updateType.name())
-					.value(WorksheetHierarchicalHeadersUpdate.class
-							.getSimpleName())
-					//
-					.key(worksheetId.name())
-					.value(vWorksheet.getId())//
-					.key(WorksheetHierarchicalHeadersUpdate.JsonKeys.hTableId
-							.name()).value(hTableId)//
-					.key(rows.name());
-			generateJsonRows(jw, vWorksheet, vWorkspace);
-			jw.endObject();
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-	}
-
-	private void generateJsonRows(JSONWriter jw, VWorksheet vWorksheet,
-			VWorkspace vWorkspace) throws JSONException {
-		jw.array();
-		VHTreeNodeLevel level = new VHTreeNodeLevel(rootVHNode).getNextLevel();
-		while (!level.isFinalLevel()) {
-			level.generateJson(jw, vWorksheet, vWorkspace);
-			level = level.getNextLevel();
-		}
-		level.generateJson(jw, vWorksheet, vWorkspace);
-		jw.endArray();
-	}
-
-	public JSONWriter prettyPrintJson(JSONWriter jw) throws JSONException {
-		jw.object()//
-				.key("hTableId").value(hTableId)//
-				.key("root")//
-		;
-		rootVHNode.prettyPrintJson(jw, true, true);
-		jw.endObject();
-		return jw;
-	}
+    public JSONWriter prettyPrintJson(JSONWriter jw) throws JSONException {
+	jw.object()//
+		.key("hTableId").value(hTableId)//
+		.key("root")//
+	;
+	rootVHNode.prettyPrintJson(jw, true, true);
+	jw.endObject();
+	return jw;
+    }
 }

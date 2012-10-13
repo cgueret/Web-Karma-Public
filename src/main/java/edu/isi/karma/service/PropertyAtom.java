@@ -25,34 +25,38 @@ import edu.isi.karma.modeling.alignment.URI;
 
 public class PropertyAtom extends Atom {
 
-	private URI propertyPredicate;
-	private Argument argument1;
-	private Argument argument2;
-	
-	public PropertyAtom(URI propertyPredicate, Argument argument1, Argument argument2) {
-		this.propertyPredicate = propertyPredicate;
-		this.argument1 = argument1;
-		this.argument2 = argument2;
-	}
+    private URI propertyPredicate;
+    private Argument argument1;
+    private Argument argument2;
 
-	public URI getPropertyPredicate() {
-		return propertyPredicate;
-	}
+    public PropertyAtom(URI propertyPredicate, Argument argument1,
+	    Argument argument2) {
+	this.propertyPredicate = propertyPredicate;
+	this.argument1 = argument1;
+	this.argument2 = argument2;
+    }
 
-	public Argument getArgument1() {
-		return argument1;
-	}	
-	
-	public Argument getArgument2() {
-		return argument2;
-	}
+    public URI getPropertyPredicate() {
+	return propertyPredicate;
+    }
 
-	public void print() {
-		System.out.println("property predicate uri: " + propertyPredicate.getUriString());
-		System.out.println("property predicate ns: " + propertyPredicate.getNs());
-		System.out.println("property predicate prefix: " + propertyPredicate.getPrefix());
-		System.out.println("argument1: " + argument1.getId());
-		System.out.println("argument2: " + argument2.getId());
-	}	
-	
+    public Argument getArgument1() {
+	return argument1;
+    }
+
+    public Argument getArgument2() {
+	return argument2;
+    }
+
+    public void print() {
+	System.out.println("property predicate uri: "
+		+ propertyPredicate.getUriString());
+	System.out.println("property predicate ns: "
+		+ propertyPredicate.getNs());
+	System.out.println("property predicate prefix: "
+		+ propertyPredicate.getPrefix());
+	System.out.println("argument1: " + argument1.getId());
+	System.out.println("argument2: " + argument2.getId());
+    }
+
 }

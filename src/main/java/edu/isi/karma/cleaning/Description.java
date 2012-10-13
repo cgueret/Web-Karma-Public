@@ -28,157 +28,142 @@ import java.util.Vector;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-class Tuple
-{
-	//(beforetoks, aftertoks)
-	private Vector<Vector<TNode>> tuple = new Vector<Vector<TNode>>();
-	public Tuple(Vector<TNode> bef,Vector<TNode> aft)
-	{
-		tuple.add(bef);
-		tuple.add(aft);
+
+class Tuple {
+    // (beforetoks, aftertoks)
+    private Vector<Vector<TNode>> tuple = new Vector<Vector<TNode>>();
+
+    public Tuple(Vector<TNode> bef, Vector<TNode> aft) {
+	tuple.add(bef);
+	tuple.add(aft);
+    }
+
+    public Vector<TNode> getBefore() {
+	return tuple.get(0);
+    }
+
+    public Vector<TNode> getafter() {
+	return tuple.get(1);
+    }
+
+    public String toString() {
+	Vector<TNode> bef = this.getBefore();
+	Vector<TNode> aft = this.getafter();
+	String orgString = "";
+	String aftString = "";
+	for (TNode t : bef) {
+	    orgString += t.text;
 	}
-	public Vector<TNode> getBefore()
-	{
-		return tuple.get(0);
+	for (TNode t : aft) {
+	    aftString += t.text;
 	}
-	public Vector<TNode> getafter()
-	{
-		return tuple.get(1);
-	}
-	public String toString()
-	{
-		Vector<TNode> bef = this.getBefore();
-		Vector<TNode> aft = this.getafter();
-		String orgString = "";
-		String aftString = "";
-		for(TNode t:bef)
-		{
-			orgString += t.text;
-		}
-		for(TNode t:aft)
-		{
-			aftString += t.text;
-		}
-		return orgString+" === "+aftString;
-	}
+	return orgString + " === " + aftString;
+    }
 }
-public class Description 
-{
-	public Vector<Vector<Vector<HashSet<String>>>> desc = new Vector<Vector<Vector<HashSet<String>>>>();
-	//((tup11,tup21),(tup12,tup22)....)
-	public Vector<Vector<Vector<Tuple>>> sequences = new Vector<Vector<Vector<Tuple>>>();
-	public Description()
-	{
+
+public class Description {
+    public Vector<Vector<Vector<HashSet<String>>>> desc = new Vector<Vector<Vector<HashSet<String>>>>();
+    // ((tup11,tup21),(tup12,tup22)....)
+    public Vector<Vector<Vector<Tuple>>> sequences = new Vector<Vector<Vector<Tuple>>>();
+
+    public Description() {
+    }
+
+    public Description(Vector<Vector<Vector<HashSet<String>>>> desc) {
+	this.desc = desc;
+    }
+
+    public void clear() {
+	desc.clear();
+	sequences.clear();
+    }
+
+    public void delComponent(int index) {
+	desc.remove(index);
+	sequences.remove(index);
+    }
+
+    public Vector<Vector<Vector<HashSet<String>>>> getDesc() {
+	return desc;
+    }
+
+    public Vector<Vector<Vector<Tuple>>> getSeqs() {
+	return this.sequences;
+    }
+
+    public void addSeqs(Vector<Vector<Tuple>> seq) {
+	sequences.add(seq);
+    }
+
+    public void addDesc(Vector<Vector<HashSet<String>>> seq) {
+	desc.add(seq);
+    }
+
+    public void newDesc() {
+	this.desc = new Vector<Vector<Vector<HashSet<String>>>>();
+    }
+
+    public void newSeqs() {
+	this.sequences = new Vector<Vector<Vector<Tuple>>>();
+    }
+
+    public void writeJSONString() throws Exception {
+
+	String rep = "";
+	if (this.desc.size() != this.sequences.size()) {
+	    CleaningLogger.write("description toString error");
+	    return;
+
 	}
-	public Description(Vector<Vector<Vector<HashSet<String>>>> desc)
-	{
-		this.desc = desc;
-	}
-	public void clear()
-	{
-		desc.clear();
-		sequences.clear();
-	}
-	public void delComponent(int index)
-	{
-		desc.remove(index);
-		sequences.remove(index);
-	}
-	public Vector<Vector<Vector<HashSet<String>>>> getDesc()
-	{
-		return desc;
-	}
-	public Vector<Vector<Vector<Tuple>>> getSeqs()
-	{
-		return this.sequences;
-	}
-	
-	public void addSeqs(Vector<Vector<Tuple>> seq)
-	{
-		sequences.add(seq);
-	}
-	public void addDesc(Vector<Vector<HashSet<String>>> seq)
-	{
-		desc.add(seq);
-	}
-	public void newDesc()
-	{
-		this.desc = new Vector<Vector<Vector<HashSet<String>>>>();
-	}
-	public void newSeqs()
-	{
-		this.sequences = new Vector<Vector<Vector<Tuple>>>();
-	}
-	public void writeJSONString() throws Exception
-	{
-		
-		String rep = "";
-		if(this.desc.size() != this.sequences.size())
-		{
-			CleaningLogger.write("description toString error");
-			return ;
-			
+	JSONArray jx = new JSONArray();
+	for (int i = 0; i < this.desc.size(); i++) {
+	    JSONArray jaArray = new JSONArray();
+	    for (int j = 0; j < this.desc.get(i).size(); j++) {
+		JSONObject jObject = new JSONObject();
+		JSONObject js1 = new JSONObject();
+		JSONArray js2 = new JSONArray();
+		for (int k = 0; k < this.desc.get(i).get(j).size(); k++) {
+		    if (k == 0) {
+			js1.put("etokenspec", this.desc.get(i).get(j).get(k)
+				.toString());
+		    } else if (k == 1) {
+			js1.put("stokenspec", this.desc.get(i).get(j).get(k)
+				.toString());
+		    } else if (k == 2) {
+			js1.put("tokenspec", this.desc.get(i).get(j).get(k)
+				.toString());
+		    } else if (k == 3) {
+			js1.put("qnum", this.desc.get(i).get(j).get(k)
+				.toString());
+		    } else if (k == 4) {
+			js1.put("snum", this.desc.get(i).get(j).get(k)
+				.toString());
+		    } else if (k == 5) {
+			js1.put("tnum", this.desc.get(i).get(j).get(k)
+				.toString());
+		    } else if (k == 6) {
+			js1.put("dnum", this.desc.get(i).get(j).get(k)
+				.toString());
+		    } else if (k == 7) {
+			js1.put("dtokenspec", this.desc.get(i).get(j).get(k)
+				.toString());
+		    } else if (k == 8) {
+			js1.put("operator", this.desc.get(i).get(j).get(k)
+				.toString());
+		    }
 		}
-		JSONArray jx = new JSONArray();
-		for(int i = 0; i<this.desc.size(); i++)
-		{
-			JSONArray jaArray = new JSONArray();
-			for(int j = 0; j<this.desc.get(i).size();j++)
-			{
-				JSONObject jObject = new JSONObject();
-				JSONObject js1 = new JSONObject();
-				JSONArray js2 = new JSONArray();
-				for(int k = 0; k<this.desc.get(i).get(j).size();k++)
-				{
-					if(k==0)
-					{
-						js1.put("etokenspec",this.desc.get(i).get(j).get(k).toString());
-					}
-					else if(k==1)
-					{
-						js1.put("stokenspec",this.desc.get(i).get(j).get(k).toString());
-					}
-					else if(k==2)
-					{
-						js1.put("tokenspec",this.desc.get(i).get(j).get(k).toString());
-					}
-					else if(k==3)
-					{
-						js1.put("qnum",this.desc.get(i).get(j).get(k).toString());
-					}
-					else if(k==4)
-					{
-						js1.put("snum",this.desc.get(i).get(j).get(k).toString());
-					}
-					else if( k ==5)
-					{
-						js1.put("tnum",this.desc.get(i).get(j).get(k).toString());
-					}
-					else if(k==6)
-					{
-						js1.put("dnum",this.desc.get(i).get(j).get(k).toString());
-					}
-					else if(k ==7)
-					{
-						js1.put("dtokenspec",this.desc.get(i).get(j).get(k).toString());
-					}
-					else if(k==8)
-					{
-						js1.put("operator",this.desc.get(i).get(j).get(k).toString());
-					}
-				}
-				for(int k = 0;k<this.sequences.get(i).get(j).size();k++)
-				{
-					js2.put(this.sequences.get(i).get(j).get(k).toString());
-				}
-				jObject.put("Description", js1);
-				jObject.put("Sequence", js2);
-				jaArray.put(jObject);
-			}
-			jx.put(jaArray);
+		for (int k = 0; k < this.sequences.get(i).get(j).size(); k++) {
+		    js2.put(this.sequences.get(i).get(j).get(k).toString());
 		}
-		BufferedWriter bWriter = new BufferedWriter(new FileWriter(new File("./tmp/sgsdebug.json")));
-		bWriter.write(jx.toString());//this one might cause out of heap space.
-		bWriter.close();
+		jObject.put("Description", js1);
+		jObject.put("Sequence", js2);
+		jaArray.put(jObject);
+	    }
+	    jx.put(jaArray);
 	}
+	BufferedWriter bWriter = new BufferedWriter(new FileWriter(new File(
+		"./tmp/sgsdebug.json")));
+	bWriter.write(jx.toString());// this one might cause out of heap space.
+	bWriter.close();
+    }
 }

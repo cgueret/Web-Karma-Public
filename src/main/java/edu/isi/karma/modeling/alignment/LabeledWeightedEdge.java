@@ -23,109 +23,111 @@ package edu.isi.karma.modeling.alignment;
 import org.jgrapht.graph.DefaultWeightedEdge;
 
 public class LabeledWeightedEdge extends DefaultWeightedEdge {
-	
-	/**
+
+    /**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
-	
-	private String id;
-	private LinkType linkType;
-	private boolean inverse;
-	private URI uri;
-	private LinkStatus linkStatus;
-	
-	public LabeledWeightedEdge(String id, URI name, LinkType linkType) {
-		super();
-		this.id = id;
-		this.linkType = linkType;
-		this.uri = name;
-		this.inverse = false;
-		this.linkStatus = LinkStatus.None;
-	}
-	
-	public LabeledWeightedEdge(String id, URI name, LinkType linkType, boolean inverse) {
-		super();
-		this.id = id;
-		this.linkType = linkType;
-		this.uri = name;
-		this.inverse = inverse;;
-		this.linkStatus = LinkStatus.None;
-	}
-	
-	public LabeledWeightedEdge(LabeledWeightedEdge e) {
-		super();
-		this.id = e.id;
-		this.linkType = e.linkType;
-		this.uri = new URI(e.uri);
-		this.inverse = e.inverse;;
-		this.linkStatus = LinkStatus.None;
-	}
-	
-	public String getLocalID() {
-		String s = this.id;
-		s = s.replaceAll(this.uri.getNs(), "");
-		return s;
-	}
-	
-	public String getLocalLabel() {
-		String s = this.uri.getUriString();
-		s = s.replaceAll(this.uri.getNs(), "");
-		return s;
-	}
-	
-	
-	public LinkStatus getLinkStatus() {
-		return linkStatus;
-	}
+    private static final long serialVersionUID = 1L;
 
-	public void setLinkStatus(LinkStatus linkStatus) {
-		this.linkStatus = linkStatus;
-	}
-	
-	public boolean isInverse() {
-		return this.inverse;
-	}
+    private String id;
+    private LinkType linkType;
+    private boolean inverse;
+    private URI uri;
+    private LinkStatus linkStatus;
 
-	public String getID() {
-		return this.id;
-	}
-	
-	public String getUriString() {
-		return this.uri.getUriString();
-	}
-	
-	public String getNs() {
-		return this.uri.getNs();
-	}
-	
-	public String getPrefix() {
-		return this.uri.getPrefix();
-	}
-	
-	public LinkType getLinkType() {
-		return this.linkType;
-	}
-	
-	public Vertex getSource() {
-		return (Vertex)super.getSource();
-	}
+    public LabeledWeightedEdge(String id, URI name, LinkType linkType) {
+	super();
+	this.id = id;
+	this.linkType = linkType;
+	this.uri = name;
+	this.inverse = false;
+	this.linkStatus = LinkStatus.None;
+    }
 
-	public Vertex getTarget() {
-		return (Vertex)super.getTarget();
+    public LabeledWeightedEdge(String id, URI name, LinkType linkType,
+	    boolean inverse) {
+	super();
+	this.id = id;
+	this.linkType = linkType;
+	this.uri = name;
+	this.inverse = inverse;
+	;
+	this.linkStatus = LinkStatus.None;
+    }
+
+    public LabeledWeightedEdge(LabeledWeightedEdge e) {
+	super();
+	this.id = e.id;
+	this.linkType = e.linkType;
+	this.uri = new URI(e.uri);
+	this.inverse = e.inverse;
+	;
+	this.linkStatus = LinkStatus.None;
+    }
+
+    public String getLocalID() {
+	String s = this.id;
+	s = s.replaceAll(this.uri.getNs(), "");
+	return s;
+    }
+
+    public String getLocalLabel() {
+	String s = this.uri.getUriString();
+	s = s.replaceAll(this.uri.getNs(), "");
+	return s;
+    }
+
+    public LinkStatus getLinkStatus() {
+	return linkStatus;
+    }
+
+    public void setLinkStatus(LinkStatus linkStatus) {
+	this.linkStatus = linkStatus;
+    }
+
+    public boolean isInverse() {
+	return this.inverse;
+    }
+
+    public String getID() {
+	return this.id;
+    }
+
+    public String getUriString() {
+	return this.uri.getUriString();
+    }
+
+    public String getNs() {
+	return this.uri.getNs();
+    }
+
+    public String getPrefix() {
+	return this.uri.getPrefix();
+    }
+
+    public LinkType getLinkType() {
+	return this.linkType;
+    }
+
+    public Vertex getSource() {
+	return (Vertex) super.getSource();
+    }
+
+    public Vertex getTarget() {
+	return (Vertex) super.getTarget();
+    }
+
+    public double getWeight() {
+	return super.getWeight();
+    }
+
+    public boolean equals(Object obj) {
+	if (obj == null || obj.getClass() != this.getClass()) {
+	    return false;
 	}
-	
-	public double getWeight() {
-		return super.getWeight();
+	if (((LabeledWeightedEdge) obj).getID() == this.getID()) {
+	    return true;
 	}
-	
-    public boolean equals(Object obj){
-        if(obj == null || obj.getClass() != this.getClass()){
-            return false;
-        }
-        if( ((LabeledWeightedEdge)obj).getID() == this.getID()){
-            return true;
-        }
-        return false;
+	return false;
     }
 }

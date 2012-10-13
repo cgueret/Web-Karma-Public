@@ -18,17 +18,16 @@
  * University of Southern California.  For more information, publications, 
  * and related projects, please see: http://www.isi.edu/integration
  ******************************************************************************/
-package edu.isi.karma.modeling.semantictypes.mycrf.crfmodel ;
-
+package edu.isi.karma.modeling.semantictypes.mycrf.crfmodel;
 
 /**
  * The abstract class that represents a CRF model.
  * 
  * @author amangoel
- *
+ * 
  */
-public abstract class CRFModelAbstract {	
-	
-	public double[] weights ;
-	
+public abstract class CRFModelAbstract {
+
+    public double[] weights;
+
 }

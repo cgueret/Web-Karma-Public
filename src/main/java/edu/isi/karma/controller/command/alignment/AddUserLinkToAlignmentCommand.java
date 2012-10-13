@@ -42,93 +42,102 @@ import edu.isi.karma.view.VWorkspace;
 
 public class AddUserLinkToAlignmentCommand extends Command {
 
-	private final String vWorksheetId;
-	private final String edgeId;
-	private final String alignmentId;
+    private final String vWorksheetId;
+    private final String edgeId;
+    private final String alignmentId;
 
-	// private String edgeLabel;
-	private static Logger logger = LoggerFactory.getLogger(AddUserLinkToAlignmentCommand.class);
+    // private String edgeLabel;
+    private static Logger logger = LoggerFactory
+	    .getLogger(AddUserLinkToAlignmentCommand.class);
 
-	public AddUserLinkToAlignmentCommand(String id, String edgeId,
-			String alignmentId, String vWorksheetId) {
-		super(id);
-		this.edgeId = edgeId;
-		this.alignmentId = alignmentId;
-		this.vWorksheetId = vWorksheetId;
-		
-		addTag(CommandTag.Modeling);
+    public AddUserLinkToAlignmentCommand(String id, String edgeId,
+	    String alignmentId, String vWorksheetId) {
+	super(id);
+	this.edgeId = edgeId;
+	this.alignmentId = alignmentId;
+	this.vWorksheetId = vWorksheetId;
+
+	addTag(CommandTag.Modeling);
+    }
+
+    @Override
+    public String getCommandName() {
+	return this.getClass().getSimpleName();
+    }
+
+    @Override
+    public String getTitle() {
+	return "Add User Link";
+    }
+
+    @Override
+    public String getDescription() {
+	return "";
+    }
+
+    @Override
+    public CommandType getCommandType() {
+	return CommandType.undoable;
+    }
+
+    @Override
+    public UpdateContainer doIt(VWorkspace vWorkspace) throws CommandException {
+	Alignment alignment = AlignmentManager.Instance().getAlignment(
+		alignmentId);
+
+	Worksheet worksheet = vWorkspace.getViewFactory()
+		.getVWorksheet(vWorksheetId).getWorksheet();
+	if (alignment == null
+		|| alignment.getAlignmentGraph().edgeSet().size() == 0) {
+	    AlignToOntology align = new AlignToOntology(worksheet, vWorkspace,
+		    vWorksheetId);
+	    try {
+		align.align(true);
+	    } catch (Exception e) {
+		logger.error(
+			"Error occured while generating the model Reason:.", e);
+		return new UpdateContainer(
+			new ErrorUpdate(
+				"Error occured while generating the model for the source."));
+	    }
+	    alignment = AlignmentManager.Instance().getAlignment(alignmentId);
 	}
 
-	@Override
-	public String getCommandName() {
-		return this.getClass().getSimpleName();
-	}
+	// Add the user provided edge
+	alignment.addUserLink(edgeId);
 
-	@Override
-	public String getTitle() {
-		return "Add User Link";
-	}
+	return getAlignmentUpdateContainer(alignment, worksheet, vWorkspace);
+    }
 
-	@Override
-	public String getDescription() {
-		return "";
-	}
+    @Override
+    public UpdateContainer undoIt(VWorkspace vWorkspace) {
+	Alignment alignment = AlignmentManager.Instance().getAlignment(
+		alignmentId);
+	Worksheet worksheet = vWorkspace.getViewFactory()
+		.getVWorksheet(vWorksheetId).getWorksheet();
 
-	@Override
-	public CommandType getCommandType() {
-		return CommandType.undoable;
-	}
+	// Clear the user provided edge
+	alignment.clearUserLink(edgeId);
 
-	@Override
-	public UpdateContainer doIt(VWorkspace vWorkspace) throws CommandException {
-		Alignment alignment = AlignmentManager.Instance().getAlignment(alignmentId);
-		
-		Worksheet worksheet = vWorkspace.getViewFactory().getVWorksheet(vWorksheetId).getWorksheet();
-		if(alignment == null || alignment.getAlignmentGraph().edgeSet().size() == 0) {
-			AlignToOntology align = new AlignToOntology(worksheet, vWorkspace, vWorksheetId);
-			try {
-				align.align(true);
-			} catch (Exception e) {
-				logger.error("Error occured while generating the model Reason:.", e);
-				return new UpdateContainer(new ErrorUpdate("Error occured while generating the model for the source."));
-			}
-			alignment = AlignmentManager.Instance().getAlignment(alignmentId);
-		}
-		
-		// Add the user provided edge
-		alignment.addUserLink(edgeId);
-		
-		return getAlignmentUpdateContainer(alignment, worksheet, vWorkspace);
-	}
+	// Get the alignment update
+	return getAlignmentUpdateContainer(alignment, worksheet, vWorkspace);
+    }
 
-	@Override
-	public UpdateContainer undoIt(VWorkspace vWorkspace) {
-		Alignment alignment = AlignmentManager.Instance().getAlignment(
-				alignmentId);
-		Worksheet worksheet = vWorkspace.getViewFactory()
-				.getVWorksheet(vWorksheetId).getWorksheet();
+    private UpdateContainer getAlignmentUpdateContainer(Alignment alignment,
+	    Worksheet worksheet, VWorkspace vWorkspace) {
 
-		// Clear the user provided edge
-		alignment.clearUserLink(edgeId);
+	List<String> hNodeIdList = new ArrayList<String>();
+	VWorksheet vw = vWorkspace.getViewFactory().getVWorksheet(vWorksheetId);
+	List<HNodePath> columns = vw.getColumns();
+	for (HNodePath path : columns)
+	    hNodeIdList.add(path.getLeaf().getId());
 
-		// Get the alignment update
-		return getAlignmentUpdateContainer(alignment, worksheet, vWorkspace);
-	}
+	SVGAlignmentUpdate_ForceKarmaLayout svgUpdate = new SVGAlignmentUpdate_ForceKarmaLayout(
+		vWorksheetId, alignmentId, alignment, hNodeIdList);
 
-	private UpdateContainer getAlignmentUpdateContainer(Alignment alignment,
-			Worksheet worksheet, VWorkspace vWorkspace) {
-		
-		List<String> hNodeIdList = new ArrayList<String>();
-		VWorksheet vw = vWorkspace.getViewFactory().getVWorksheet(vWorksheetId);
-		List<HNodePath> columns = vw.getColumns();
-		for(HNodePath path:columns)
-			hNodeIdList.add(path.getLeaf().getId());
-		
-		SVGAlignmentUpdate_ForceKarmaLayout svgUpdate = new SVGAlignmentUpdate_ForceKarmaLayout(vWorksheetId, alignmentId, alignment, hNodeIdList);
-
-		UpdateContainer c = new UpdateContainer();
-		c.add(new SemanticTypesUpdate(worksheet, vWorksheetId));
-		c.add(svgUpdate);
-		return c;
-	}
+	UpdateContainer c = new UpdateContainer();
+	c.add(new SemanticTypesUpdate(worksheet, vWorksheetId));
+	c.add(svgUpdate);
+	return c;
+    }
 }

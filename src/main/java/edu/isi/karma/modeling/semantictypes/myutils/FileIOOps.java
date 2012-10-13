@@ -30,48 +30,46 @@ import java.util.ArrayList;
  * This class provides utility methods for reading all lines from files.
  * 
  * @author amangoel
- *
+ * 
  */
 public class FileIOOps {
 
-	public static ArrayList<String> allLinesFromFile(String file, boolean removeEmptyLines)  {
-		ArrayList<String> lines = new ArrayList<String>() ;
-		try {
-			BufferedReader br = new BufferedReader(new FileReader(file)) ;
-			String line = "" ;
+    public static ArrayList<String> allLinesFromFile(String file,
+	    boolean removeEmptyLines) {
+	ArrayList<String> lines = new ArrayList<String>();
+	try {
+	    BufferedReader br = new BufferedReader(new FileReader(file));
+	    String line = "";
 
-			while(true) {
-				if ((line = br.readLine()) == null) {
-					break ;
-				}
-				line = line.trim() ;
-				if (line.length() != 0 || !removeEmptyLines) {
-					lines.add(line) ;
-				}
-			}
+	    while (true) {
+		if ((line = br.readLine()) == null) {
+		    break;
+		}
+		line = line.trim();
+		if (line.length() != 0 || !removeEmptyLines) {
+		    lines.add(line);
+		}
+	    }
 
-			br.close();
-		}
-		catch (Exception e) {
-			Prnt.endIt("FileIOOps.allLinesFromFile: Error in reading file " + file + ". Exiting.") ;
-		}
-		return lines ;
+	    br.close();
+	} catch (Exception e) {
+	    Prnt.endIt("FileIOOps.allLinesFromFile: Error in reading file "
+		    + file + ". Exiting.");
 	}
-	
-	
-	public static boolean writeToFileAndClose(String fileName, String content) {
-		BufferedWriter bw;
-		try {
-			bw = new BufferedWriter(new FileWriter(fileName));
-			bw.write(content);
-			bw.close();
-			return true;
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-			return false;
-		}
+	return lines;
+    }
+
+    public static boolean writeToFileAndClose(String fileName, String content) {
+	BufferedWriter bw;
+	try {
+	    bw = new BufferedWriter(new FileWriter(fileName));
+	    bw.write(content);
+	    bw.close();
+	    return true;
+	} catch (Exception e) {
+	    e.printStackTrace();
+	    return false;
 	}
+    }
 
 }
-

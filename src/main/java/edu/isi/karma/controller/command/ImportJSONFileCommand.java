@@ -37,65 +37,67 @@ import edu.isi.karma.view.VWorksheet;
 import edu.isi.karma.view.VWorkspace;
 
 public class ImportJSONFileCommand extends Command {
-	private File jsonFile;
-	
-	private static Logger logger = LoggerFactory.getLogger(ImportJSONFileCommand.class);
+    private File jsonFile;
 
-	public ImportJSONFileCommand(String id, File file) {
-		super(id);
-		this.jsonFile = file;
-	}
+    private static Logger logger = LoggerFactory
+	    .getLogger(ImportJSONFileCommand.class);
 
-	@Override
-	public String getCommandName() {
-		return this.getClass().getSimpleName();
-	}
+    public ImportJSONFileCommand(String id, File file) {
+	super(id);
+	this.jsonFile = file;
+    }
 
-	@Override
-	public String getTitle() {
-		return "Import JSON File";
-	}
+    @Override
+    public String getCommandName() {
+	return this.getClass().getSimpleName();
+    }
 
-	@Override
-	public String getDescription() {
-		if (isExecuted()) {
-			return jsonFile.getName() + " imported";
-		} else {
-			return "";
-		}
-	}
+    @Override
+    public String getTitle() {
+	return "Import JSON File";
+    }
 
-	@Override
-	public CommandType getCommandType() {
-		return CommandType.notUndoable;
+    @Override
+    public String getDescription() {
+	if (isExecuted()) {
+	    return jsonFile.getName() + " imported";
+	} else {
+	    return "";
 	}
+    }
 
-	@Override
-	public UpdateContainer doIt(VWorkspace vWorkspace) throws CommandException {
-		Workspace ws = vWorkspace.getWorkspace();
-		UpdateContainer c = new UpdateContainer();
-		try {
-			FileReader reader = new FileReader(jsonFile);
-			Object json = JSONUtil.createJson(reader);
-			JsonImport imp = new JsonImport(json, jsonFile.getName(), ws);
-			
-			Worksheet wsht = imp.generateWorksheet();
-			vWorkspace.addAllWorksheets();
-			
-			c.add(new WorksheetListUpdate(vWorkspace.getVWorksheetList()));
-			VWorksheet vw = vWorkspace.getVWorksheet(wsht.getId());
-			vw.update(c);
-		} catch (Exception e) {
-			logger.error("Error occured while generating worksheet from JSON!", e);
-			return new UpdateContainer(new ErrorUpdate(
-					"Error occured while importing JSON File."));
-		} 
-		return c;
-	}
+    @Override
+    public CommandType getCommandType() {
+	return CommandType.notUndoable;
+    }
 
-	@Override
-	public UpdateContainer undoIt(VWorkspace vWorkspace) {
-		// TODO Auto-generated method stub
-		return null;
+    @Override
+    public UpdateContainer doIt(VWorkspace vWorkspace) throws CommandException {
+	Workspace ws = vWorkspace.getWorkspace();
+	UpdateContainer c = new UpdateContainer();
+	try {
+	    FileReader reader = new FileReader(jsonFile);
+	    Object json = JSONUtil.createJson(reader);
+	    JsonImport imp = new JsonImport(json, jsonFile.getName(), ws);
+
+	    Worksheet wsht = imp.generateWorksheet();
+	    vWorkspace.addAllWorksheets();
+
+	    c.add(new WorksheetListUpdate(vWorkspace.getVWorksheetList()));
+	    VWorksheet vw = vWorkspace.getVWorksheet(wsht.getId());
+	    vw.update(c);
+	} catch (Exception e) {
+	    logger.error("Error occured while generating worksheet from JSON!",
+		    e);
+	    return new UpdateContainer(new ErrorUpdate(
+		    "Error occured while importing JSON File."));
 	}
+	return c;
+    }
+
+    @Override
+    public UpdateContainer undoIt(VWorkspace vWorkspace) {
+	// TODO Auto-generated method stub
+	return null;
+    }
 }

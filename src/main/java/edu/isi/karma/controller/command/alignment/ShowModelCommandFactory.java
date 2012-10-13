@@ -43,69 +43,88 @@ import edu.isi.karma.rep.semantictypes.SemanticType.Origin;
 import edu.isi.karma.view.VWorkspace;
 import edu.isi.karma.webserver.KarmaException;
 
-public class ShowModelCommandFactory extends CommandFactory implements JSONInputCommandFactory {
-	
-	private static Logger logger = LoggerFactory.getLogger(ShowModelCommandFactory.class);
-	
-	private enum Arguments {
-		vWorksheetId, checkHistory
-	}
+public class ShowModelCommandFactory extends CommandFactory implements
+	JSONInputCommandFactory {
 
-	@Override
-	public Command createCommand(HttpServletRequest request,
-			VWorkspace vWorkspace) {
-		String vWorksheetId = request.getParameter(Arguments.vWorksheetId.name());
-		return new ShowModelCommand(getNewId(vWorkspace), getWorksheetId(request, vWorkspace), vWorksheetId);
-	}
+    private static Logger logger = LoggerFactory
+	    .getLogger(ShowModelCommandFactory.class);
 
-	@Override
-	public Command createCommand(JSONArray inputJson, VWorkspace vWorkspace)
-			throws JSONException, KarmaException {
-		String vWorksheetId = HistoryJsonUtil.getStringValue(Arguments.vWorksheetId.name(), inputJson);
-		boolean checkHist = HistoryJsonUtil.getBooleanValue(Arguments.checkHistory.name(), inputJson);
-		Worksheet worksheet = vWorkspace.getViewFactory().getVWorksheet(vWorksheetId).getWorksheet();
-		
-		if(checkHist) {
-			// Check if any command history exists for the worksheet
-			if(HistoryJsonUtil.historyExists(worksheet.getTitle(), vWorkspace.getPreferencesId())) {
-				WorksheetCommandHistoryReader commReader = new WorksheetCommandHistoryReader(vWorksheetId, vWorkspace);
-				try {
-					commReader.readAndExecuteCommands(CommandTag.Modeling);
-				} catch (Exception e) {
-					 logger.error("Error occured while reading model commands from history!", e);
-					e.printStackTrace();
-				}
-			}
-			return new ShowModelCommand(getNewId(vWorkspace), worksheet.getId(), vWorksheetId);
+    private enum Arguments {
+	vWorksheetId, checkHistory
+    }
+
+    @Override
+    public Command createCommand(HttpServletRequest request,
+	    VWorkspace vWorkspace) {
+	String vWorksheetId = request.getParameter(Arguments.vWorksheetId
+		.name());
+	return new ShowModelCommand(getNewId(vWorkspace), getWorksheetId(
+		request, vWorkspace), vWorksheetId);
+    }
+
+    @Override
+    public Command createCommand(JSONArray inputJson, VWorkspace vWorkspace)
+	    throws JSONException, KarmaException {
+	String vWorksheetId = HistoryJsonUtil.getStringValue(
+		Arguments.vWorksheetId.name(), inputJson);
+	boolean checkHist = HistoryJsonUtil.getBooleanValue(
+		Arguments.checkHistory.name(), inputJson);
+	Worksheet worksheet = vWorkspace.getViewFactory()
+		.getVWorksheet(vWorksheetId).getWorksheet();
+
+	if (checkHist) {
+	    // Check if any command history exists for the worksheet
+	    if (HistoryJsonUtil.historyExists(worksheet.getTitle(),
+		    vWorkspace.getPreferencesId())) {
+		WorksheetCommandHistoryReader commReader = new WorksheetCommandHistoryReader(
+			vWorksheetId, vWorkspace);
+		try {
+		    commReader.readAndExecuteCommands(CommandTag.Modeling);
+		} catch (Exception e) {
+		    logger.error(
+			    "Error occured while reading model commands from history!",
+			    e);
+		    e.printStackTrace();
 		}
-		else {
-			ShowModelCommand comm = new ShowModelCommand(getNewId(vWorkspace), worksheet.getId(), vWorksheetId);
-			OntologyManager ontMgr = vWorkspace.getWorkspace().getOntologyManager();
-			// Add the semantic types that have saved into the history
-			for (int i=2; i<inputJson.length(); i++) {
-				JSONObject hnodeObj = (JSONObject) inputJson.get(i);
-				String hNodeId = (String) hnodeObj.get(ClientJsonKeys.value.name());
-				
-				JSONObject typeObj = (JSONObject) inputJson.get(++i);
-				JSONObject value = (JSONObject) typeObj.get(ClientJsonKeys.value.name());
-				
-				SemanticType type = null;
-				String domain = (String) value.get(SemanticType.ClientJsonKeys.Domain.name());
-				String fullType = (String) value.get(SemanticType.ClientJsonKeys.FullType.name());
-				boolean isPrimary = (Boolean) value.get(SemanticType.ClientJsonKeys.isPrimary.name());
-				
-				URI typeName = ontMgr.getURIFromString(fullType);
-				URI domainName = null;
-				if (domain != null && !domain.trim().equals(""))
-					domainName = ontMgr.getURIFromString(domain);
-				
-				if(typeName != null) {
-					type = new SemanticType(hNodeId, typeName, domainName, Origin.User, 1.00, isPrimary);
-					worksheet.getSemanticTypes().addType(type);
-				}
-			}
-			return comm;
+	    }
+	    return new ShowModelCommand(getNewId(vWorkspace),
+		    worksheet.getId(), vWorksheetId);
+	} else {
+	    ShowModelCommand comm = new ShowModelCommand(getNewId(vWorkspace),
+		    worksheet.getId(), vWorksheetId);
+	    OntologyManager ontMgr = vWorkspace.getWorkspace()
+		    .getOntologyManager();
+	    // Add the semantic types that have saved into the history
+	    for (int i = 2; i < inputJson.length(); i++) {
+		JSONObject hnodeObj = (JSONObject) inputJson.get(i);
+		String hNodeId = (String) hnodeObj.get(ClientJsonKeys.value
+			.name());
+
+		JSONObject typeObj = (JSONObject) inputJson.get(++i);
+		JSONObject value = (JSONObject) typeObj
+			.get(ClientJsonKeys.value.name());
+
+		SemanticType type = null;
+		String domain = (String) value
+			.get(SemanticType.ClientJsonKeys.Domain.name());
+		String fullType = (String) value
+			.get(SemanticType.ClientJsonKeys.FullType.name());
+		boolean isPrimary = (Boolean) value
+			.get(SemanticType.ClientJsonKeys.isPrimary.name());
+
+		URI typeName = ontMgr.getURIFromString(fullType);
+		URI domainName = null;
+		if (domain != null && !domain.trim().equals(""))
+		    domainName = ontMgr.getURIFromString(domain);
+
+		if (typeName != null) {
+		    type = new SemanticType(hNodeId, typeName, domainName,
+			    Origin.User, 1.00, isPrimary);
+		    worksheet.getSemanticTypes().addType(type);
 		}
+	    }
+	    return comm;
 	}
+    }
 
 }

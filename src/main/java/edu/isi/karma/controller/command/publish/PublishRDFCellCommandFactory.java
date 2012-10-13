@@ -30,28 +30,28 @@ import edu.isi.karma.view.VWorkspace;
 import edu.isi.karma.view.ViewPreferences;
 
 public class PublishRDFCellCommandFactory extends CommandFactory {
-	private enum Arguments {
-		vWorksheetId,
-		nodeId
-	}
+    private enum Arguments {
+	vWorksheetId, nodeId
+    }
 
-	@Override
-	public Command createCommand(HttpServletRequest request,
-			VWorkspace vWorkspace) {
-		String vWorksheetId = request.getParameter(Arguments.vWorksheetId
-				.name());
-		//get the rdf prefix from the preferences
-		ViewPreferences prefs = vWorkspace.getPreferences();
-		JSONObject prefObject = prefs.getCommandPreferencesJSONObject("PublishRDFCommandPreferences");
-		String rdfPrefix = "http://localhost/source/";
-		if(prefObject!=null){
-			rdfPrefix = prefObject.optString("rdfPrefix");
-		}
-		if(rdfPrefix==null || rdfPrefix.trim().isEmpty())
-			rdfPrefix = "http://localhost/source/"; 
-		String nodeId = request.getParameter(Arguments.nodeId.name());
-		return new PublishRDFCellCommand(getNewId(vWorkspace), vWorksheetId, nodeId,
-				rdfPrefix);
+    @Override
+    public Command createCommand(HttpServletRequest request,
+	    VWorkspace vWorkspace) {
+	String vWorksheetId = request.getParameter(Arguments.vWorksheetId
+		.name());
+	// get the rdf prefix from the preferences
+	ViewPreferences prefs = vWorkspace.getPreferences();
+	JSONObject prefObject = prefs
+		.getCommandPreferencesJSONObject("PublishRDFCommandPreferences");
+	String rdfPrefix = "http://localhost/source/";
+	if (prefObject != null) {
+	    rdfPrefix = prefObject.optString("rdfPrefix");
 	}
+	if (rdfPrefix == null || rdfPrefix.trim().isEmpty())
+	    rdfPrefix = "http://localhost/source/";
+	String nodeId = request.getParameter(Arguments.nodeId.name());
+	return new PublishRDFCellCommand(getNewId(vWorkspace), vWorksheetId,
+		nodeId, rdfPrefix);
+    }
 
 }

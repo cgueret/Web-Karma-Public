@@ -43,83 +43,83 @@ import edu.isi.karma.view.tabledata.VDCell.Position;
  */
 public class VDVerticalSeparator {
 
-	private final ArrayList<Stroke> leftSeparators = new ArrayList<Stroke>();
-	private final ArrayList<Stroke> rightSeparators = new ArrayList<Stroke>();
+    private final ArrayList<Stroke> leftSeparators = new ArrayList<Stroke>();
+    private final ArrayList<Stroke> rightSeparators = new ArrayList<Stroke>();
 
-	public VDVerticalSeparator() {
-		super();
+    public VDVerticalSeparator() {
+	super();
+    }
+
+    public void add(int depth, String hTableId) {
+	Stroke s = new Stroke(StrokeStyle.none, hTableId, depth);
+	leftSeparators.add(s);
+	rightSeparators.add(s);
+    }
+
+    public void addLeft(int depth, String hTableId) {
+	Stroke s = new Stroke(StrokeStyle.none, hTableId, depth);
+	leftSeparators.add(s);
+    }
+
+    public void addRight(int depth, String hTableId) {
+	Stroke s = new Stroke(StrokeStyle.none, hTableId, depth);
+	rightSeparators.add(s);
+    }
+
+    public ArrayList<Stroke> getLeftStrokes() {
+	return leftSeparators;
+    }
+
+    public ArrayList<Stroke> getRightStrokes() {
+	return rightSeparators;
+    }
+
+    public ArrayList<Stroke> getStrokes(Position position) {
+	switch (position) {
+	case left:
+	    return leftSeparators;
+	case right:
+	    return rightSeparators;
+	default:
+	    return null; // cause caller to crash.
 	}
+    }
 
-	public void add(int depth, String hTableId) {
-		Stroke s = new Stroke(StrokeStyle.none, hTableId, depth);
-		leftSeparators.add(s);
-		rightSeparators.add(s);
+    public Stroke getStroke(Position position, int depth) {
+	for (Stroke s : getStrokes(position)) {
+	    if (s.getDepth() == depth) {
+		return s;
+	    }
 	}
+	return null;
+    }
 
-	public void addLeft(int depth, String hTableId) {
-		Stroke s = new Stroke(StrokeStyle.none, hTableId, depth);
-		leftSeparators.add(s);
+    public int getMinDepth(Position position) {
+	int min = Integer.MAX_VALUE;
+	for (Stroke l : getStrokes(position)) {
+	    min = Math.min(min, l.getDepth());
 	}
+	return min;
+    }
 
-	public void addRight(int depth, String hTableId) {
-		Stroke s = new Stroke(StrokeStyle.none, hTableId, depth);
-		rightSeparators.add(s);
-	}
+    public void addLeft(List<Stroke> list) {
+	leftSeparators.addAll(list);
+    }
 
-	public ArrayList<Stroke> getLeftStrokes() {
-		return leftSeparators;
-	}
+    public void addRight(List<Stroke> list) {
+	rightSeparators.addAll(list);
+    }
 
-	public ArrayList<Stroke> getRightStrokes() {
-		return rightSeparators;
-	}
+    /*****************************************************************
+     * 
+     * Debugging Support
+     * 
+     *****************************************************************/
 
-	public ArrayList<Stroke> getStrokes(Position position) {
-		switch (position) {
-		case left:
-			return leftSeparators;
-		case right:
-			return rightSeparators;
-		default:
-			return null; // cause caller to crash.
-		}
-	}
-
-	public Stroke getStroke(Position position, int depth) {
-		for (Stroke s : getStrokes(position)) {
-			if (s.getDepth() == depth) {
-				return s;
-			}
-		}
-		return null;
-	}
-
-	public int getMinDepth(Position position) {
-		int min = Integer.MAX_VALUE;
-		for (Stroke l : getStrokes(position)) {
-			min = Math.min(min, l.getDepth());
-		}
-		return min;
-	}
-
-	public void addLeft(List<Stroke> list) {
-		leftSeparators.addAll(list);
-	}
-
-	public void addRight(List<Stroke> list) {
-		rightSeparators.addAll(list);
-	}
-
-	/*****************************************************************
-	 * 
-	 * Debugging Support
-	 * 
-	 *****************************************************************/
-
-	void prettyPrintJson(JSONWriter jw) throws JSONException {
-		jw.object()//
-				.key("left").value(Stroke.toString(leftSeparators))//
-				.key("right").value(Stroke.toString(rightSeparators))//
-				.endObject();
-	}
+    void prettyPrintJson(JSONWriter jw) throws JSONException {
+	jw.object()//
+		.key("left").value(Stroke.toString(leftSeparators))//
+		.key("right").value(Stroke.toString(rightSeparators))//
+		.endObject();
+    }
 }

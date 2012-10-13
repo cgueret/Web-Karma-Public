@@ -32,27 +32,35 @@ import edu.isi.karma.controller.history.HistoryJsonUtil;
 import edu.isi.karma.modeling.alignment.AlignmentManager;
 import edu.isi.karma.view.VWorkspace;
 
-public class AddUserLinkToAlignmentCommandFactory extends CommandFactory implements JSONInputCommandFactory {
-	private enum Arguments {
-		edgeId, alignmentId, vWorksheetId
-	}
-	
-	@Override
-	public Command createCommand(HttpServletRequest request,
-			VWorkspace vWorkspace) {
-		String edgeId =request.getParameter(Arguments.edgeId.name());
-		String alignmentId =request.getParameter(Arguments.alignmentId.name());
-		String vWorksheetId =request.getParameter(Arguments.vWorksheetId.name());
-		return new AddUserLinkToAlignmentCommand(getNewId(vWorkspace),edgeId, alignmentId, vWorksheetId);
-	}
+public class AddUserLinkToAlignmentCommandFactory extends CommandFactory
+	implements JSONInputCommandFactory {
+    private enum Arguments {
+	edgeId, alignmentId, vWorksheetId
+    }
 
-	public Command createCommand(JSONArray inputJson, VWorkspace vWorkspace) throws JSONException {
-		String edgeId = HistoryJsonUtil.getStringValue(Arguments.edgeId.name(), inputJson);
-		String vWorksheetId = HistoryJsonUtil.getStringValue(Arguments.vWorksheetId.name(), inputJson);
-		String alignmentId = AlignmentManager.Instance().constructAlignmentId(vWorkspace.getWorkspace().getId(), vWorksheetId);
-		
-		AddUserLinkToAlignmentCommand comm = new AddUserLinkToAlignmentCommand(getNewId(vWorkspace),edgeId, alignmentId, vWorksheetId); 
-		comm.setInputParameterJson(inputJson.toString());
-		return comm;
-	}
+    @Override
+    public Command createCommand(HttpServletRequest request,
+	    VWorkspace vWorkspace) {
+	String edgeId = request.getParameter(Arguments.edgeId.name());
+	String alignmentId = request.getParameter(Arguments.alignmentId.name());
+	String vWorksheetId = request.getParameter(Arguments.vWorksheetId
+		.name());
+	return new AddUserLinkToAlignmentCommand(getNewId(vWorkspace), edgeId,
+		alignmentId, vWorksheetId);
+    }
+
+    public Command createCommand(JSONArray inputJson, VWorkspace vWorkspace)
+	    throws JSONException {
+	String edgeId = HistoryJsonUtil.getStringValue(Arguments.edgeId.name(),
+		inputJson);
+	String vWorksheetId = HistoryJsonUtil.getStringValue(
+		Arguments.vWorksheetId.name(), inputJson);
+	String alignmentId = AlignmentManager.Instance().constructAlignmentId(
+		vWorkspace.getWorkspace().getId(), vWorksheetId);
+
+	AddUserLinkToAlignmentCommand comm = new AddUserLinkToAlignmentCommand(
+		getNewId(vWorkspace), edgeId, alignmentId, vWorksheetId);
+	comm.setInputParameterJson(inputJson.toString());
+	return comm;
+    }
 }

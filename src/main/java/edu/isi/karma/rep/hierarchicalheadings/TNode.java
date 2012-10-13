@@ -26,9 +26,13 @@ import java.util.List;
 import org.json.JSONObject;
 
 public interface TNode {
-	List<TNode> getChildren();
-	String getId();
-	void generateContentJson(PrintWriter pw);
-	String getColorKey();
-	JSONObject generateJsonObject();
+    List<TNode> getChildren();
+
+    String getId();
+
+    void generateContentJson(PrintWriter pw);
+
+    String getColorKey();
+
+    JSONObject generateJsonObject();
 }

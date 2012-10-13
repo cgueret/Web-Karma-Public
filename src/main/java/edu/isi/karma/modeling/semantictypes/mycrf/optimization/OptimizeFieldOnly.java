@@ -18,7 +18,7 @@
  * University of Southern California.  For more information, publications, 
  * and related projects, please see: http://www.isi.edu/integration
  ******************************************************************************/
-package edu.isi.karma.modeling.semantictypes.mycrf.optimization ;
+package edu.isi.karma.modeling.semantictypes.mycrf.optimization;
 
 import edu.isi.karma.modeling.semantictypes.mycrf.common.Constants;
 import edu.isi.karma.modeling.semantictypes.mycrf.crfmodel.CRFModelFieldOnly;
@@ -29,59 +29,56 @@ import edu.isi.karma.modeling.semantictypes.mycrf.math.Matrix;
 import edu.isi.karma.modeling.semantictypes.myutils.Prnt;
 
 /**
- * This is the class that performs the optimization of the CRF model.
- * It uses other classes in this package to guess the gradient to follow 
- * and the step size to use.
- * It also have several stopping criteria, such as,
- * gradient being too small, and change in the error value being too small.
+ * This is the class that performs the optimization of the CRF model. It uses
+ * other classes in this package to guess the gradient to follow and the step
+ * size to use. It also have several stopping criteria, such as, gradient being
+ * too small, and change in the error value being too small.
  * 
  * @author amangoel
- *
+ * 
  */
 public class OptimizeFieldOnly {
-	
-	CRFModelFieldOnly crfModel ;
-	GlobalDataFieldOnly globalData ;
-	
-	public OptimizeFieldOnly(CRFModelFieldOnly crfModel, GlobalDataFieldOnly globalData) {
-		this.crfModel = crfModel ;
-		this.globalData = globalData ;
+
+    CRFModelFieldOnly crfModel;
+    GlobalDataFieldOnly globalData;
+
+    public OptimizeFieldOnly(CRFModelFieldOnly crfModel,
+	    GlobalDataFieldOnly globalData) {
+	this.crfModel = crfModel;
+	this.globalData = globalData;
+    }
+
+    public void optimize(int maxIters) {
+	int dim = crfModel.ffs.size();
+	LBFGS lfbgs = new LBFGS(dim);
+	BacktrackingLineSearch lineSearch = new BacktrackingLineSearch(
+		crfModel, globalData);
+	double[] gradient = new double[dim];
+	double[] searchDir = new double[dim];
+	double errorValue = 0.0;
+
+	for (GraphInterface graphI : globalData.trainingGraphs) {
+	    GraphFieldOnly graph = (GraphFieldOnly) graphI;
+	    graph.computeGraphPotentialAndZ();
 	}
-	
-	public void optimize(int maxIters) {
-		int dim = crfModel.ffs.size() ;
-		LBFGS lfbgs = new LBFGS(dim) ;
-		BacktrackingLineSearch lineSearch = new BacktrackingLineSearch(crfModel, globalData) ;
-		double[] gradient = new double[dim] ;
-		double[] searchDir = new double[dim] ;
-		double errorValue = 0.0 ;
-		
-		for(GraphInterface graphI : globalData.trainingGraphs) {
-			GraphFieldOnly graph = (GraphFieldOnly) graphI ;
-			graph.computeGraphPotentialAndZ() ;
-		}
-		for(int iter=1;iter<=maxIters;iter++) {
-			Prnt.prn("Optimization iteration = " + iter) ;
-			errorValue = globalData.errorValue() ;
-			for(GraphInterface graphI : globalData.trainingGraphs) {
-				GraphFieldOnly graph = (GraphFieldOnly) graphI ;
-				graph.computeNodeMarginals() ;
-			}
-			globalData.errorGradient(gradient) ;
-			if (Matrix.norm(gradient) < Constants.EPSILON_GRADIENT) {
-				break ;
-			}
-			lfbgs.searchDir(crfModel.weights, gradient, searchDir) ;
-			double step = lineSearch.findStep(searchDir, gradient, errorValue) ;
-			if(step == 0) {
-				break ;
-			}
-		}
-		
+	for (int iter = 1; iter <= maxIters; iter++) {
+	    Prnt.prn("Optimization iteration = " + iter);
+	    errorValue = globalData.errorValue();
+	    for (GraphInterface graphI : globalData.trainingGraphs) {
+		GraphFieldOnly graph = (GraphFieldOnly) graphI;
+		graph.computeNodeMarginals();
+	    }
+	    globalData.errorGradient(gradient);
+	    if (Matrix.norm(gradient) < Constants.EPSILON_GRADIENT) {
+		break;
+	    }
+	    lfbgs.searchDir(crfModel.weights, gradient, searchDir);
+	    double step = lineSearch.findStep(searchDir, gradient, errorValue);
+	    if (step == 0) {
+		break;
+	    }
 	}
-	
-	
-	
-	
-	
+
+    }
+
 }

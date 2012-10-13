@@ -22,7 +22,7 @@
 package edu.isi.karma.service;
 
 public interface IOType {
-	public static final String NONE = "NONE";
-	public static final String INPUT = "IN";
-	public static final String OUTPUT = "OUT";
+    public static final String NONE = "NONE";
+    public static final String INPUT = "IN";
+    public static final String OUTPUT = "OUT";
 }

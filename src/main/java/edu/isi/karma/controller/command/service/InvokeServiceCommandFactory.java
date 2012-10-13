@@ -28,17 +28,18 @@ import edu.isi.karma.view.VWorkspace;
 
 public class InvokeServiceCommandFactory extends CommandFactory {
 
-	public enum Arguments {
-		vWorksheetId, hNodeId
-	}
-	
-	@Override
-	public Command createCommand(HttpServletRequest request,
-			VWorkspace vWorkspace) {
+    public enum Arguments {
+	vWorksheetId, hNodeId
+    }
 
-		String vWorksheetId =request.getParameter(Arguments.vWorksheetId.name());
-		String hNodeId =request.getParameter(Arguments.hNodeId.name());
-		return new InvokeServiceCommand(getNewId(vWorkspace), 
-				getWorksheetId(request, vWorkspace), vWorksheetId, hNodeId);
-	}
+    @Override
+    public Command createCommand(HttpServletRequest request,
+	    VWorkspace vWorkspace) {
+
+	String vWorksheetId = request.getParameter(Arguments.vWorksheetId
+		.name());
+	String hNodeId = request.getParameter(Arguments.hNodeId.name());
+	return new InvokeServiceCommand(getNewId(vWorkspace), getWorksheetId(
+		request, vWorkspace), vWorksheetId, hNodeId);
+    }
 }

@@ -38,126 +38,134 @@ import edu.isi.karma.service.Table;
 
 public class ServiceTableUtil {
 
-	static Logger logger = Logger.getLogger(ServiceTableUtil.class);
+    static Logger logger = Logger.getLogger(ServiceTableUtil.class);
 
-	
-	public static void populateEmptyWorksheet(Table table, Worksheet worksheet, RepFactory factory) {
+    public static void populateEmptyWorksheet(Table table, Worksheet worksheet,
+	    RepFactory factory) {
 
-		logger.info("Populating an empty worksheet with the service data ...");
+	logger.info("Populating an empty worksheet with the service data ...");
 
-		List<String> hNodeIdList = new ArrayList<String>();
-		hNodeIdList = addHeaders(table.getHeaders(), worksheet, factory);
+	List<String> hNodeIdList = new ArrayList<String>();
+	hNodeIdList = addHeaders(table.getHeaders(), worksheet, factory);
 
-		edu.isi.karma.rep.Table dataTable = worksheet.getDataTable();
-		addRows(table.getValues(), worksheet, factory, hNodeIdList, dataTable);
+	edu.isi.karma.rep.Table dataTable = worksheet.getDataTable();
+	addRows(table.getValues(), worksheet, factory, hNodeIdList, dataTable);
 
+    }
+
+    public static void populateWorksheet(Table table, Worksheet worksheet,
+	    RepFactory factory) {
+
+	logger.info("Populating existing worksheet with the service data ...");
+
+	List<String> oldHNodeIdList = new ArrayList<String>(worksheet
+		.getHeaders().getHNodeIds());
+
+	List<String> hNodeIdList = new ArrayList<String>();
+	hNodeIdList = addHeaders(table.getHeaders(), worksheet, factory);
+
+	edu.isi.karma.rep.Table dataTable = worksheet.getDataTable();
+	updateRows(table.getValues(), table.getRowIds(), worksheet, factory,
+		oldHNodeIdList, hNodeIdList, dataTable);
+
+    }
+
+    private static List<String> addHeaders(List<Attribute> tableHeader,
+	    Worksheet worksheet, RepFactory factory) {
+	HTable headers = worksheet.getHeaders();
+	List<String> headersList = new ArrayList<String>();
+
+	for (int i = 0; i < tableHeader.size(); i++) {
+	    Attribute att = tableHeader.get(i);
+	    HNode hNode = headers.addHNode(att.getName(), worksheet, factory);
+	    headersList.add(hNode.getId());
+
+	    // very important
+	    // update the hNodeId of the input/output attributes
+	    att.sethNodeId(hNode.getId());
 	}
-	
-	public static void populateWorksheet(Table table, Worksheet worksheet, RepFactory factory) {
-		
-		logger.info("Populating existing worksheet with the service data ...");
-		
-		List<String> oldHNodeIdList = new ArrayList<String>(worksheet.getHeaders().getHNodeIds());
+	return headersList;
+    }
 
-		List<String> hNodeIdList = new ArrayList<String>();
-		hNodeIdList = addHeaders(table.getHeaders(), worksheet, factory);
+    private static void addRows(List<List<String>> tableValues,
+	    Worksheet worksheet, RepFactory factory, List<String> hNodeIdList,
+	    edu.isi.karma.rep.Table dataTable) {
 
-		edu.isi.karma.rep.Table dataTable = worksheet.getDataTable();
-		updateRows(table.getValues(), table.getRowIds(), worksheet, factory, oldHNodeIdList, hNodeIdList, dataTable);
-
+	for (List<String> rowValues : tableValues) {
+	    if (rowValues == null || rowValues.size() == 0)
+		continue;
+	    Row row = dataTable.addRow(factory);
+	    for (int i = 0; i < rowValues.size(); i++)
+		row.setValue(hNodeIdList.get(i), rowValues.get(i));
 	}
-	
-	private static List<String> addHeaders(List<Attribute> tableHeader, Worksheet worksheet, RepFactory factory) {
-		HTable headers = worksheet.getHeaders();
-		List<String> headersList = new ArrayList<String>();
-		
-		for (int i = 0; i < tableHeader.size(); i++) {
-			Attribute att = tableHeader.get(i);
-			HNode hNode = headers.addHNode(att.getName(), worksheet, factory);
-			headersList.add(hNode.getId());
-			
-			// very important 
-			// update the hNodeId of the input/output attributes
-			att.sethNodeId(hNode.getId());
+
+    }
+
+    private static void updateRows(List<List<String>> tableValues,
+	    List<String> tableRowIds, Worksheet worksheet, RepFactory factory,
+	    List<String> oldHNodeIdList, List<String> hNodeIdList,
+	    edu.isi.karma.rep.Table dataTable) {
+
+	int rowsCount = dataTable.getNumRows();
+	List<Row> oldRows = dataTable.getRows(0, rowsCount);
+	List<HashMap<String, String>> oldRowValues = new ArrayList<HashMap<String, String>>();
+	List<String> oldRowIds = new ArrayList<String>();
+
+	for (Row r : oldRows) {
+	    HashMap<String, String> vals = new HashMap<String, String>();
+	    for (Node n : r.getNodes()) {
+		vals.put(n.getHNodeId(), n.getValue().asString());
+	    }
+	    oldRowValues.add(vals);
+	    oldRowIds.add(r.getId());
+	}
+
+	HashMap<String, String> currentRow = null;
+	String currentRowId = "";
+
+	int addedRowsCount = 0;
+	for (int i = 0; i < oldRowValues.size(); i++) {
+	    currentRow = oldRowValues.get(i);
+	    currentRowId = oldRowIds.get(i);
+
+	    for (int k = 0; k < tableValues.size(); k++) {
+		List<String> rowValues = tableValues.get(k);
+		if (rowValues == null || rowValues.size() == 0)
+		    continue;
+
+		String tableRowId = tableRowIds.get(k);
+		if (tableRowId == null
+			|| !tableRowId.trim().equalsIgnoreCase(
+				currentRowId.trim())) {
+		    continue;
 		}
-		return headersList;
+
+		addedRowsCount++;
+
+		Row row = null;
+		if (addedRowsCount <= rowsCount)
+		    row = dataTable.getRows(addedRowsCount - 1, 1).get(0);
+		else
+		    row = dataTable.addRow(factory);
+
+		// System.out.println(hNodeIdList.size());
+		for (int j = 0; j < hNodeIdList.size(); j++) {
+		    // the first column in the table is the url column which
+		    // should not be added to the table
+		    // System.out.println("j:" + j);
+		    // System.out.println(hNodeIdList.get(j));
+		    // System.out.println(rowValues.get(j + 1));
+		    row.setValue(hNodeIdList.get(j), rowValues.get(j));
+		}
+
+		for (String id : oldHNodeIdList) {
+		    row.setValue(id, currentRow.get(id).toString());
+		}
+
+	    }
+
 	}
 
-	private static void addRows(List<List<String>> tableValues, Worksheet worksheet, RepFactory factory, 
-			List<String> hNodeIdList, edu.isi.karma.rep.Table dataTable) {
-		
-		for (List<String> rowValues : tableValues) {
-			if (rowValues == null || rowValues.size() == 0)
-				continue;
-			Row row = dataTable.addRow(factory);
-			for (int i = 0; i < rowValues.size(); i++) 
-				row.setValue(hNodeIdList.get(i), rowValues.get(i));
-		}
-		
-	}
-
-	private static void updateRows(List<List<String>> tableValues, List<String> tableRowIds, 
-			Worksheet worksheet, RepFactory factory, 
-			List<String> oldHNodeIdList, List<String> hNodeIdList, 
-			edu.isi.karma.rep.Table dataTable) {
-		
-		int rowsCount = dataTable.getNumRows();
-		List<Row> oldRows = dataTable.getRows(0, rowsCount);
-		List<HashMap<String, String>> oldRowValues = new ArrayList<HashMap<String,String>>();
-		List<String> oldRowIds = new ArrayList<String>();
-		
-		for (Row r : oldRows) {
-			HashMap<String, String> vals = new HashMap<String, String>();
-			for (Node n : r.getNodes()) {
-				vals.put(n.getHNodeId(), n.getValue().asString());
-			}
-			oldRowValues.add(vals);
-			oldRowIds.add(r.getId());
-		}
-		
-		HashMap<String, String> currentRow = null;
-		String currentRowId = "";
-		
-		int addedRowsCount = 0; 
-		for (int i = 0; i < oldRowValues.size(); i++) {
-			currentRow = oldRowValues.get(i);
-			currentRowId = oldRowIds.get(i);
-			
-			for (int k = 0; k < tableValues.size(); k++) {
-				List<String> rowValues = tableValues.get(k);
-				if (rowValues == null || rowValues.size() == 0)
-					continue;
-				
-				String tableRowId = tableRowIds.get(k);
-				if (tableRowId == null || !tableRowId.trim().equalsIgnoreCase(currentRowId.trim())) {
-					continue;
-				}
-				
-				addedRowsCount ++;
-				
-				Row row = null;
-				if (addedRowsCount <= rowsCount)
-					row = dataTable.getRows(addedRowsCount - 1, 1).get(0);
-				else 
-					row = dataTable.addRow(factory);
-				
-//				System.out.println(hNodeIdList.size());
-				for (int j = 0; j < hNodeIdList.size(); j++) {
-					// the first column in the table is the url column which should not be added to the table
-//					System.out.println("j:" + j);
-//					System.out.println(hNodeIdList.get(j));
-//					System.out.println(rowValues.get(j + 1));
-					row.setValue(hNodeIdList.get(j), rowValues.get(j));
-				}
-				
-				for (String id: oldHNodeIdList) {
-					row.setValue(id, currentRow.get(id).toString());
-				}
-				
-			}
-			
-		}
-		
-	}
+    }
 
 }

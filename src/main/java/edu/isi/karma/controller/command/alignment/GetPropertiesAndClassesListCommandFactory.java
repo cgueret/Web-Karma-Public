@@ -8,10 +8,10 @@ import edu.isi.karma.view.VWorkspace;
 
 public class GetPropertiesAndClassesListCommandFactory extends CommandFactory {
 
-	@Override
-	public Command createCommand(HttpServletRequest request,
-			VWorkspace vWorkspace) {
-		return new GetPropertiesAndClassesList(getNewId(vWorkspace));
-	}
+    @Override
+    public Command createCommand(HttpServletRequest request,
+	    VWorkspace vWorkspace) {
+	return new GetPropertiesAndClassesList(getNewId(vWorkspace));
+    }
 
 }

@@ -23,31 +23,31 @@ package edu.isi.mediator.domain;
 
 import edu.isi.mediator.gav.util.MediatorConstants;
 
-public class SourceAttribute extends DomainAttribute{
-	
-	public boolean needsBinding;
-	
-	public SourceAttribute(String name, String type, String bound){
-		super(name, type);
+public class SourceAttribute extends DomainAttribute {
 
-		if(bound.equals("B"))
-			this.needsBinding=true;
-		else
-			this.needsBinding=false;
-	}
+    public boolean needsBinding;
 
-	public boolean needsBinding(){
-		return needsBinding;
-	}
-	
-	public String toString(){
-		String s = "";
-		s += name + ":" + type + ":";
-		if(needsBinding)
-			s += MediatorConstants.BOUND;
-		else s +=MediatorConstants.FREE;
-		return s;
-	}
+    public SourceAttribute(String name, String type, String bound) {
+	super(name, type);
+
+	if (bound.equals("B"))
+	    this.needsBinding = true;
+	else
+	    this.needsBinding = false;
+    }
+
+    public boolean needsBinding() {
+	return needsBinding;
+    }
+
+    public String toString() {
+	String s = "";
+	s += name + ":" + type + ":";
+	if (needsBinding)
+	    s += MediatorConstants.BOUND;
+	else
+	    s += MediatorConstants.FREE;
+	return s;
+    }
 
 }
-

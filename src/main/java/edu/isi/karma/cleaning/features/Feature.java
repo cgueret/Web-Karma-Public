@@ -29,13 +29,13 @@ package edu.isi.karma.cleaning.features;
  */
 public interface Feature {
 
-	/**
-	 * @return the name of this feature.
-	 */
-	public String getName();
+    /**
+     * @return the name of this feature.
+     */
+    public String getName();
 
-	/**
-	 * @return the score of this feature on a set of strings.
-	 */
-	public double getScore();
+    /**
+     * @return the score of this feature on a set of strings.
+     */
+    public double getScore();
 }

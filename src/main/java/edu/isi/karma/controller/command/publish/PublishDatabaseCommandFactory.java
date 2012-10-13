@@ -27,30 +27,32 @@ import edu.isi.karma.controller.command.CommandFactory;
 import edu.isi.karma.view.VWorkspace;
 
 public class PublishDatabaseCommandFactory extends CommandFactory {
-	private enum Arguments {
-		vWorksheetId, overwriteTable, insertTable, dbType,hostName,port,dbName,userName,password,tableName
-	}
+    private enum Arguments {
+	vWorksheetId, overwriteTable, insertTable, dbType, hostName, port, dbName, userName, password, tableName
+    }
 
-	@Override
-	public Command createCommand(HttpServletRequest request,
-			VWorkspace vWorkspace) {
-		String vWorksheetId = request.getParameter(Arguments.vWorksheetId
-				.name());
+    @Override
+    public Command createCommand(HttpServletRequest request,
+	    VWorkspace vWorkspace) {
+	String vWorksheetId = request.getParameter(Arguments.vWorksheetId
+		.name());
 
-		System.out.println("host="+request.getParameter(Arguments.hostName.name()));
-		
-		PublishDatabaseCommand comm = new PublishDatabaseCommand(getNewId(vWorkspace), vWorksheetId,
-				request.getParameter(Arguments.dbType.name()),
-				request.getParameter(Arguments.hostName.name()),
-				request.getParameter(Arguments.port.name()),
-				request.getParameter(Arguments.dbName.name()),
-				request.getParameter(Arguments.userName.name()),
-				request.getParameter(Arguments.password.name()),
-				request.getParameter(Arguments.tableName.name()),
-				request.getParameter(Arguments.overwriteTable.name()),
-				request.getParameter(Arguments.insertTable.name()));
-		
-		return comm;
-	}
+	System.out.println("host="
+		+ request.getParameter(Arguments.hostName.name()));
+
+	PublishDatabaseCommand comm = new PublishDatabaseCommand(
+		getNewId(vWorkspace), vWorksheetId,
+		request.getParameter(Arguments.dbType.name()),
+		request.getParameter(Arguments.hostName.name()),
+		request.getParameter(Arguments.port.name()),
+		request.getParameter(Arguments.dbName.name()),
+		request.getParameter(Arguments.userName.name()),
+		request.getParameter(Arguments.password.name()),
+		request.getParameter(Arguments.tableName.name()),
+		request.getParameter(Arguments.overwriteTable.name()),
+		request.getParameter(Arguments.insertTable.name()));
+
+	return comm;
+    }
 
 }

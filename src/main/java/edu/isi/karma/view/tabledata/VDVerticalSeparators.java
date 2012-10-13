@@ -39,40 +39,40 @@ import edu.isi.karma.view.VWorkspace;
  */
 public class VDVerticalSeparators {
 
-	private final Map<String, VDVerticalSeparator> hNodeIdToVDSEparator = new HashMap<String, VDVerticalSeparator>();
+    private final Map<String, VDVerticalSeparator> hNodeIdToVDSEparator = new HashMap<String, VDVerticalSeparator>();
 
-	VDVerticalSeparators() {
-		super();
+    VDVerticalSeparators() {
+	super();
+    }
+
+    public VDVerticalSeparator get(String hNodeId) {
+	return hNodeIdToVDSEparator.get(hNodeId);
+    }
+
+    public void put(String hNodeId, VDVerticalSeparator vdVerticalSeparator) {
+	hNodeIdToVDSEparator.put(hNodeId, vdVerticalSeparator);
+    }
+
+    /*****************************************************************
+     * 
+     * Debugging Support
+     * 
+     *****************************************************************/
+
+    void prettyPrintJson(JSONWriter jw, VWorkspace vWorkspace)
+	    throws JSONException {
+	RepFactory f = vWorkspace.getRepFactory();
+	jw.array();
+	for (String key : hNodeIdToVDSEparator.keySet()) {
+	    String name = "root";
+	    HNode hn = f.getHNode(key);
+	    if (hn != null) {
+		name = hn.getColumnName();
+	    }
+	    jw.object().key(key + "/" + name);
+	    hNodeIdToVDSEparator.get(key).prettyPrintJson(jw);
+	    jw.endObject();
 	}
-
-	public VDVerticalSeparator get(String hNodeId) {
-		return hNodeIdToVDSEparator.get(hNodeId);
-	}
-
-	public void put(String hNodeId, VDVerticalSeparator vdVerticalSeparator) {
-		hNodeIdToVDSEparator.put(hNodeId, vdVerticalSeparator);
-	}
-
-	/*****************************************************************
-	 * 
-	 * Debugging Support
-	 * 
-	 *****************************************************************/
-
-	void prettyPrintJson(JSONWriter jw, VWorkspace vWorkspace)
-			throws JSONException {
-		RepFactory f = vWorkspace.getRepFactory();
-		jw.array();
-		for (String key : hNodeIdToVDSEparator.keySet()) {
-			String name = "root";
-			HNode hn = f.getHNode(key);
-			if (hn != null) {
-				name = hn.getColumnName();
-			}
-			jw.object().key(key + "/" + name);
-			hNodeIdToVDSEparator.get(key).prettyPrintJson(jw);
-			jw.endObject();
-		}
-		jw.endArray();
-	}
+	jw.endArray();
+    }
 }

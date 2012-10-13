@@ -28,15 +28,15 @@ package edu.isi.karma.controller.command;
  */
 public abstract class WorksheetCommand extends Command {
 
-	protected final String worksheetId;
+    protected final String worksheetId;
 
-	protected WorksheetCommand(String id, String worksheetId) {
-		super(id);
-		this.worksheetId = worksheetId;
-	}
+    protected WorksheetCommand(String id, String worksheetId) {
+	super(id);
+	this.worksheetId = worksheetId;
+    }
 
-	public String getWorksheetId() {
-		return worksheetId;
-	}
+    public String getWorksheetId() {
+	return worksheetId;
+    }
 
 }

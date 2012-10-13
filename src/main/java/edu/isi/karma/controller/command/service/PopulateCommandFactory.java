@@ -27,19 +27,20 @@ import edu.isi.karma.controller.command.Command;
 import edu.isi.karma.controller.command.CommandFactory;
 import edu.isi.karma.view.VWorkspace;
 
-public class PopulateCommandFactory extends CommandFactory{
-	
-	public enum Arguments {
-		vWorksheetId
-	}
-	
-	@Override
-	public Command createCommand(HttpServletRequest request,
-			VWorkspace vWorkspace) {
+public class PopulateCommandFactory extends CommandFactory {
 
-		String vWorksheetId =request.getParameter(Arguments.vWorksheetId.name());
-		return new PopulateCommand(getNewId(vWorkspace), 
-				getWorksheetId(request, vWorkspace), vWorksheetId);
-	}
+    public enum Arguments {
+	vWorksheetId
+    }
+
+    @Override
+    public Command createCommand(HttpServletRequest request,
+	    VWorkspace vWorkspace) {
+
+	String vWorksheetId = request.getParameter(Arguments.vWorksheetId
+		.name());
+	return new PopulateCommand(getNewId(vWorkspace), getWorksheetId(
+		request, vWorkspace), vWorksheetId);
+    }
 
 }

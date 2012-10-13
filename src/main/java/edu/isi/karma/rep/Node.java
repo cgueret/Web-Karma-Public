@@ -31,130 +31,133 @@ import java.io.PrintWriter;
  */
 public class Node extends RepEntity {
 
-	public enum NodeStatus {
-		original("O"), edited("E");
+    public enum NodeStatus {
+	original("O"), edited("E");
 
-		private String codedValue;
+	private String codedValue;
 
-		private NodeStatus(String userLabel) {
-			this.codedValue = userLabel;
-		}
-
-		public String getCodedStatus() {
-			return codedValue;
-		}
+	private NodeStatus(String userLabel) {
+	    this.codedValue = userLabel;
 	}
 
-	// the HNode that defines my properties.
-	private final String hNodeId;
-
-	// possibly has a nested table, null if none
-	private Table nestedTable = null;
-
-	private NodeStatus status = NodeStatus.original;
-
-	// The value stored in this cell.
-	private CellValue value = StringCellValue.getEmptyString();
-
-	private CellValue originalValue = StringCellValue.getEmptyString();
-
-	//mariam
-	/**
-	 * The row that this node belongs to
-	 */
-	private Row belongsToRow;
-	
-	Node(String id, String hNodeId) {
-		super(id);
-		this.hNodeId = hNodeId;
+	public String getCodedStatus() {
+	    return codedValue;
 	}
+    }
 
-	//mariam
-	public void setBelongsToRow(Row row){
-		belongsToRow=row;
-	}
-	public Row getBelongsToRow(){
-		return belongsToRow;
-	}
-	/**
-	 * Return the table that this node belongs to.
-	 * @return
-	 * 		the table that this node belongs to.
-	 */
-	public Table getParentTable(){
-		return belongsToRow.getBelongsToTable();
-	}
-	///////////////
-	
-	public String getHNodeId() {
-		return hNodeId;
-	}
+    // the HNode that defines my properties.
+    private final String hNodeId;
 
-	public NodeStatus getStatus() {
-		return status;
-	}
+    // possibly has a nested table, null if none
+    private Table nestedTable = null;
 
-	public CellValue getOriginalValue() {
-		return originalValue;
-	}
+    private NodeStatus status = NodeStatus.original;
 
-	public CellValue getValue() {
-		return value;
-	}
+    // The value stored in this cell.
+    private CellValue value = StringCellValue.getEmptyString();
 
-	public void setValue(CellValue value, NodeStatus status) {
-		this.value = value;
-		this.status = status;
-	}
-	
-	public void clearValue(NodeStatus status) {
-		this.value = null;
-		this.status = status;
-	}
+    private CellValue originalValue = StringCellValue.getEmptyString();
 
-	public void setValue(String value, NodeStatus status) {
-		setValue(new StringCellValue(value), status);
-	}
+    // mariam
+    /**
+     * The row that this node belongs to
+     */
+    private Row belongsToRow;
 
-	public Table getNestedTable() {
-		return nestedTable;
-	}
+    Node(String id, String hNodeId) {
+	super(id);
+	this.hNodeId = hNodeId;
+    }
 
-	public void setNestedTable(Table nestedTable) {
-		this.nestedTable = nestedTable;
-		//mariam
-		if(nestedTable != null)
-			nestedTable.setNestedTableInNode(this);
-	}
+    // mariam
+    public void setBelongsToRow(Row row) {
+	belongsToRow = row;
+    }
 
-	public boolean hasNestedTable() {
-		return nestedTable != null;
-	}
+    public Row getBelongsToRow() {
+	return belongsToRow;
+    }
 
-	public String toString() {
-		StringBuffer b = new StringBuffer();
-		b.append("N(");
-		b.append(getId() + ",");
-		b.append(hNodeId + ",");
-		if (nestedTable != null) {
-			b.append("*" + nestedTable.getId() + "/"
-					+ nestedTable.getHTableId() + ")");
-		} else {
-			b.append(value.asString() + ")");
-		}
-		return b.toString();
-	}
+    /**
+     * Return the table that this node belongs to.
+     * 
+     * @return the table that this node belongs to.
+     */
+    public Table getParentTable() {
+	return belongsToRow.getBelongsToTable();
+    }
 
-	@Override
-	public void prettyPrint(String prefix, PrintWriter pw, RepFactory factory) {
-		pw.print(prefix + "  - ");
-		pw.print(factory.getHNode(hNodeId).getColumnName() + "/" + id + "/"
-				+ hNodeId + ":");
-		if (nestedTable != null) {
-			pw.println();
-			nestedTable.prettyPrint(prefix + "      ", pw, factory);
-		} else {
-			pw.println("<" + value.asString() + ">");
-		}
+    // /////////////
+
+    public String getHNodeId() {
+	return hNodeId;
+    }
+
+    public NodeStatus getStatus() {
+	return status;
+    }
+
+    public CellValue getOriginalValue() {
+	return originalValue;
+    }
+
+    public CellValue getValue() {
+	return value;
+    }
+
+    public void setValue(CellValue value, NodeStatus status) {
+	this.value = value;
+	this.status = status;
+    }
+
+    public void clearValue(NodeStatus status) {
+	this.value = null;
+	this.status = status;
+    }
+
+    public void setValue(String value, NodeStatus status) {
+	setValue(new StringCellValue(value), status);
+    }
+
+    public Table getNestedTable() {
+	return nestedTable;
+    }
+
+    public void setNestedTable(Table nestedTable) {
+	this.nestedTable = nestedTable;
+	// mariam
+	if (nestedTable != null)
+	    nestedTable.setNestedTableInNode(this);
+    }
+
+    public boolean hasNestedTable() {
+	return nestedTable != null;
+    }
+
+    public String toString() {
+	StringBuffer b = new StringBuffer();
+	b.append("N(");
+	b.append(getId() + ",");
+	b.append(hNodeId + ",");
+	if (nestedTable != null) {
+	    b.append("*" + nestedTable.getId() + "/"
+		    + nestedTable.getHTableId() + ")");
+	} else {
+	    b.append(value.asString() + ")");
 	}
+	return b.toString();
+    }
+
+    @Override
+    public void prettyPrint(String prefix, PrintWriter pw, RepFactory factory) {
+	pw.print(prefix + "  - ");
+	pw.print(factory.getHNode(hNodeId).getColumnName() + "/" + id + "/"
+		+ hNodeId + ":");
+	if (nestedTable != null) {
+	    pw.println();
+	    nestedTable.prettyPrint(prefix + "      ", pw, factory);
+	} else {
+	    pw.println("<" + value.asString() + ">");
+	}
+    }
 }

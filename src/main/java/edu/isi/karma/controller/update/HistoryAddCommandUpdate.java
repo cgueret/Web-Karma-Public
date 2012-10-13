@@ -37,27 +37,28 @@ import edu.isi.karma.view.VWorkspace;
  */
 public class HistoryAddCommandUpdate extends AbstractUpdate {
 
-	public enum JsonKeys {
-		command
-	}
+    public enum JsonKeys {
+	command
+    }
 
-	private final Command command;
+    private final Command command;
 
-	public HistoryAddCommandUpdate(Command command) {
-		super();
-		this.command = command;
-	}
+    public HistoryAddCommandUpdate(Command command) {
+	super();
+	this.command = command;
+    }
 
-	@Override
-	public void generateJson(String prefix, PrintWriter pw,
-			VWorkspace vWorkspace) {
-		pw.println(prefix + "{");
-		String newPref = prefix + "  ";
-		pw.println(newPref
-				+ JSONUtil.json(GenericJsonKeys.updateType, getUpdateType()));
-		pw.println(newPref + JSONUtil.jsonStartObject(JsonKeys.command));
-		command.generateJson(newPref + "  ", pw, vWorkspace, Command.HistoryType.undo);
-		pw.println(prefix + "}");
-	}
+    @Override
+    public void generateJson(String prefix, PrintWriter pw,
+	    VWorkspace vWorkspace) {
+	pw.println(prefix + "{");
+	String newPref = prefix + "  ";
+	pw.println(newPref
+		+ JSONUtil.json(GenericJsonKeys.updateType, getUpdateType()));
+	pw.println(newPref + JSONUtil.jsonStartObject(JsonKeys.command));
+	command.generateJson(newPref + "  ", pw, vWorkspace,
+		Command.HistoryType.undo);
+	pw.println(prefix + "}");
+    }
 
 }

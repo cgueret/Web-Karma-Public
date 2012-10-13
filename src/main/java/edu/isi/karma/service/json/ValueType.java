@@ -21,6 +21,6 @@
 package edu.isi.karma.service.json;
 
 public interface ValueType {
-	public final int SINGLE = 0;
-	public final int ARRAY = 1;
+    public final int SINGLE = 0;
+    public final int ARRAY = 1;
 }

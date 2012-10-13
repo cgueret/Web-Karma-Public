@@ -31,34 +31,35 @@ import edu.isi.karma.view.VWorkspace;
 
 public class InfoUpdate extends AbstractUpdate {
 
-	String infoMessage;
+    String infoMessage;
 
-	private enum JsonKeys {
-		Info
-	}
-	
-	private enum JsonValues {
-		KarmaInfo
-	}
-	
-	private static Logger logger = LoggerFactory.getLogger(InfoUpdate.class);
-	
-	public InfoUpdate(String infoMessage) {
-		super();
-		this.infoMessage = infoMessage;
-	}
+    private enum JsonKeys {
+	Info
+    }
 
-	@Override
-	public void generateJson(String prefix, PrintWriter pw,
-			VWorkspace vWorkspace) {
-		JSONObject obj = new JSONObject();
-		try {
-			obj.put(GenericJsonKeys.updateType.name(), JsonValues.KarmaInfo.name());
-			obj.put(JsonKeys.Info.name(), infoMessage);
-			pw.println(obj.toString());
-		} catch (JSONException e) {
-			logger.error("Info generating JSON for InfoUpdate", e);
-		}
+    private enum JsonValues {
+	KarmaInfo
+    }
+
+    private static Logger logger = LoggerFactory.getLogger(InfoUpdate.class);
+
+    public InfoUpdate(String infoMessage) {
+	super();
+	this.infoMessage = infoMessage;
+    }
+
+    @Override
+    public void generateJson(String prefix, PrintWriter pw,
+	    VWorkspace vWorkspace) {
+	JSONObject obj = new JSONObject();
+	try {
+	    obj.put(GenericJsonKeys.updateType.name(),
+		    JsonValues.KarmaInfo.name());
+	    obj.put(JsonKeys.Info.name(), infoMessage);
+	    pw.println(obj.toString());
+	} catch (JSONException e) {
+	    logger.error("Info generating JSON for InfoUpdate", e);
 	}
+    }
 
 }

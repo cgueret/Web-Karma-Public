@@ -39,81 +39,86 @@ import edu.isi.karma.webserver.ServletContextParameterMap;
 import edu.isi.karma.webserver.ServletContextParameterMap.ContextParameter;
 
 public class ImportExcelFileCommand extends Command {
-	private final File excelFile;
+    private final File excelFile;
 
-	// Logger object
-	private static Logger logger = LoggerFactory
-			.getLogger(ImportExcelFileCommand.class.getSimpleName());
+    // Logger object
+    private static Logger logger = LoggerFactory
+	    .getLogger(ImportExcelFileCommand.class.getSimpleName());
 
-	protected ImportExcelFileCommand(String id, File excelFile,
-			VWorkspace vWorkspace) {
-		super(id);
-		this.excelFile = excelFile;
+    protected ImportExcelFileCommand(String id, File excelFile,
+	    VWorkspace vWorkspace) {
+	super(id);
+	this.excelFile = excelFile;
+    }
+
+    @Override
+    public String getCommandName() {
+	return this.getClass().getSimpleName();
+    }
+
+    @Override
+    public String getTitle() {
+	return "Import Excel File";
+    }
+
+    @Override
+    public String getDescription() {
+	return excelFile.getName();
+    }
+
+    @Override
+    public CommandType getCommandType() {
+	return CommandType.notUndoable;
+    }
+
+    @Override
+    public UpdateContainer doIt(VWorkspace vWorkspace) throws CommandException {
+	Workspace ws = vWorkspace.getWorkspace();
+	UpdateContainer c = new UpdateContainer();
+
+	// Convert the Excel file to a CSV file.
+	ToCSV csvConverter = new ToCSV();
+	try {
+	    csvConverter
+		    .convertExcelToCSV(
+			    excelFile.getAbsolutePath(),
+			    ServletContextParameterMap
+				    .getParameterValue(ContextParameter.USER_DIRECTORY_PATH)
+				    + "publish/CSV");
+	} catch (Exception e) {
+	    String message = "Error occured while converting the Excel file to CSV file.";
+	    logger.error(message, e);
+	    return new UpdateContainer(new ErrorUpdate(message));
 	}
 
-	@Override
-	public String getCommandName() {
-		return this.getClass().getSimpleName();
-	}
+	List<File> csvFiles = csvConverter.getCsvFiles();
 
-	@Override
-	public String getTitle() {
-		return "Import Excel File";
-	}
-
-	@Override
-	public String getDescription() {
-		return excelFile.getName();
-	}
-
-	@Override
-	public CommandType getCommandType() {
-		return CommandType.notUndoable;
-	}
-
-	@Override
-	public UpdateContainer doIt(VWorkspace vWorkspace) throws CommandException {
-		Workspace ws = vWorkspace.getWorkspace();
-		UpdateContainer c = new UpdateContainer();
-
-		// Convert the Excel file to a CSV file.
-		ToCSV csvConverter = new ToCSV();
+	// Each sheet is written to a separate CSV file
+	if (csvFiles.size() != 0) {
+	    for (File csvFile : csvFiles) {
+		CSVFileImport imp = new CSVFileImport(1, 2, ',', '"', csvFile,
+			ws.getFactory(), ws);
 		try {
-			csvConverter.convertExcelToCSV(excelFile.getAbsolutePath(),
-					ServletContextParameterMap.getParameterValue(ContextParameter.USER_DIRECTORY_PATH) + "publish/CSV");
+		    Worksheet wsht = imp.generateWorksheet();
+		    vWorkspace.addAllWorksheets();
+		    c.add(new WorksheetListUpdate(vWorkspace
+			    .getVWorksheetList()));
+		    VWorksheet vw = vWorkspace.getVWorksheet(wsht.getId());
+		    vw.update(c);
 		} catch (Exception e) {
-			String message = "Error occured while converting the Excel file to CSV file.";
-			logger.error(message, e);
-			return new UpdateContainer(new ErrorUpdate(message));
+		    logger.error("Error occured while importing CSV file.", e);
+		    return new UpdateContainer(new ErrorUpdate(
+			    "Error occured while importing CSV File."));
 		}
-
-		List<File> csvFiles = csvConverter.getCsvFiles();
-
-		// Each sheet is written to a separate CSV file
-		if (csvFiles.size() != 0) {
-			for(File csvFile:csvFiles) {
-				CSVFileImport imp = new CSVFileImport(1, 2, ',', '"', csvFile,
-						ws.getFactory(), ws);
-				try {
-					Worksheet wsht = imp.generateWorksheet();
-					vWorkspace.addAllWorksheets();
-					c.add(new WorksheetListUpdate(vWorkspace.getVWorksheetList()));
-					VWorksheet vw = vWorkspace.getVWorksheet(wsht.getId());
-					vw.update(c);
-				} catch (Exception e) {
-					logger.error("Error occured while importing CSV file.", e);
-					return new UpdateContainer(new ErrorUpdate(
-							"Error occured while importing CSV File."));
-				}
-			}
-		}
-		return c;
+	    }
 	}
+	return c;
+    }
 
-	@Override
-	public UpdateContainer undoIt(VWorkspace vWorkspace) {
-		// Not required
-		return null;
-	}
+    @Override
+    public UpdateContainer undoIt(VWorkspace vWorkspace) {
+	// Not required
+	return null;
+    }
 
 }

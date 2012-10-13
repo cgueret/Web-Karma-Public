@@ -36,27 +36,26 @@ import edu.isi.karma.view.VWorkspace;
  */
 public class WorksheetDataUpdate extends AbstractUpdate {
 
-	private final VWorksheet vWorksheet;
+    private final VWorksheet vWorksheet;
 
-	public enum JsonKeys {
-		worksheetId, rows, cells, path, nodeId, value, status, tableCssTag, 
-		isDummy, isFirstRow, isLastRow, tablePager, pager,
-		//
-		rowIndex, rowSpan, counts, rowPath,
-		// The following keys are used in the pager section.
-		numRecordsShown, numRecordsBefore, numRecordsAfter, tableId, desiredNumRecordsShown
-	}
+    public enum JsonKeys {
+	worksheetId, rows, cells, path, nodeId, value, status, tableCssTag, isDummy, isFirstRow, isLastRow, tablePager, pager,
+	//
+	rowIndex, rowSpan, counts, rowPath,
+	// The following keys are used in the pager section.
+	numRecordsShown, numRecordsBefore, numRecordsAfter, tableId, desiredNumRecordsShown
+    }
 
-	public WorksheetDataUpdate(VWorksheet vWorksheet) {
-		super();
-		this.vWorksheet = vWorksheet;
-	}
+    public WorksheetDataUpdate(VWorksheet vWorksheet) {
+	super();
+	this.vWorksheet = vWorksheet;
+    }
 
-	@Override
-	public void generateJson(String prefix, PrintWriter pw,
-			VWorkspace vWorkspace) {
-		vWorksheet.generateWorksheetDataJson(prefix, pw,
-				vWorkspace.getViewFactory());
-	}
+    @Override
+    public void generateJson(String prefix, PrintWriter pw,
+	    VWorkspace vWorkspace) {
+	vWorksheet.generateWorksheetDataJson(prefix, pw,
+		vWorkspace.getViewFactory());
+    }
 
 }

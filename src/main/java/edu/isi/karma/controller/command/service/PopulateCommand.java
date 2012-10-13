@@ -57,203 +57,224 @@ import edu.isi.karma.view.VWorksheet;
 import edu.isi.karma.view.VWorkspace;
 import edu.isi.karma.webserver.KarmaException;
 
-public class PopulateCommand extends WorksheetCommand{
+public class PopulateCommand extends WorksheetCommand {
 
-	private final String vWorksheetId;
+    private final String vWorksheetId;
 
-	private Worksheet worksheetBeforeInvocation = null;
+    private Worksheet worksheetBeforeInvocation = null;
 
-	// Logger object
-	private static Logger logger = LoggerFactory
-			.getLogger(PopulateCommand.class.getSimpleName());
+    // Logger object
+    private static Logger logger = LoggerFactory
+	    .getLogger(PopulateCommand.class.getSimpleName());
 
-	public PopulateCommand(String id, String worksheetId, String vWorksheetId) {
-		super(id, worksheetId);
-		this.vWorksheetId = vWorksheetId;
+    public PopulateCommand(String id, String worksheetId, String vWorksheetId) {
+	super(id, worksheetId);
+	this.vWorksheetId = vWorksheetId;
+    }
+
+    @Override
+    public String getCommandName() {
+	return this.getClass().getSimpleName();
+    }
+
+    @Override
+    public String getTitle() {
+	return "Populating the Source";
+    }
+
+    @Override
+    public String getDescription() {
+	return "";
+    }
+
+    @Override
+    public CommandType getCommandType() {
+	return CommandType.undoable;
+    }
+
+    @Override
+    public UpdateContainer doIt(VWorkspace vWorkspace) throws CommandException {
+
+	UpdateContainer c = new UpdateContainer();
+	Workspace ws = vWorkspace.getWorkspace();
+	Worksheet wk = vWorkspace.getViewFactory().getVWorksheet(vWorksheetId)
+		.getWorksheet();
+
+	// Clone the worksheet just before the invocation
+	Cloner cloner = new Cloner();
+	this.worksheetBeforeInvocation = cloner.deepClone(wk);
+
+	AlignmentManager mgr = AlignmentManager.Instance();
+	String alignmentId = mgr.constructAlignmentId(ws.getId(), vWorksheetId);
+	Alignment al = mgr.getAlignment(alignmentId);
+
+	if (al == null) {
+	    logger.error("The alignment model is null.");
+	    return new UpdateContainer(
+		    new ErrorUpdate(
+			    "Error occured while populating the source. The alignment model is null."));
 	}
 
-	@Override
-	public String getCommandName() {
-		return this.getClass().getSimpleName();
+	DirectedWeightedMultigraph<Vertex, LabeledWeightedEdge> tree = al
+		.getSteinerTree();
+
+	if (tree == null) {
+	    logger.error("The alignment tree is null.");
+	    return new UpdateContainer(
+		    new ErrorUpdate(
+			    "Error occured while populating the source. The alignment model is null."));
 	}
 
-	@Override
-	public String getTitle() {
-		return "Populating the Source";
+	Source source = new Source(wk.getTitle(), tree);
+
+	Map<Service, Map<String, String>> servicesAndMappings = ServiceLoader
+		.getServicesWithInputContainedInModel(source.getModel(), null);
+
+	if (servicesAndMappings == null) {
+	    logger.error("Cannot find any services to be invoked according to this source model.");
+	    return new UpdateContainer(
+		    new ErrorUpdate(
+			    "Error occured while populating the source. Cannot find any services to be invoked according to this source model."));
 	}
 
-	@Override
-	public String getDescription() {
-		return "";
+	// For now, we just use the first service,
+	// later we can suggest the user a list of available services and user
+	// select among them
+	Service service = null;
+	Iterator<Service> itr = servicesAndMappings.keySet().iterator();
+	if (itr != null && itr.hasNext()) {
+	    service = itr.next();
 	}
 
-	@Override
-	public CommandType getCommandType() {
-		return CommandType.undoable;
+	if (service == null) {
+	    logger.error("Cannot find any services to be invoked according to this source model.");
+	    return new UpdateContainer(
+		    new ErrorUpdate(
+			    "Error occured while populating the source. Cannot find any services to be invoked according to this source model."));
 	}
 
-	@Override
-	public UpdateContainer doIt(VWorkspace vWorkspace) throws CommandException {
-		
-		UpdateContainer c = new UpdateContainer();
-		Workspace ws = vWorkspace.getWorkspace();
-		Worksheet wk = vWorkspace.getViewFactory().getVWorksheet(vWorksheetId).getWorksheet();
-
-		// Clone the worksheet just before the invocation
-		Cloner cloner = new Cloner();
-		this.worksheetBeforeInvocation = cloner.deepClone(wk);
-
-		AlignmentManager mgr = AlignmentManager.Instance();
-		String alignmentId = mgr.constructAlignmentId(ws.getId(), vWorksheetId);
-		Alignment al = mgr.getAlignment(alignmentId);
-		
-		if (al == null) { 
-			logger.error("The alignment model is null.");
-			return new UpdateContainer(new ErrorUpdate(
-				"Error occured while populating the source. The alignment model is null."));
-		} 
-		
-		DirectedWeightedMultigraph<Vertex, LabeledWeightedEdge> tree = al.getSteinerTree();
-			
-		if (tree == null) {
-			logger.error("The alignment tree is null.");
-			return new UpdateContainer(new ErrorUpdate(
-				"Error occured while populating the source. The alignment model is null."));
-		} 
-
-		Source source = new Source(wk.getTitle(), tree);
-		
-		Map<Service, Map<String, String>> servicesAndMappings = 
-			ServiceLoader.getServicesWithInputContainedInModel(source.getModel(), null);
-		
-		if (servicesAndMappings == null) {
-			logger.error("Cannot find any services to be invoked according to this source model.");
-			return new UpdateContainer(new ErrorUpdate(
-				"Error occured while populating the source. Cannot find any services to be invoked according to this source model."));
-		}
-		
-		// For now, we just use the first service, 
-		// later we can suggest the user a list of available services and user select among them
-		Service service = null;
-		Iterator<Service> itr = servicesAndMappings.keySet().iterator();
-		if (itr != null && itr.hasNext()) {
-			service = itr.next();
-		}
-		
-		if (service == null) {
-			logger.error("Cannot find any services to be invoked according to this source model.");
-			return new UpdateContainer(new ErrorUpdate(
-				"Error occured while populating the source. Cannot find any services to be invoked according to this source model."));
-		}
-		
-		List<String> requestIds = new ArrayList<String>();
-		Map<String, String> serviceToSourceAttMapping =  servicesAndMappings.get(service);
-		List<String> requestURLStrings = getUrlStrings(service, source, wk, serviceToSourceAttMapping, requestIds);
-		if (requestURLStrings == null || requestURLStrings.size() == 0) {
-			logger.error("Data table does not have any row.");
-			return new UpdateContainer(new ErrorUpdate("Data table does not have any row."));	
-		}
-		
-		
-		InvocationManager invocatioManager;
-		try {
-			invocatioManager = new InvocationManager(requestIds, requestURLStrings);
-			logger.info("Requesting data with includeURL=" + true + ",includeInput=" + true + ",includeOutput=" + true);
-			Table serviceTable = invocatioManager.getServiceData(false, false, true);
-//			logger.debug(serviceTable.getPrintInfo());
-			ServiceTableUtil.populateWorksheet(serviceTable, wk, ws.getFactory());
-			logger.info("The service " + service.getUri() + " has been invoked successfully.");
-
-
-		} catch (MalformedURLException e) {
-			logger.error("Malformed service request URL.");
-			return new UpdateContainer(new ErrorUpdate("Malformed service request URL."));
-		} catch (KarmaException e) {
-			logger.error(e.getMessage());
-			return new UpdateContainer(new ErrorUpdate(e.getMessage()));
-		}
-		
-		// Create new vWorksheet using the new header order
-		List<HNodePath> columnPaths = new ArrayList<HNodePath>();
-		for (HNode node : wk.getHeaders().getSortedHNodes()) {
-			HNodePath path = new HNodePath(node);
-			columnPaths.add(path);
-		}
-		
-		vWorkspace.getViewFactory().updateWorksheet(vWorksheetId,
-				wk, columnPaths, vWorkspace);
-		VWorksheet vw = vWorkspace.getViewFactory().getVWorksheet(vWorksheetId);
-		vw.update(c);
-		
-		return c;
+	List<String> requestIds = new ArrayList<String>();
+	Map<String, String> serviceToSourceAttMapping = servicesAndMappings
+		.get(service);
+	List<String> requestURLStrings = getUrlStrings(service, source, wk,
+		serviceToSourceAttMapping, requestIds);
+	if (requestURLStrings == null || requestURLStrings.size() == 0) {
+	    logger.error("Data table does not have any row.");
+	    return new UpdateContainer(new ErrorUpdate(
+		    "Data table does not have any row."));
 	}
 
-	private List<String> getUrlStrings(Service service, Source source, 
-			Worksheet wk, Map<String, String> serviceToSourceAttMapping, 
-			List<String> requestIds) {
-		
-		List<String> requestURLStrings = new ArrayList<String>();
-		List<Row> rows = wk.getDataTable().getRows(0, wk.getDataTable().getNumRows());
-		if (rows == null || rows.size() == 0) {
-			logger.error("Data table does not have any row.");
-			return null;	
-		}
-		
-		Map<String, String> attIdToValue = null;
-		for (int i = 0; i < rows.size(); i++) {
-			attIdToValue = new HashMap<String, String>();
-			for (String serviceAttId : serviceToSourceAttMapping.keySet()) {
-				String sourceAttId = serviceToSourceAttMapping.get(serviceAttId);
-				Attribute sourceAtt = source.getAttribute(sourceAttId);
-				if (sourceAtt == null) {
-//					logger.debug("Cannot find the source attribute with the id " + sourceAttId);
-					continue;
-				}
-				String hNodeId = sourceAtt.gethNodeId();
-				if (hNodeId == null || hNodeId.trim().length() == 0) {
-					logger.debug("The attribute with the id " + sourceAttId + " does not have a hNodeId.");
-					continue;
-				}
-				
-				String value = rows.get(i).getNode(hNodeId).getValue().asString().trim();
-				
-				attIdToValue.put(serviceAttId, value);
-				
-			}
-			String urlString = service.getPopulatedAddress(attIdToValue, null);
-			
-			//FIXME
-			urlString = urlString.replaceAll("\\{p3\\}", "karma");
-			
-			requestIds.add(rows.get(i).getId());
-			requestURLStrings.add(urlString);
-			
-			logger.debug("The invocation url " + urlString + " has been added to the invocation list.");
-		}
-		
-		
-		return requestURLStrings;
-	}
-	
-	@Override
-	public UpdateContainer undoIt(VWorkspace vWorkspace) {
+	InvocationManager invocatioManager;
+	try {
+	    invocatioManager = new InvocationManager(requestIds,
+		    requestURLStrings);
+	    logger.info("Requesting data with includeURL=" + true
+		    + ",includeInput=" + true + ",includeOutput=" + true);
+	    Table serviceTable = invocatioManager.getServiceData(false, false,
+		    true);
+	    // logger.debug(serviceTable.getPrintInfo());
+	    ServiceTableUtil.populateWorksheet(serviceTable, wk,
+		    ws.getFactory());
+	    logger.info("The service " + service.getUri()
+		    + " has been invoked successfully.");
 
-		UpdateContainer c = new UpdateContainer();
-		
-		// Create new vWorksheet using the new header order
-		List<HNodePath> columnPaths = new ArrayList<HNodePath>();
-		for (HNode node : worksheetBeforeInvocation.getHeaders().getSortedHNodes()) {
-			HNodePath path = new HNodePath(node);
-			columnPaths.add(path);
-		}
-		vWorkspace.getRepFactory().replaceWorksheet(this.worksheetId, this.worksheetBeforeInvocation);
-		vWorkspace.getViewFactory().updateWorksheet(vWorksheetId,
-				this.worksheetBeforeInvocation, columnPaths, vWorkspace);
-		VWorksheet vw = vWorkspace.getViewFactory().getVWorksheet(vWorksheetId);
-		vw.update(c);
-		
-		return c;	
-		
+	} catch (MalformedURLException e) {
+	    logger.error("Malformed service request URL.");
+	    return new UpdateContainer(new ErrorUpdate(
+		    "Malformed service request URL."));
+	} catch (KarmaException e) {
+	    logger.error(e.getMessage());
+	    return new UpdateContainer(new ErrorUpdate(e.getMessage()));
 	}
+
+	// Create new vWorksheet using the new header order
+	List<HNodePath> columnPaths = new ArrayList<HNodePath>();
+	for (HNode node : wk.getHeaders().getSortedHNodes()) {
+	    HNodePath path = new HNodePath(node);
+	    columnPaths.add(path);
+	}
+
+	vWorkspace.getViewFactory().updateWorksheet(vWorksheetId, wk,
+		columnPaths, vWorkspace);
+	VWorksheet vw = vWorkspace.getViewFactory().getVWorksheet(vWorksheetId);
+	vw.update(c);
+
+	return c;
+    }
+
+    private List<String> getUrlStrings(Service service, Source source,
+	    Worksheet wk, Map<String, String> serviceToSourceAttMapping,
+	    List<String> requestIds) {
+
+	List<String> requestURLStrings = new ArrayList<String>();
+	List<Row> rows = wk.getDataTable().getRows(0,
+		wk.getDataTable().getNumRows());
+	if (rows == null || rows.size() == 0) {
+	    logger.error("Data table does not have any row.");
+	    return null;
+	}
+
+	Map<String, String> attIdToValue = null;
+	for (int i = 0; i < rows.size(); i++) {
+	    attIdToValue = new HashMap<String, String>();
+	    for (String serviceAttId : serviceToSourceAttMapping.keySet()) {
+		String sourceAttId = serviceToSourceAttMapping
+			.get(serviceAttId);
+		Attribute sourceAtt = source.getAttribute(sourceAttId);
+		if (sourceAtt == null) {
+		    // logger.debug("Cannot find the source attribute with the id "
+		    // + sourceAttId);
+		    continue;
+		}
+		String hNodeId = sourceAtt.gethNodeId();
+		if (hNodeId == null || hNodeId.trim().length() == 0) {
+		    logger.debug("The attribute with the id " + sourceAttId
+			    + " does not have a hNodeId.");
+		    continue;
+		}
+
+		String value = rows.get(i).getNode(hNodeId).getValue()
+			.asString().trim();
+
+		attIdToValue.put(serviceAttId, value);
+
+	    }
+	    String urlString = service.getPopulatedAddress(attIdToValue, null);
+
+	    // FIXME
+	    urlString = urlString.replaceAll("\\{p3\\}", "karma");
+
+	    requestIds.add(rows.get(i).getId());
+	    requestURLStrings.add(urlString);
+
+	    logger.debug("The invocation url " + urlString
+		    + " has been added to the invocation list.");
+	}
+
+	return requestURLStrings;
+    }
+
+    @Override
+    public UpdateContainer undoIt(VWorkspace vWorkspace) {
+
+	UpdateContainer c = new UpdateContainer();
+
+	// Create new vWorksheet using the new header order
+	List<HNodePath> columnPaths = new ArrayList<HNodePath>();
+	for (HNode node : worksheetBeforeInvocation.getHeaders()
+		.getSortedHNodes()) {
+	    HNodePath path = new HNodePath(node);
+	    columnPaths.add(path);
+	}
+	vWorkspace.getRepFactory().replaceWorksheet(this.worksheetId,
+		this.worksheetBeforeInvocation);
+	vWorkspace.getViewFactory().updateWorksheet(vWorksheetId,
+		this.worksheetBeforeInvocation, columnPaths, vWorkspace);
+	VWorksheet vw = vWorkspace.getViewFactory().getVWorksheet(vWorksheetId);
+	vw.update(c);
+
+	return c;
+
+    }
 
 }

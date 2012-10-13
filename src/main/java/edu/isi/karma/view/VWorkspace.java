@@ -32,61 +32,62 @@ import edu.isi.karma.rep.Workspace;
  */
 public class VWorkspace {
 
-	private final Workspace workspace;
+    private final Workspace workspace;
 
-	private final ViewFactory viewFactory = new ViewFactory();
+    private final ViewFactory viewFactory = new ViewFactory();
 
-	private final VWorksheetList vWorksheets = new VWorksheetList();
+    private final VWorksheetList vWorksheets = new VWorksheetList();
 
-	private final ViewPreferences preferences;
-	
-	private final String preferencesId;
+    private final ViewPreferences preferences;
 
-	public VWorkspace(Workspace workspace) {
-		super();
-		this.workspace = workspace;
-		preferences = new ViewPreferences(workspace.getId());
-		preferencesId=workspace.getId();
-	}
-	
-	public VWorkspace(Workspace workspace, String workspacePreferencesId) {
-		super();
-		this.workspace = workspace;
-		preferences = new ViewPreferences(workspacePreferencesId);
-		preferencesId=workspacePreferencesId;
-	}
+    private final String preferencesId;
 
-	public Workspace getWorkspace() {
-		return workspace;
-	}
+    public VWorkspace(Workspace workspace) {
+	super();
+	this.workspace = workspace;
+	preferences = new ViewPreferences(workspace.getId());
+	preferencesId = workspace.getId();
+    }
 
-	public RepFactory getRepFactory() {
-		return getWorkspace().getFactory();
-	}
-	
-	public ViewFactory getViewFactory() {
-		return viewFactory;
-	}
+    public VWorkspace(Workspace workspace, String workspacePreferencesId) {
+	super();
+	this.workspace = workspace;
+	preferences = new ViewPreferences(workspacePreferencesId);
+	preferencesId = workspacePreferencesId;
+    }
 
-	public VWorksheetList getVWorksheetList() {
-		return vWorksheets;
-	}
+    public Workspace getWorkspace() {
+	return workspace;
+    }
 
-	public ViewPreferences getPreferences() {
-		return preferences;
-	}
-	public String getPreferencesId() {
-		return preferencesId;
-	}
-	
-	/**
-	 * View all worksheets.
-	 */
-	public void addAllWorksheets() {
-		vWorksheets.addWorksheets(workspace.getWorksheets(), this);
-	}
+    public RepFactory getRepFactory() {
+	return getWorkspace().getFactory();
+    }
 
-	public VWorksheet getVWorksheet(String worksheetId) {
-		return vWorksheets.getVWorksheet(worksheetId);
-	}
+    public ViewFactory getViewFactory() {
+	return viewFactory;
+    }
+
+    public VWorksheetList getVWorksheetList() {
+	return vWorksheets;
+    }
+
+    public ViewPreferences getPreferences() {
+	return preferences;
+    }
+
+    public String getPreferencesId() {
+	return preferencesId;
+    }
+
+    /**
+     * View all worksheets.
+     */
+    public void addAllWorksheets() {
+	vWorksheets.addWorksheets(workspace.getWorksheets(), this);
+    }
+
+    public VWorksheet getVWorksheet(String worksheetId) {
+	return vWorksheets.getVWorksheet(worksheetId);
+    }
 }

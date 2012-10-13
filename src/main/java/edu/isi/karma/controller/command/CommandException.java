@@ -23,33 +23,32 @@
  */
 package edu.isi.karma.controller.command;
 
-
 /**
  * @author szekely
- *
+ * 
  */
 public class CommandException extends Exception {
-	/**
+    /**
 	 * 
 	 */
-	private static final long serialVersionUID = -6578670561260489674L;
+    private static final long serialVersionUID = -6578670561260489674L;
 
-	private final Command command;
-	
-	private final String message;
-	
-	public CommandException(Command command, String message) {
-		super();
-		this.command = command;
-		this.message = message;
-	}
+    private final Command command;
 
-	public Command getCommand() {
-		return command;
-	}
+    private final String message;
 
-	public String getMessage() {
-		return message;
-	}
-	
+    public CommandException(Command command, String message) {
+	super();
+	this.command = command;
+	this.message = message;
+    }
+
+    public Command getCommand() {
+	return command;
+    }
+
+    public String getMessage() {
+	return message;
+    }
+
 }

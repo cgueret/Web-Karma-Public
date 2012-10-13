@@ -22,5 +22,5 @@
 package edu.isi.karma.service;
 
 public abstract class Atom {
-	public abstract void print();
+    public abstract void print();
 }

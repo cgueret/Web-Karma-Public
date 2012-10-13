@@ -47,127 +47,140 @@ import edu.isi.karma.view.VWorkspace;
 import edu.isi.karma.webserver.ServletContextParameterMap.ContextParameter;
 
 public class GetExampleJSON extends HttpServlet {
-	private enum Arguments {
-		hasPreferenceId, workspacePreferencesId
+    private enum Arguments {
+	hasPreferenceId, workspacePreferencesId
+    }
+
+    private static final long serialVersionUID = 1L;
+
+    private static Logger logger = LoggerFactory
+	    .getLogger(GetExampleJSON.class);
+
+    protected void doGet(HttpServletRequest request,
+	    HttpServletResponse response) throws ServletException, IOException {
+
+	logger.info("Creating new workspace ...");
+
+	Workspace workspace = WorkspaceManager.getInstance().getFactory()
+		.createWorkspace();
+
+	logger.info("done");
+	/* Check if any workspace id is set in cookies. */
+	boolean hasWorkspaceCookieId = request.getParameter(
+		Arguments.hasPreferenceId.name()).equals("true");
+	VWorkspace vwsp = null;
+	File crfModelFile = null;
+
+	/* If set, pick the right preferences and CRF Model file */
+	if (hasWorkspaceCookieId) {
+	    String cachedWorkspaceId = request
+		    .getParameter(Arguments.workspacePreferencesId.name());
+	    vwsp = new VWorkspace(workspace, cachedWorkspaceId);
+	    crfModelFile = new File(
+		    ServletContextParameterMap
+			    .getParameterValue(ContextParameter.USER_DIRECTORY_PATH)
+			    + "CRF_Models/"
+			    + cachedWorkspaceId
+			    + "_CRFModel.txt");
+	} else {
+	    vwsp = new VWorkspace(workspace);
+	    crfModelFile = new File(
+		    ServletContextParameterMap
+			    .getParameterValue(ContextParameter.USER_DIRECTORY_PATH)
+			    + "CRF_Models/"
+			    + workspace.getId()
+			    + "_CRFModel.txt");
+	}
+	/* Read and populate CRF Model from a file */
+	if (!crfModelFile.exists())
+	    crfModelFile.createNewFile();
+	boolean result = workspace.getCrfModelHandler().readModelFromFile(
+		crfModelFile.getAbsolutePath());
+	if (!result)
+	    logger.error("Error occured while reading CRF Model!");
+
+	WorkspaceRegistry.getInstance().register(new ExecutionController(vwsp));
+
+	// Loading ontology to be preloaded
+	// OntologyManager mgr = workspace.getOntologyManager();
+	// mgr.doImport(new File("./Preloaded_Ontologies/geo_2007.owl"));
+	// mgr.doImport(new File("./Preloaded_Ontologies/oilwell.owl"));
+
+	// mariam
+	// File file = new File("../demofiles/usc_faculty.csv");
+
+	// File file = new File("./SampleData/CSV/wells-large.csv");
+	// CSVFileImport imp = new CSVFileImport(1, 2, ',', '"', file,
+	// workspace.getFactory(), workspace);
+	// try {
+	// imp.generateWorksheet();
+	// } catch (KarmaException e) {
+	// e.printStackTrace();
+	// }
+	//
+
+	// SampleDataFactory.createFromJsonTextFile(workspace,"./SampleData/JSON/Events.json");
+
+	// Initialize the Outlier tag
+	Tag outlierTag = new Tag(TagName.Outlier, Color.Red);
+	workspace.getTagsContainer().addTag(outlierTag);
+
+	// SampleDataFactory.createSample1small(workspace);
+	// SampleDataFactory.createSample1(workspace);
+	// SampleDataFactory.createSampleJsonWithNestedTable2(false/* true: 2
+	// rows */,
+	// vwsp.getWorkspace());
+	// //SampleDataFactory.createFlatWorksheet(workspace, 10000, 6);
+	// SampleDataFactory.createFlatWorksheet(workspace, 2, 2);
+	// //SampleDataFactory.createFromJsonTextFile(workspace,
+	// "samplejson-1.txt");
+	// SampleDataFactory.createJsonWithFunnyCharacters(workspace);
+	// SampleDataFactory.createSampleJson(workspace, 3);
+	// SampleDataFactory.createSampleJsonWithEmptyNestedTable1(workspace);
+	// SampleDataFactory.createSampleJsonWithEmptyNestedTable2(workspace);
+	// SampleDataFactory.createSampleJsonWithEmptyNestedTable3(workspace);
+	// SampleDataFactory.createSampleJsonWithEmptyNestedTable4(workspace);
+	// SampleDataFactory.createUnitTest1(workspace);
+	// SampleDataFactory.createUnitTest2(workspace);
+	// SampleDataFactory.createUnitTest3(workspace);
+	// SampleDataFactory.createUnitTest4(workspace);
+	// SampleDataFactory.createUnitTest5(workspace);
+	// SampleDataFactory.createUnitTest6(workspace);
+	// // SampleDataFactory.createFromJsonTextFile(workspace,
+	// "unit-test-json.json");
+	// // SampleDataFactory.createFromJsonTextFile(workspace,
+	// "testUnitTest1.json");
+	// SampleDataFactory.createFromJsonTextFile(workspace,
+	// "testUnitTest2.json");
+	// SampleDataFactory.createFromJsonTextFile(workspace,
+	// "testUnitTest4.json");
+	// SampleDataFactory.createFromJsonTextFile(workspace,
+	// "testUnitTest5.json");
+	// SampleDataFactory.createFromJsonTextFile(workspace,
+	// "testUnitTest6.json");
+	// SampleDataFactory.createFromJsonTextFile(workspace,
+	// "testSampleJsonWithEmptyNestedTable1.json");
+	// SampleDataFactory.createFromJsonTextFile(workspace,
+	// "createSampleJsonWithNestedTable2.json");
+	// SampleDataFactory.createFromJsonTextFile(workspace, "f6.json");
+	// SampleDataFactory.createFromJsonTextFile(workspace,
+	// "createSampleJsonWithNestedTable2_VD.json");
+	// Put all created worksheet models in the view.
+	vwsp.addAllWorksheets();
+
+	UpdateContainer c = new UpdateContainer();
+	c.add(new WorksheetListUpdate(vwsp.getVWorksheetList()));
+	for (VWorksheet vw : vwsp.getVWorksheetList().getVWorksheets()) {
+	    c.add(new WorksheetHierarchicalHeadersUpdate(vw));
+	    c.add(new WorksheetHierarchicalDataUpdate(vw));
 	}
 
-	private static final long serialVersionUID = 1L;
-	
-	private static Logger logger = LoggerFactory.getLogger(GetExampleJSON.class);
+	StringWriter sw = new StringWriter();
+	PrintWriter pw = new PrintWriter(sw);
 
-	protected void doGet(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException {
-		
-		logger.info("Creating new workspace ...");
-
-		Workspace workspace = WorkspaceManager.getInstance().getFactory()
-				.createWorkspace();
-
-		logger.info("done");
-		/* Check if any workspace id is set in cookies. */
-		boolean hasWorkspaceCookieId = request.getParameter(Arguments.hasPreferenceId.name()).equals("true");
-		VWorkspace vwsp = null;
-		File crfModelFile = null;
-		
-		/* If set, pick the right preferences and CRF Model file */
-		if(hasWorkspaceCookieId) {
-			String cachedWorkspaceId = request.getParameter(Arguments.workspacePreferencesId.name());
-			vwsp = new VWorkspace(workspace, cachedWorkspaceId);
-			crfModelFile = new File(ServletContextParameterMap.getParameterValue(ContextParameter.USER_DIRECTORY_PATH) + 
-					"CRF_Models/"+cachedWorkspaceId+"_CRFModel.txt");
-		} else {
-			vwsp = new VWorkspace(workspace);
-			crfModelFile = new File(ServletContextParameterMap.getParameterValue(ContextParameter.USER_DIRECTORY_PATH) + 
-					"CRF_Models/"+workspace.getId()+"_CRFModel.txt");
-		}
-		/* Read and populate CRF Model from a file */
-		if(!crfModelFile.exists())
-			crfModelFile.createNewFile();
-		boolean result = workspace.getCrfModelHandler().readModelFromFile(crfModelFile.getAbsolutePath());
-		if (!result)
-			logger.error("Error occured while reading CRF Model!");
-		
-		WorkspaceRegistry.getInstance().register(new ExecutionController(vwsp));
-		
-		// Loading ontology to be preloaded
-//		OntologyManager mgr = workspace.getOntologyManager();
-//		mgr.doImport(new File("./Preloaded_Ontologies/geo_2007.owl"));
-//		mgr.doImport(new File("./Preloaded_Ontologies/oilwell.owl"));
-		
-		//mariam
-		//File file = new File("../demofiles/usc_faculty.csv");
-		
-//		File file = new File("./SampleData/CSV/wells-large.csv");
-//		CSVFileImport imp = new CSVFileImport(1, 2, ',', '"', file, workspace.getFactory(), workspace);
-//		try {
-//			imp.generateWorksheet();
-//		} catch (KarmaException e) {
-//			e.printStackTrace();
-//		}
-//		
-
-//		SampleDataFactory.createFromJsonTextFile(workspace,"./SampleData/JSON/Events.json");
-
-		// Initialize the Outlier tag
-		Tag outlierTag = new Tag(TagName.Outlier, Color.Red);
-		workspace.getTagsContainer().addTag(outlierTag);
-
-		// SampleDataFactory.createSample1small(workspace);
-//		SampleDataFactory.createSample1(workspace);
-		// SampleDataFactory.createSampleJsonWithNestedTable2(false/* true: 2
-		// rows */,
-		// vwsp.getWorkspace());
-		// //SampleDataFactory.createFlatWorksheet(workspace, 10000, 6);
-		// SampleDataFactory.createFlatWorksheet(workspace, 2, 2);
-		// //SampleDataFactory.createFromJsonTextFile(workspace,
-		// "samplejson-1.txt");
-		// SampleDataFactory.createJsonWithFunnyCharacters(workspace);
-		// SampleDataFactory.createSampleJson(workspace, 3);
-		// SampleDataFactory.createSampleJsonWithEmptyNestedTable1(workspace);
-		// SampleDataFactory.createSampleJsonWithEmptyNestedTable2(workspace);
-		// SampleDataFactory.createSampleJsonWithEmptyNestedTable3(workspace);
-		// SampleDataFactory.createSampleJsonWithEmptyNestedTable4(workspace);
-		// SampleDataFactory.createUnitTest1(workspace);
-		// SampleDataFactory.createUnitTest2(workspace);
-		// SampleDataFactory.createUnitTest3(workspace);
-		// SampleDataFactory.createUnitTest4(workspace);
-		// SampleDataFactory.createUnitTest5(workspace);
-		// SampleDataFactory.createUnitTest6(workspace);
-		// // SampleDataFactory.createFromJsonTextFile(workspace,
-		// "unit-test-json.json");
-		// // SampleDataFactory.createFromJsonTextFile(workspace,
-		// "testUnitTest1.json");
-		// SampleDataFactory.createFromJsonTextFile(workspace,
-		// "testUnitTest2.json");
-		// SampleDataFactory.createFromJsonTextFile(workspace,
-		// "testUnitTest4.json");
-		// SampleDataFactory.createFromJsonTextFile(workspace,
-		// "testUnitTest5.json");
-		// SampleDataFactory.createFromJsonTextFile(workspace,
-		// "testUnitTest6.json");
-		// SampleDataFactory.createFromJsonTextFile(workspace,
-		// "testSampleJsonWithEmptyNestedTable1.json");
-		// SampleDataFactory.createFromJsonTextFile(workspace,
-		// "createSampleJsonWithNestedTable2.json");
-		// SampleDataFactory.createFromJsonTextFile(workspace, "f6.json");
-		// SampleDataFactory.createFromJsonTextFile(workspace,
-		// "createSampleJsonWithNestedTable2_VD.json");
-		// Put all created worksheet models in the view.
-		vwsp.addAllWorksheets();
-
-		UpdateContainer c = new UpdateContainer();
-		c.add(new WorksheetListUpdate(vwsp.getVWorksheetList()));
-		for (VWorksheet vw : vwsp.getVWorksheetList().getVWorksheets()) {
-			c.add(new WorksheetHierarchicalHeadersUpdate(vw));
-			c.add(new WorksheetHierarchicalDataUpdate(vw));
-		}
-
-		StringWriter sw = new StringWriter();
-		PrintWriter pw = new PrintWriter(sw);
-
-		c.generateJson("", pw, vwsp);
-		response.setContentType("application/json");
-		response.setStatus(HttpServletResponse.SC_OK);
-		response.getWriter().println(sw.toString());
-	}
+	c.generateJson("", pw, vwsp);
+	response.setContentType("application/json");
+	response.setStatus(HttpServletResponse.SC_OK);
+	response.getWriter().println(sw.toString());
+    }
 }

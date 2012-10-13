@@ -50,99 +50,107 @@ import edu.isi.karma.webserver.ServletContextParameterMap;
 import edu.isi.karma.webserver.ServletContextParameterMap.ContextParameter;
 
 public class FileUtil {
-	private static String DESTINATION_DIR_PATH = ServletContextParameterMap.getParameterValue(ContextParameter.USER_DIRECTORY_PATH) + 
-			"UserUploadedFiles/";
-	private static Logger logger = LoggerFactory.getLogger(FileUtil.class);
-	
-	static public File downloadFileFromHTTPRequest (HttpServletRequest request) {
-		// Download the file to the upload file folder
-		File destinationDir = new File(DESTINATION_DIR_PATH);
-		logger.debug("File upload destination directory: " + destinationDir.getAbsolutePath());
-		if(!destinationDir.isDirectory()) {
-			destinationDir.mkdir();
+    private static String DESTINATION_DIR_PATH = ServletContextParameterMap
+	    .getParameterValue(ContextParameter.USER_DIRECTORY_PATH)
+	    + "UserUploadedFiles/";
+    private static Logger logger = LoggerFactory.getLogger(FileUtil.class);
+
+    static public File downloadFileFromHTTPRequest(HttpServletRequest request) {
+	// Download the file to the upload file folder
+	File destinationDir = new File(DESTINATION_DIR_PATH);
+	logger.debug("File upload destination directory: "
+		+ destinationDir.getAbsolutePath());
+	if (!destinationDir.isDirectory()) {
+	    destinationDir.mkdir();
+	}
+
+	DiskFileItemFactory fileItemFactory = new DiskFileItemFactory();
+
+	// Set the size threshold, above which content will be stored on disk.
+	fileItemFactory.setSizeThreshold(1 * 1024 * 1024); // 1 MB
+
+	// Set the temporary directory to store the uploaded files of size above
+	// threshold.
+	fileItemFactory.setRepository(destinationDir);
+
+	ServletFileUpload uploadHandler = new ServletFileUpload(fileItemFactory);
+
+	File uploadedFile = null;
+	try {
+	    // Parse the request
+	    @SuppressWarnings("rawtypes")
+	    List items = uploadHandler.parseRequest(request);
+	    @SuppressWarnings("rawtypes")
+	    Iterator itr = items.iterator();
+	    while (itr.hasNext()) {
+		FileItem item = (FileItem) itr.next();
+
+		// Ignore Form Fields.
+		if (item.isFormField()) {
+		    // Do nothing
+		} else {
+		    // Handle Uploaded files. Write file to the ultimate
+		    // location.
+		    uploadedFile = new File(destinationDir, item.getName());
+		    item.write(uploadedFile);
 		}
-		
-		DiskFileItemFactory  fileItemFactory = new DiskFileItemFactory ();
-
-		// Set the size threshold, above which content will be stored on disk.
-		fileItemFactory.setSizeThreshold(1*1024*1024); //1 MB
-
-		//Set the temporary directory to store the uploaded files of size above threshold.
-		fileItemFactory.setRepository(destinationDir);
- 
-		ServletFileUpload uploadHandler = new ServletFileUpload(fileItemFactory);
-		
-		File uploadedFile = null;
-		try {
-			// Parse the request
-			@SuppressWarnings("rawtypes")
-			List items = uploadHandler.parseRequest(request);
-			@SuppressWarnings("rawtypes")
-			Iterator itr = items.iterator();
-			while(itr.hasNext()) {
-				FileItem item = (FileItem) itr.next();
-
-				// Ignore Form Fields.
-				if(item.isFormField()) {
-					// Do nothing
-				} else {
-					//Handle Uploaded files. Write file to the ultimate location.
-					uploadedFile = new File(destinationDir,item.getName());
-					item.write(uploadedFile);
-				}
-			}
-		} catch(FileUploadException ex) {
-			logger.error("Error encountered while parsing the request",ex);
-		} catch(Exception ex) {
-			logger.error("Error encountered while uploading file",ex);
-		}
-		return uploadedFile;
+	    }
+	} catch (FileUploadException ex) {
+	    logger.error("Error encountered while parsing the request", ex);
+	} catch (Exception ex) {
+	    logger.error("Error encountered while uploading file", ex);
 	}
+	return uploadedFile;
+    }
 
-	public static void copyFiles(File destination, File source) throws FileNotFoundException, IOException{
-		if(!destination.exists())
-			destination.createNewFile();
-		InputStream in = new FileInputStream(source);
-		OutputStream out = new FileOutputStream(destination);
+    public static void copyFiles(File destination, File source)
+	    throws FileNotFoundException, IOException {
+	if (!destination.exists())
+	    destination.createNewFile();
+	InputStream in = new FileInputStream(source);
+	OutputStream out = new FileOutputStream(destination);
 
-		byte[] buf = new byte[1024];
-		int len;
-		
-		while ((len = in.read(buf)) > 0){
-			out.write(buf, 0, len);
-		}
-		in.close();
-		out.close();
-		logger.debug("Done copying contents of " + source.getName() + " to " + destination.getName());
-	}
+	byte[] buf = new byte[1024];
+	int len;
 
-	public static void writePrettyPrintedJSONObjectToFile(JSONObject json, File jsonFile) 
-		throws JSONException, IOException{
-		String prettyPrintedJSONString = json.toString(4);
-		FileWriter writer = new FileWriter(jsonFile);
-		writer.write(prettyPrintedJSONString);
-		writer.close();
-		logger.debug("Done writing JSON Object into a File: " + jsonFile.getAbsolutePath());
+	while ((len = in.read(buf)) > 0) {
+	    out.write(buf, 0, len);
 	}
-	
-	public static String readFileContentsToString (File file) throws IOException {
-		 FileInputStream stream = new FileInputStream(file);
-		  try {
-		    FileChannel fc = stream.getChannel();
-		    MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
-		    /* Instead of using default, pass in a decoder. */
-		    return Charset.defaultCharset().decode(bb).toString();
-		  }
-		  finally {
-		    stream.close();
-		  }
-	}
+	in.close();
+	out.close();
+	logger.debug("Done copying contents of " + source.getName() + " to "
+		+ destination.getName());
+    }
 
-	public static void writeStringToFile(String string, String fileName) throws IOException {
-		BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
-		writer.write(string);
-		writer.flush();
-		writer.close();
+    public static void writePrettyPrintedJSONObjectToFile(JSONObject json,
+	    File jsonFile) throws JSONException, IOException {
+	String prettyPrintedJSONString = json.toString(4);
+	FileWriter writer = new FileWriter(jsonFile);
+	writer.write(prettyPrintedJSONString);
+	writer.close();
+	logger.debug("Done writing JSON Object into a File: "
+		+ jsonFile.getAbsolutePath());
+    }
+
+    public static String readFileContentsToString(File file) throws IOException {
+	FileInputStream stream = new FileInputStream(file);
+	try {
+	    FileChannel fc = stream.getChannel();
+	    MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0,
+		    fc.size());
+	    /* Instead of using default, pass in a decoder. */
+	    return Charset.defaultCharset().decode(bb).toString();
+	} finally {
+	    stream.close();
 	}
-	
+    }
+
+    public static void writeStringToFile(String string, String fileName)
+	    throws IOException {
+	BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+	writer.write(string);
+	writer.flush();
+	writer.close();
+    }
+
 }
