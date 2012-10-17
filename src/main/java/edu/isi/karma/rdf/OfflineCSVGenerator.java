@@ -27,8 +27,6 @@ import edu.isi.karma.rep.Worksheet;
 import edu.isi.karma.rep.Workspace;
 import edu.isi.karma.rep.WorkspaceManager;
 import edu.isi.karma.service.Namespaces;
-import edu.isi.karma.service.Source;
-import edu.isi.karma.service.SourceLoader;
 import edu.isi.karma.webserver.KarmaException;
 import edu.isi.mediator.gav.main.MediatorException;
 
