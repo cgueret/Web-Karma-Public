@@ -59,11 +59,16 @@ public class OfflineCSVGenerator {
      */
     public static void main(String[] args) throws ClassNotFoundException,
 	    IOException, MediatorException, KarmaException {
-	String modelFilePath = "/home/cgueret/Dropbox/Documents/Projects/DANS/Vivo/data/models/_vivo_org.n3";
-	String data = "/home/cgueret/Dropbox/Documents/Projects/DANS/Vivo/data/csv data for the VU/_vivo_org.csv";
+	if (args.length != 3)
+	    throw new IllegalArgumentException(
+		    "Arguments are: <model file> <data file> <output file>");
+
+	String modelFilePath = args[0];
+	String dataFilePath = args[1];
+	String outputFilePath = args[2];
 
 	OfflineCSVGenerator generator = new OfflineCSVGenerator();
-	generator.process(modelFilePath, data);
+	generator.process(modelFilePath, dataFilePath, outputFilePath);
     }
 
     /**
@@ -74,10 +79,9 @@ public class OfflineCSVGenerator {
      * @throws ClassNotFoundException
      * @throws KarmaException
      */
-    public void process(String modelFilePath, String data) throws IOException,
-	    ClassNotFoundException, MediatorException, KarmaException {
-	// Output
-	String outputFilePath = "/tmp/test.n3";
+    public void process(String modelFilePath, String dataFilePath,
+	    String outputFilePath) throws IOException, ClassNotFoundException,
+	    MediatorException, KarmaException {
 
 	// Create the workspace
 	RepFactory factory = WorkspaceManager.getInstance().getFactory();
@@ -85,9 +89,8 @@ public class OfflineCSVGenerator {
 
 	// Load the CSV file into a new worksheet
 	CSVFileImport fileImport = new CSVFileImport(1, 2, '\t', '\"',
-		new File(data), factory, workspace);
+		new File(dataFilePath), factory, workspace);
 	Worksheet worksheet = fileImport.generateWorksheet();
-	logger.info(worksheet.getHeaders().getHNodes().toString());
 
 	// Load the model into Jena
 	File file = new File(modelFilePath);
@@ -109,6 +112,7 @@ public class OfflineCSVGenerator {
 	Resource resource = sourceList.get(0);
 	Statement stmt = model.getProperty(resource, hasSourceDesc);
 	String domainStr = stmt.getObject().toString();
+	//logger.info(domainStr);
 
 	// Close the model
 	model.close();
