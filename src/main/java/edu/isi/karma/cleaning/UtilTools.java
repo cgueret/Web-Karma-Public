@@ -179,7 +179,7 @@ public class UtilTools {
     }
 }
 
-// used to sort the score in decend order
+// used to sort the score in descending order
 class ScoreObj {
     int index;
     double score;
@@ -191,7 +191,7 @@ class ScoreObj {
 
 }
 
-class DoubleCompare implements Comparator {
+class DoubleCompare implements Comparator<Object> {
     public int compare(Object x1, Object x2) {
 	ScoreObj a1 = (ScoreObj) x1;
 	ScoreObj a2 = (ScoreObj) x2;

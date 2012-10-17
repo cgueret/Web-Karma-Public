@@ -36,6 +36,12 @@ import org.json.JSONObject;
  */
 public class HNode extends RepEntity implements Comparable<HNode> {
 
+    @Override
+    public String toString() {
+	return "HNode [hTableId=" + hTableId + ", columnName=" + columnName
+		+ ", nestedTable=" + nestedTable + "]";
+    }
+
     // The HTable I belong to.
     private final String hTableId;
 

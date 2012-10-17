@@ -3,6 +3,7 @@ package edu.isi.karma.cleaning.features;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Vector;
 
@@ -13,8 +14,12 @@ import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
 public class Data2Features {
-    // convert the csv file to arff file
-    // return the fpath of arff file
+    /**
+     * convert the csv file to arff file return the fpath of arff file
+     * 
+     * @param csvpath
+     * @param arfpath
+     */
     public static void csv2arff(String csvpath, String arfpath) {
 	try {
 	    CSVLoader loader = new CSVLoader();
@@ -31,16 +36,22 @@ public class Data2Features {
 	}
     }
 
-    // cpath is the original data file, label is the class label
-    //
+    /**
+     * @param cpath
+     *            is the original data file
+     * @param label
+     *            is the class label
+     * @return
+     */
     public static Vector<String> data2CSVfeaturefile(String cpath, String label) {
 	// test the class
+	CSVReader re = null;
 	try {
 	    File f = new File(cpath);
 	    Vector<String> row = new Vector<String>();
 	    Vector<String> oexamples = new Vector<String>();
 	    Vector<String> examples = new Vector<String>();
-	    CSVReader re = new CSVReader(new FileReader(f), '\t');
+	    re = new CSVReader(new FileReader(f), '\t');
 	    String[] line = null;
 	    re.readNext();// discard the first line
 	    while ((line = re.readNext()) != null) {
@@ -59,6 +70,12 @@ public class Data2Features {
 	} catch (Exception ex) {
 	    System.out.println("" + ex.toString());
 	    return null;
+	} finally {
+	    try {
+		if (re != null)
+		    re.close();
+	    } catch (IOException e) {
+	    }
 	}
     }
 

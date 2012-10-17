@@ -366,6 +366,7 @@ public class RuleRDFGenerator {
      */
     protected boolean addClassStatement(Predicate p, Map<String, String> values)
 	    throws MediatorException, UnsupportedEncodingException {
+	
 	String className = p.getName();
 	// remove backtick
 	if (className.startsWith("`"))

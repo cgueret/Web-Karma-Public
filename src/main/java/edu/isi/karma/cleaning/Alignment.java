@@ -241,6 +241,7 @@ public class Alignment {
      * path for one move and delete sequence history is used to store all
      * previous state to prevent visit some visited state dead loop
      */
+    @SuppressWarnings("unchecked")
     public static void transMOVDEL(Vector<int[]> segments,
 	    Vector<Integer> positon, Vector<Integer> x, Vector<EditOper> eo,
 	    Vector<Vector<Integer>> history, Vector<TNode> a,
@@ -914,7 +915,8 @@ class AlignObj {
     }
 }
 
-class Comparator1 implements Comparator {
+
+class Comparator1 implements Comparator<Object> {
     public int compare(Object ob1, Object ob2) {
 	EditOper x = (EditOper) ob1;
 	EditOper y = (EditOper) ob2;

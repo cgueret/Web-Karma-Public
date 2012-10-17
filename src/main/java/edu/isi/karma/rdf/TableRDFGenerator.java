@@ -173,13 +173,22 @@ public class TableRDFGenerator {
     private void initParams(String domainStr, String outputFile)
 	    throws MediatorException, ClassNotFoundException, IOException {
 	PrintWriter outputWriter = null;
-	if (outputFile != null) {
-	    OutputStreamWriter fw = new OutputStreamWriter(
-		    new FileOutputStream(outputFile), "UTF-8");
-	    BufferedWriter bw = new BufferedWriter(fw);
-	    outputWriter = new PrintWriter(bw);
-	} else {
-	    outputWriter = new PrintWriter(System.out);
+	OutputStreamWriter fw = null;
+	BufferedWriter bw = null;
+	try {
+	    if (outputFile != null) {
+		fw = new OutputStreamWriter(new FileOutputStream(outputFile),
+			"UTF-8");
+		bw = new BufferedWriter(fw);
+		outputWriter = new PrintWriter(bw);
+	    } else {
+		outputWriter = new PrintWriter(System.out);
+	    }
+	} finally {
+	    if (bw != null)
+		bw.close();
+	    if (fw != null)
+		fw.close();
 	}
 	initParams(domainStr, outputWriter);
     }

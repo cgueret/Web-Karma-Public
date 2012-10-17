@@ -166,33 +166,40 @@ public class CSVFileImport {
 	ArrayList<String> headersList = new ArrayList<String>();
 
 	Scanner scanner = null;
-	scanner = new Scanner(csvFile);
+	try {
+	    scanner = new Scanner(csvFile);
 
-	// Use the first data row to count the number of columns we need to add
-	int rowCount = 0;
-	while (scanner.hasNext()) {
-	    if (rowCount + 1 == dataStartRowIndex) {
-		String line = scanner.nextLine();
-		CSVReader reader = new CSVReader(new StringReader(line),
-			delimiter, quoteCharacter, escapeCharacter);
-		String[] rowValues = null;
-		try {
-		    rowValues = reader.readNext();
-		} catch (IOException e) {
-		    logger.error("Error reading Line:" + line, e);
+	    // Use the first data row to count the number of columns we need to
+	    // add
+	    int rowCount = 0;
+	    while (scanner.hasNext()) {
+		if (rowCount + 1 == dataStartRowIndex) {
+		    String line = scanner.nextLine();
+		    CSVReader reader = new CSVReader(new StringReader(line),
+			    delimiter, quoteCharacter, escapeCharacter);
+		    String[] rowValues = null;
+		    try {
+			rowValues = reader.readNext();
+		    } catch (IOException e) {
+			logger.error("Error reading Line:" + line, e);
+		    }
+		    for (int i = 0; i < rowValues.length; i++) {
+			HNode hNode = headers.addHNode("Column_" + (i + 1),
+				worksheet, fac);
+			headersList.add(hNode.getId());
+		    }
+		    reader.close();
+		    break;
 		}
-		for (int i = 0; i < rowValues.length; i++) {
-		    HNode hNode = headers.addHNode("Column_" + (i + 1),
-			    worksheet, fac);
-		    headersList.add(hNode.getId());
-		}
-		reader.close();
-		break;
+		rowCount++;
+		if (scanner.hasNext())
+		    scanner.nextLine();
 	    }
-	    rowCount++;
-	    if (scanner.hasNext())
-		scanner.nextLine();
+	} finally {
+	    if (scanner != null)
+		scanner.close();
 	}
+	
 	return headersList;
     }
 }

@@ -23,6 +23,7 @@ package edu.isi.karma.cleaning;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -67,6 +68,8 @@ public class GrammarParseTree {
     }
 
     public static void initGrammarParserTrees() {
+	FileInputStream file1 = null;
+	FileInputStream file2 = null;
 	try {
 	    String dirpathString = ServletContextParameterMap
 		    .getParameterValue(ContextParameter.USER_DIRECTORY_PATH);
@@ -83,7 +86,7 @@ public class GrammarParseTree {
 	    movparser.setGen(movgen);
 	    movparser.alllines();
 
-	    FileInputStream file1 = new FileInputStream(dirpathString
+	    file1 = new FileInputStream(dirpathString
 		    + "grammar/INSgrammar.txt");
 	    byte[] buf1 = new byte[file1.available()];
 	    file1.read(buf1, 0, file1.available()); //
@@ -96,7 +99,7 @@ public class GrammarParseTree {
 	    insparser.setGen(insgen);
 	    insparser.alllines();
 
-	    FileInputStream file2 = new FileInputStream(dirpathString
+	    file2 = new FileInputStream(dirpathString
 		    + "grammar/delgrammar.txt");
 	    byte[] buf2 = new byte[file2.available()];
 	    file2.read(buf2, 0, file2.available()); //
@@ -110,6 +113,14 @@ public class GrammarParseTree {
 	    delparser.alllines();
 	} catch (Exception ex) {
 	    System.out.println("" + ex.toString());
+	} finally {
+	    try {
+		if (file1 != null)
+		    file1.close();
+		if (file2 != null)
+		    file2.close();
+	    } catch (IOException e) {
+	    }
 	}
 
     }
