@@ -17,7 +17,13 @@ def process(dir):
 		if os.path.isfile(modelFile):
 			message = "Process " + table + " -> "
 			try:
-				sysCall = "mvn exec:java -Dexec.mainClass=\"edu.isi.karma.rdf.OfflineCSVGenerator\" -Dexec.args=\"%s %s %s\"" % (modelFile, tableFile, triplesFile)
+				sysCall = "sed -e 's/\\N\t/null\t/g' %s > /tmp/table1.csv" % tableFile
+				subprocess.check_output(sysCall, shell=True)
+
+				sysCall = "sed -e 's/\"//g' /tmp/table1.csv > /tmp/table.csv"
+				subprocess.check_output(sysCall, shell=True)
+
+				sysCall = "mvn exec:java -Dexec.mainClass=\"edu.isi.karma.rdf.OfflineCSVGenerator\" -Dexec.args=\"%s %s %s\"" % (modelFile, '/tmp/table.csv', triplesFile)
 				subprocess.check_output(sysCall, shell=True)
 				
 				sysCall = "rapper -q -g -o ntriples %s | wc -l" % triplesFile
@@ -35,4 +41,3 @@ if __name__=='__main__':
 		print "Indicate a root directory to work with"
 		sys.exit(-1)
 	process(sys.argv[1])
-		

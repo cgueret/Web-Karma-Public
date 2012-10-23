@@ -47,8 +47,7 @@ import edu.isi.mediator.gav.main.MediatorException;
  * 
  */
 public class OfflineCSVGenerator {
-    private static Logger logger = LoggerFactory
-	    .getLogger(OfflineCSVGenerator.class);
+    static Logger logger = LoggerFactory.getLogger(OfflineCSVGenerator.class);
 
     /**
      * @param args
@@ -112,7 +111,11 @@ public class OfflineCSVGenerator {
 	Resource resource = sourceList.get(0);
 	Statement stmt = model.getProperty(resource, hasSourceDesc);
 	String domainStr = stmt.getObject().toString();
-	//logger.info(domainStr);
+	domainStr = domainStr.replace("http://localhost:8080/source/", "http://localhost:8080/vivo/individual/");
+	
+	// logger.info(domainStr);
+	// http://localhost:8080/vivo/individual/
+	//    s:'http://localhost:8080/source/'
 
 	// Close the model
 	model.close();
